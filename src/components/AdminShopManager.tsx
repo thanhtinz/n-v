@@ -6,6 +6,8 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { useGameState } from '@/hooks/useGameState';
+import ItemSelector from './ItemSelector';
 import { 
   Plus, 
   Edit, 
@@ -13,19 +15,162 @@ import {
   Eye, 
   Search,
   Filter,
-  MoreVertical
+  MoreVertical,
+  ShoppingCart,
+  Package,
+  X
 } from 'lucide-react';
 
+interface GameItem {
+  id: number;
+  name: string;
+  description: string;
+  type: string;
+  rarity: string;
+  icon: string;
+  iconType: 'lucide' | 'image';
+  price: number;
+  level: number;
+}
+
+interface ShopItem {
+  item: GameItem;
+  quantity: number;
+  discountPrice?: number;
+}
+
+interface Shop {
+  id: number;
+  name: string;
+  category: string;
+  items: ShopItem[];
+  revenue: number;
+  status: 'active' | 'inactive';
+  lastUpdate: string;
+}
+
 const AdminShopManager = () => {
+  const { addNotification } = useGameState();
   const [searchTerm, setSearchTerm] = useState('');
   const [showAddDialog, setShowAddDialog] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    category: 'weapon',
+    items: [] as ShopItem[]
+  });
 
-  const shops = [
-    { id: 1, name: 'Shop Vũ Khí', category: 'weapon', items: 150, revenue: 2500000, status: 'active', lastUpdate: '2024-06-08' },
-    { id: 2, name: 'Shop Trang Phục', category: 'armor', items: 200, revenue: 1800000, status: 'active', lastUpdate: '2024-06-07' },
-    { id: 3, name: 'Shop Linh Thạch', category: 'currency', items: 50, revenue: 5000000, status: 'active', lastUpdate: '2024-06-08' },
-    { id: 4, name: 'Shop Event', category: 'special', items: 25, revenue: 800000, status: 'inactive', lastUpdate: '2024-06-05' }
-  ];
+  const [shops, setShops] = useState<Shop[]>([
+    { 
+      id: 1, 
+      name: 'Shop Vũ Khí', 
+      category: 'weapon', 
+      items: [], 
+      revenue: 2500000, 
+      status: 'active', 
+      lastUpdate: '2024-06-08' 
+    },
+    { 
+      id: 2, 
+      name: 'Shop Trang Phục', 
+      category: 'armor', 
+      items: [], 
+      revenue: 1800000, 
+      status: 'active', 
+      lastUpdate: '2024-06-07' 
+    },
+    { 
+      id: 3, 
+      name: 'Shop Linh Thạch', 
+      category: 'currency', 
+      items: [], 
+      revenue: 5000000, 
+      status: 'active', 
+      lastUpdate: '2024-06-08' 
+    },
+    { 
+      id: 4, 
+      name: 'Shop Event', 
+      category: 'special', 
+      items: [], 
+      revenue: 800000, 
+      status: 'inactive', 
+      lastUpdate: '2024-06-05' 
+    }
+  ]);
+
+  const handleAddItem = (item: GameItem) => {
+    const existingItem = formData.items.find(i => i.item.id === item.id);
+    if (existingItem) {
+      setFormData(prev => ({
+        ...prev,
+        items: prev.items.map(i => 
+          i.item.id === item.id 
+            ? { ...i, quantity: i.quantity + 1 }
+            : i
+        )
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        items: [...prev.items, { item, quantity: 1 }]
+      }));
+    }
+    addNotification(`Đã thêm ${item.name} vào shop`, 'success');
+  };
+
+  const handleRemoveItem = (itemId: number) => {
+    setFormData(prev => ({
+      ...prev,
+      items: prev.items.filter(i => i.item.id !== itemId)
+    }));
+  };
+
+  const handleItemQuantityChange = (itemId: number, quantity: number) => {
+    if (quantity <= 0) {
+      handleRemoveItem(itemId);
+      return;
+    }
+    setFormData(prev => ({
+      ...prev,
+      items: prev.items.map(i => 
+        i.item.id === itemId 
+          ? { ...i, quantity }
+          : i
+      )
+    }));
+  };
+
+  const handleItemPriceChange = (itemId: number, discountPrice: number) => {
+    setFormData(prev => ({
+      ...prev,
+      items: prev.items.map(i => 
+        i.item.id === itemId 
+          ? { ...i, discountPrice: discountPrice || undefined }
+          : i
+      )
+    }));
+  };
+
+  const handleSubmit = () => {
+    const newShop: Shop = {
+      id: Date.now(),
+      name: formData.name,
+      category: formData.category,
+      items: formData.items,
+      revenue: 0,
+      status: 'active',
+      lastUpdate: new Date().toISOString().split('T')[0]
+    };
+    
+    setShops(prev => [...prev, newShop]);
+    addNotification('Đã tạo shop mới thành công!', 'success');
+    setShowAddDialog(false);
+    setFormData({
+      name: '',
+      category: 'weapon',
+      items: []
+    });
+  };
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
@@ -51,7 +196,10 @@ const AdminShopManager = () => {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <h2 className="text-lg md:text-xl font-semibold">Quản Lý Shop</h2>
+          <h2 className="text-lg md:text-xl font-semibold flex items-center gap-2">
+            <ShoppingCart className="w-5 h-5" />
+            Quản Lý Shop
+          </h2>
           <p className="text-sm text-muted-foreground">Quản lý tất cả các cửa hàng trong game</p>
         </div>
         
@@ -62,14 +210,118 @@ const AdminShopManager = () => {
               Thêm Shop Mới
             </Button>
           </DialogTrigger>
-          <DialogContent className="w-[95%] max-w-md">
+          <DialogContent className="w-[95%] max-w-3xl max-h-[80vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Tạo Shop Mới</DialogTitle>
             </DialogHeader>
             <div className="space-y-4 pt-4">
-              <Input placeholder="Tên shop..." />
-              <Input placeholder="Danh mục..." />
-              <Button className="w-full">Tạo Shop</Button>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium">Tên Shop</label>
+                  <Input 
+                    placeholder="Tên shop..." 
+                    value={formData.name}
+                    onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium">Danh Mục</label>
+                  <select
+                    value={formData.category}
+                    onChange={(e) => setFormData(prev => ({ ...prev, category: e.target.value }))}
+                    className="w-full p-2 border rounded"
+                  >
+                    <option value="weapon">Vũ Khí</option>
+                    <option value="armor">Trang Phục</option>
+                    <option value="consumable">Tiêu Hao</option>
+                    <option value="material">Nguyên Liệu</option>
+                    <option value="pet">Thú Cưng</option>
+                    <option value="plant">Cây Cối</option>
+                    <option value="special">Đặc Biệt</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Items Section */}
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <label className="text-sm font-medium">Vật Phẩm Trong Shop</label>
+                  <ItemSelector 
+                    onSelect={handleAddItem}
+                    multiSelect={true}
+                    title="Chọn Vật Phẩm Cho Shop"
+                    trigger={
+                      <Button variant="outline" size="sm">
+                        <Package className="w-4 h-4 mr-2" />
+                        Thêm Vật Phẩm
+                      </Button>
+                    }
+                  />
+                </div>
+                
+                {formData.items.length > 0 && (
+                  <Card className="p-3">
+                    <div className="space-y-3">
+                      {formData.items.map(({ item, quantity, discountPrice }) => (
+                        <div key={item.id} className="p-3 bg-muted/50 rounded-lg">
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center gap-2">
+                              <div className="w-6 h-6 bg-muted rounded flex items-center justify-center">
+                                <Package className="w-3 h-3" />
+                              </div>
+                              <div>
+                                <span className="text-sm font-medium">{item.name}</span>
+                                <div className="text-xs text-muted-foreground">
+                                  Giá gốc: {item.price.toLocaleString()} Bạc
+                                </div>
+                              </div>
+                            </div>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => handleRemoveItem(item.id)}
+                            >
+                              <X className="w-3 h-3" />
+                            </Button>
+                          </div>
+                          
+                          <div className="grid grid-cols-2 gap-2">
+                            <div>
+                              <label className="text-xs text-muted-foreground">Số Lượng</label>
+                              <Input
+                                type="number"
+                                value={quantity}
+                                onChange={(e) => handleItemQuantityChange(item.id, parseInt(e.target.value) || 0)}
+                                className="h-8 text-xs"
+                                min="0"
+                              />
+                            </div>
+                            <div>
+                              <label className="text-xs text-muted-foreground">Giá Bán (để trống = giá gốc)</label>
+                              <Input
+                                type="number"
+                                value={discountPrice || ''}
+                                onChange={(e) => handleItemPriceChange(item.id, parseInt(e.target.value) || 0)}
+                                className="h-8 text-xs"
+                                placeholder={item.price.toString()}
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </Card>
+                )}
+              </div>
+
+              <div className="flex justify-end gap-2">
+                <Button variant="outline" onClick={() => setShowAddDialog(false)}>
+                  Hủy
+                </Button>
+                <Button onClick={handleSubmit}>
+                  Tạo Shop
+                </Button>
+              </div>
             </div>
           </DialogContent>
         </Dialog>
@@ -104,7 +356,7 @@ const AdminShopManager = () => {
         </Card>
         <Card className="p-3">
           <div className="text-center">
-            <div className="text-lg md:text-2xl font-bold text-blue-600">{shops.reduce((acc, shop) => acc + shop.items, 0)}</div>
+            <div className="text-lg md:text-2xl font-bold text-blue-600">{shops.reduce((acc, shop) => acc + shop.items.length, 0)}</div>
             <div className="text-xs text-muted-foreground">Tổng Vật Phẩm</div>
           </div>
         </Card>
@@ -141,7 +393,7 @@ const AdminShopManager = () => {
             <div className="grid grid-cols-2 gap-3 text-xs">
               <div>
                 <span className="text-muted-foreground">Vật phẩm:</span>
-                <span className="ml-1 font-medium">{shop.items}</span>
+                <span className="ml-1 font-medium">{shop.items.length}</span>
               </div>
               <div>
                 <span className="text-muted-foreground">Doanh thu:</span>
@@ -196,7 +448,7 @@ const AdminShopManager = () => {
                     {shop.category}
                   </Badge>
                 </TableCell>
-                <TableCell>{shop.items}</TableCell>
+                <TableCell>{shop.items.length}</TableCell>
                 <TableCell>{formatCurrency(shop.revenue)}</TableCell>
                 <TableCell>
                   <Badge className={shop.status === 'active' ? 'bg-green-500' : 'bg-red-500'}>
