@@ -1,10 +1,9 @@
-
 import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
-import { Sword, Shield, Skull, Gem, Star } from 'lucide-react';
+import { Sword, Shield, Skull, Gem, Star, User } from 'lucide-react';
 
 interface Boss {
   id: string;
@@ -30,6 +29,17 @@ interface PlayerStats {
   defense: number;
   speed: number;
   critRate: number;
+  elemental?: {
+    fireAttack: number;
+    waterAttack: number;
+    windAttack: number;
+    earthAttack: number;
+    fireResist: number;
+  };
+  avatar: string;
+  level: number;
+  exp: number;
+  maxExp: number;
 }
 
 interface BossArenaProps {
@@ -80,6 +90,16 @@ const BossArena = ({ playerStats }: BossArenaProps) => {
   const [isInBattle, setIsInBattle] = useState(false);
   const [battleLog, setBattleLog] = useState<string[]>([]);
   const [playerCurrentHp, setPlayerCurrentHp] = useState(playerStats.hp);
+  const [detailedBattleLog, setDetailedBattleLog] = useState<Array<{
+    id: number;
+    type: 'damage' | 'heal' | 'effect' | 'system';
+    source: string;
+    target: string;
+    message: string;
+    value?: number;
+    element?: string;
+    timestamp: string;
+  }>>([]);
 
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
@@ -91,24 +111,62 @@ const BossArena = ({ playerStats }: BossArenaProps) => {
     }
   };
 
+  const addBattleLog = (type: 'damage' | 'heal' | 'effect' | 'system', source: string, target: string, message: string, value?: number, element?: string) => {
+    const newLog = {
+      id: Date.now(),
+      type,
+      source,
+      target,
+      message,
+      value,
+      element,
+      timestamp: new Date().toLocaleTimeString()
+    };
+    setDetailedBattleLog(prev => [...prev.slice(-9), newLog]);
+  };
+
   const startBattle = (boss: Boss) => {
     setSelectedBoss({ ...boss });
     setIsInBattle(true);
     setPlayerCurrentHp(playerStats.hp);
     setBattleLog([`Bắt đầu chiến đấu với ${boss.name}!`]);
+    setDetailedBattleLog([]);
+    addBattleLog('system', 'System', '', `Trận chiến bắt đầu! ${boss.name} xuất hiện!`);
   };
 
   const attack = () => {
     if (!selectedBoss || !isInBattle) return;
 
-    const damage = Math.max(1, playerStats.attack - selectedBoss.defense + Math.random() * 10);
-    const newBossHp = Math.max(0, selectedBoss.hp - damage);
+    // Calculate elemental damage
+    const elementalBonus = Math.max(
+      playerStats.elemental?.fireAttack || 0,
+      playerStats.elemental?.waterAttack || 0,
+      playerStats.elemental?.windAttack || 0,
+      playerStats.elemental?.earthAttack || 0
+    );
+
+    const baseDamage = Math.max(1, playerStats.attack - selectedBoss.defense);
+    const totalDamage = baseDamage + Math.floor(elementalBonus * 0.3) + Math.random() * 10;
+    const finalDamage = Math.floor(totalDamage);
+    const newBossHp = Math.max(0, selectedBoss.hp - finalDamage);
     
-    setBattleLog(prev => [...prev, `Bạn gây ${damage.toFixed(0)} sát thương!`]);
+    // Check for elemental effects
+    const fireAttack = playerStats.elemental?.fireAttack || 0;
+    const hasFireEffect = fireAttack > 20 && Math.random() < 0.15;
+    
+    addBattleLog('damage', 'Bạn', selectedBoss.name, `gây ${finalDamage} sát thương`, finalDamage);
+    
+    if (hasFireEffect) {
+      const burnDamage = Math.floor(fireAttack * 0.8);
+      addBattleLog('effect', 'Bạn', selectedBoss.name, `kích hoạt hiệu ứng bỏng! Gây thêm ${burnDamage} sát thương lửa`, burnDamage, 'fire');
+    }
+    
+    setBattleLog(prev => [...prev, `Bạn gây ${finalDamage} sát thương!${hasFireEffect ? ` Kích hoạt bỏng (+${Math.floor(fireAttack * 0.8)})!` : ''}`]);
     
     setSelectedBoss(prev => prev ? { ...prev, hp: newBossHp } : null);
 
     if (newBossHp <= 0) {
+      addBattleLog('system', 'System', '', `Chiến thắng! Nhận được ${selectedBoss.reward.exp} EXP và ${selectedBoss.reward.spiritStones} Linh Thạch!`);
       setBattleLog(prev => [...prev, `Chiến thắng! Nhận được ${selectedBoss.reward.exp} EXP và ${selectedBoss.reward.spiritStones} Linh Thạch!`]);
       setIsInBattle(false);
       return;
@@ -116,13 +174,26 @@ const BossArena = ({ playerStats }: BossArenaProps) => {
 
     // Boss counter attack
     setTimeout(() => {
-      const bossDamage = Math.max(1, selectedBoss.attack - playerStats.defense + Math.random() * 5);
+      const bossBaseDamage = Math.max(1, selectedBoss.attack - playerStats.defense);
+      
+      // Apply elemental resistance
+      const fireResist = playerStats.elemental?.fireResist || 0;
+      const damageReduction = fireResist > 0 ? Math.floor(fireResist * 0.6) / 100 : 0;
+      
+      const bossDamage = Math.floor(bossBaseDamage * (1 - damageReduction) + Math.random() * 5);
       const newPlayerHp = Math.max(0, playerCurrentHp - bossDamage);
       
-      setBattleLog(prev => [...prev, `${selectedBoss.name} gây ${bossDamage.toFixed(0)} sát thương!`]);
+      addBattleLog('damage', selectedBoss.name, 'Bạn', `gây ${bossDamage} sát thương`, bossDamage);
+      
+      if (damageReduction > 0) {
+        addBattleLog('effect', 'Bạn', '', `kháng lửa giảm ${Math.floor(damageReduction * 100)}% sát thương`, 0, 'fire');
+      }
+      
+      setBattleLog(prev => [...prev, `${selectedBoss.name} gây ${bossDamage} sát thương!${damageReduction > 0 ? ` (Giảm ${Math.floor(damageReduction * 100)}% do kháng lửa)` : ''}`]);
       setPlayerCurrentHp(newPlayerHp);
 
       if (newPlayerHp <= 0) {
+        addBattleLog('system', 'System', '', 'Bạn đã bị đánh bại! Hãy tu luyện thêm rồi quay lại.');
         setBattleLog(prev => [...prev, 'Bạn đã bị đánh bại! Hãy tu luyện thêm rồi quay lại.']);
         setIsInBattle(false);
       }
@@ -130,9 +201,20 @@ const BossArena = ({ playerStats }: BossArenaProps) => {
   };
 
   const flee = () => {
+    addBattleLog('system', 'System', '', 'Bạn đã bỏ chạy khỏi trận chiến!');
     setBattleLog(prev => [...prev, 'Bạn đã bỏ chạy khỏi trận chiến!']);
     setIsInBattle(false);
     setSelectedBoss(null);
+  };
+
+  const getLogTypeColor = (type: string) => {
+    switch (type) {
+      case 'damage': return 'text-red-400';
+      case 'heal': return 'text-green-400';
+      case 'effect': return 'text-yellow-400';
+      case 'system': return 'text-blue-400';
+      default: return 'text-muted-foreground';
+    }
   };
 
   return (
@@ -190,16 +272,28 @@ const BossArena = ({ playerStats }: BossArenaProps) => {
       ) : (
         // Battle Interface
         <div className="space-y-3 sm:space-y-4">
-          {/* Battle Visual */}
+          {/* Enhanced Battle Visual with Avatars */}
           <Card className="p-3 sm:p-4 bg-card/80 backdrop-blur-sm border-blood-red/50">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-lg bg-spirit-jade/20 border-2 border-spirit-jade/50 flex items-center justify-center">
-                  <div className="w-8 h-8 bg-spirit-jade rounded-full animate-pulse" />
+                <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-lg overflow-hidden border-2 border-spirit-jade/50">
+                  <img
+                    src={playerStats.avatar}
+                    alt="Player"
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.style.display = 'none';
+                      target.nextElementSibling?.classList.remove('hidden');
+                    }}
+                  />
+                  <div className="hidden w-full h-full flex items-center justify-center bg-spirit-jade/20">
+                    <User className="w-8 h-8 text-spirit-jade" />
+                  </div>
                 </div>
                 <div>
                   <div className="font-medium text-sm sm:text-base">Bạn</div>
-                  <div className="text-xs text-muted-foreground">Lv.{Math.floor(Math.random() * 10) + 5}</div>
+                  <div className="text-xs text-muted-foreground">Lv.{playerStats.level}</div>
                 </div>
               </div>
               
@@ -232,24 +326,30 @@ const BossArena = ({ playerStats }: BossArenaProps) => {
             </div>
           </Card>
 
-          {/* Battle Status */}
+          {/* Enhanced Battle Status */}
           <div className="grid gap-3 sm:gap-4">
-            {/* Player Status */}
+            {/* Player Status with EXP */}
             <Card className="p-3 sm:p-4 bg-card/80 backdrop-blur-sm border-border/50">
               <div className="flex items-center justify-between mb-2">
-                <span className="font-medium text-sm sm:text-base">Bạn</span>
+                <span className="font-medium text-sm sm:text-base">Bạn (Lv.{playerStats.level})</span>
                 <span className="text-xs sm:text-sm text-muted-foreground">{playerCurrentHp}/{playerStats.maxHp} HP</span>
               </div>
-              <Progress value={(playerCurrentHp / playerStats.maxHp) * 100} className="h-2 sm:h-3" />
+              <Progress value={(playerCurrentHp / playerStats.maxHp) * 100} className="h-2 sm:h-3 mb-2 [&>div]:bg-red-400" />
+              
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-xs text-blue-400">EXP</span>
+                <span className="text-xs">{playerStats.exp}/{playerStats.maxExp}</span>
+              </div>
+              <Progress value={(playerStats.exp / playerStats.maxExp) * 100} className="h-1 [&>div]:bg-blue-400" />
             </Card>
 
             {/* Boss Status */}
             <Card className="p-3 sm:p-4 bg-card/80 backdrop-blur-sm border-blood-red/50">
               <div className="flex items-center justify-between mb-2">
-                <span className="font-medium text-sm sm:text-base">{selectedBoss?.name}</span>
+                <span className="font-medium text-sm sm:text-base">{selectedBoss?.name} (Lv.{selectedBoss?.level})</span>
                 <span className="text-xs sm:text-sm text-muted-foreground">{selectedBoss?.hp}/{selectedBoss?.maxHp} HP</span>
               </div>
-              <Progress value={selectedBoss ? (selectedBoss.hp / selectedBoss.maxHp) * 100 : 0} className="h-2 sm:h-3" />
+              <Progress value={selectedBoss ? (selectedBoss.hp / selectedBoss.maxHp) * 100 : 0} className="h-2 sm:h-3 [&>div]:bg-blood-red" />
             </Card>
           </div>
 
@@ -274,13 +374,23 @@ const BossArena = ({ playerStats }: BossArenaProps) => {
             </div>
           </Card>
 
-          {/* Battle Log */}
+          {/* Enhanced Battle Log */}
           <Card className="p-3 sm:p-4 bg-card/80 backdrop-blur-sm border-border/50">
-            <h3 className="font-medium text-sm sm:text-base mb-2">Nhật Ký Chiến Đấu</h3>
-            <div className="space-y-1 max-h-32 overflow-y-auto">
-              {battleLog.map((log, index) => (
-                <div key={index} className="text-xs sm:text-sm text-muted-foreground">
-                  {log}
+            <h3 className="font-medium text-sm sm:text-base mb-2">Nhật Ký Chiến Đấu Chi Tiết</h3>
+            <div className="space-y-1 max-h-40 overflow-y-auto">
+              {detailedBattleLog.map((log) => (
+                <div key={log.id} className="text-xs sm:text-sm border-l-2 border-muted pl-2">
+                  <div className="flex items-center justify-between">
+                    <span className={getLogTypeColor(log.type)}>
+                      {log.source && log.target ? `${log.source} → ${log.target}` : log.source}
+                    </span>
+                    <span className="text-xs text-muted-foreground">{log.timestamp}</span>
+                  </div>
+                  <div className="text-muted-foreground">
+                    {log.message}
+                    {log.value && <span className="font-semibold ml-1">({log.value})</span>}
+                    {log.element && <span className="ml-1">{log.element === 'fire' ? '🔥' : '⚡'}</span>}
+                  </div>
                 </div>
               ))}
             </div>
