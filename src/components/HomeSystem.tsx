@@ -70,7 +70,11 @@ interface CraftingJob {
   isCompleted: boolean;
 }
 
-const HomeSystem = () => {
+interface HomeSystemProps {
+  onActivityUpdate?: (activity: 'gardening' | 'crafting' | 'decorating' | null, data?: any) => void;
+}
+
+const HomeSystem = ({ onActivityUpdate }: HomeSystemProps) => {
   const [activeSection, setActiveSection] = useState<'overview' | 'garden' | 'rooms' | 'craft'>('overview');
   
   const [garden, setGarden] = useState<Plant[]>([
@@ -225,6 +229,26 @@ const HomeSystem = () => {
 
     return () => clearInterval(interval);
   }, [recipes]);
+
+  useEffect(() => {
+    const plantsGrowing = garden.filter(plant => plant.planted && !plant.isReady).length;
+    const activeCraftingJobs = craftingJobs.filter(job => !job.isCompleted).length;
+    
+    let currentActivity: 'gardening' | 'crafting' | 'decorating' | null = null;
+    
+    if (activeSection === 'garden' && plantsGrowing > 0) {
+      currentActivity = 'gardening';
+    } else if (activeSection === 'craft' && activeCraftingJobs > 0) {
+      currentActivity = 'crafting';
+    } else if (activeSection === 'rooms') {
+      currentActivity = 'decorating';
+    }
+    
+    onActivityUpdate?.(currentActivity, { 
+      plantsGrowing, 
+      craftingJobs: activeCraftingJobs 
+    });
+  }, [activeSection, garden, craftingJobs, onActivityUpdate]);
 
   const getPlantIcon = (type: string) => {
     switch (type) {

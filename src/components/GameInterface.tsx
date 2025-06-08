@@ -62,6 +62,11 @@ const GameInterface = () => {
     }
   });
 
+  // Add new states for home activities
+  const [homeActivity, setHomeActivity] = useState<'gardening' | 'crafting' | 'decorating' | null>(null);
+  const [activeCraftingJobs, setActiveCraftingJobs] = useState<number>(0);
+  const [plantsGrowing, setPlantsGrowing] = useState<number>(0);
+
   // ALL HOOKS MUST BE CALLED BEFORE ANY CONDITIONAL RETURNS
   // Check if character was already created
   useEffect(() => {
@@ -148,6 +153,15 @@ const GameInterface = () => {
   const [isInTribulation, setIsInTribulation] = useState(false);
   const [currentSect, setCurrentSect] = useState('Thiên Đạo Tông');
 
+  // Handle home activity updates
+  const handleHomeActivityUpdate = (activity: 'gardening' | 'crafting' | 'decorating' | null, data?: any) => {
+    setHomeActivity(activity);
+    if (data) {
+      if (data.craftingJobs !== undefined) setActiveCraftingJobs(data.craftingJobs);
+      if (data.plantsGrowing !== undefined) setPlantsGrowing(data.plantsGrowing);
+    }
+  };
+
   // If character hasn't been created, show character creation
   if (!isCharacterCreated) {
     return <CharacterCreation onComplete={handleCharacterCreation} />;
@@ -194,6 +208,9 @@ const GameInterface = () => {
                   isInCombat={isInCombat}
                   isInTribulation={isInTribulation}
                   currentSect={currentSect}
+                  homeActivity={homeActivity}
+                  activeCraftingJobs={activeCraftingJobs}
+                  plantsGrowing={plantsGrowing}
                 />
                 <div className="space-y-1 sm:space-y-2">
                   <Badge variant="outline" className="w-full border-spirit-jade text-spirit-jade text-xs sm:text-sm">
@@ -336,7 +353,7 @@ const GameInterface = () => {
                 </TabsContent>
 
                 <TabsContent value="home">
-                  <HomeSystem />
+                  <HomeSystem onActivityUpdate={handleHomeActivityUpdate} />
                 </TabsContent>
 
                 <TabsContent value="market">
