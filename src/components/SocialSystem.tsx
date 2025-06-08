@@ -20,7 +20,6 @@ import {
   Star,
   User,
   Calendar,
-  Ring,
   GraduationCap,
   Mail,
   Timer
@@ -158,7 +157,15 @@ const SocialSystem = () => {
   };
 
   const handlePropose = (player: Player) => {
-    if (player.gender === gameState.player.gender) {
+    // Get player gender from localStorage since it's not in gameState
+    const savedCharacter = localStorage.getItem('playerCharacter');
+    let playerGender = 'male';
+    if (savedCharacter) {
+      const character = JSON.parse(savedCharacter);
+      playerGender = character.gender || 'male';
+    }
+    
+    if (player.gender === playerGender) {
       addNotification('Chỉ có thể cầu hôn người khác giới!', 'warning');
       return;
     }
@@ -197,6 +204,18 @@ const SocialSystem = () => {
   const canMarry = gameState.player.level >= 14;
   const canBeMaster = gameState.player.level >= 20;
   const canHaveDisciple = gameState.player.level >= 20;
+
+  // Get player gender for UI logic
+  const getPlayerGender = () => {
+    const savedCharacter = localStorage.getItem('playerCharacter');
+    if (savedCharacter) {
+      const character = JSON.parse(savedCharacter);
+      return character.gender || 'male';
+    }
+    return 'male';
+  };
+
+  const playerGender = getPlayerGender();
 
   return (
     <div className="space-y-4">
@@ -285,7 +304,7 @@ const SocialSystem = () => {
                         <UserPlus className="w-3 h-3 mr-1" />
                         Kết bạn
                       </Button>
-                      {canMarry && player.gender !== gameState.player.gender && (
+                      {canMarry && player.gender !== playerGender && (
                         <Button size="sm" variant="outline" onClick={() => handlePropose(player)}>
                           <Heart className="w-3 h-3 mr-1" />
                           Cầu hôn
