@@ -28,7 +28,7 @@ import {
   RotateCcw,
   HelpCircle,
   X,
-  Spades,
+  Spade,
   Cherry
 } from 'lucide-react';
 import { useGameState } from '@/hooks/useGameState';
@@ -80,7 +80,7 @@ const EntertainmentSystem = () => {
       id: 'blackjack',
       title: 'BlackJack',
       description: 'Trò chơi bài kinh điển',
-      icon: Spades,
+      icon: Spade,
       color: 'text-gray-800',
       bgColor: 'bg-gray-800/10'
     },
