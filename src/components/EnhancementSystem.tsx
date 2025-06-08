@@ -334,18 +334,20 @@ const EnhancementSystem = () => {
         </Card>
 
         <Tabs defaultValue="enhance" className="space-y-4">
-          {/* Updated TabsList with horizontal scroll */}
-          <div className="relative">
-            <ScrollArea className="w-full whitespace-nowrap rounded-md border">
-              <TabsList className="inline-flex h-10 items-center justify-start rounded-md bg-muted p-1 text-muted-foreground w-max">
-                <TabsTrigger value="enhance" className="whitespace-nowrap">Cường Hóa</TabsTrigger>
-                <TabsTrigger value="synthesis" className="whitespace-nowrap">Hợp Thành</TabsTrigger>
-                <TabsTrigger value="upgrade" className="whitespace-nowrap">Tăng Cấp</TabsTrigger>
-                <TabsTrigger value="seals" className="whitespace-nowrap">Phù Hiệu</TabsTrigger>
-                <TabsTrigger value="energy" className="whitespace-nowrap">Năng Lượng</TabsTrigger>
-              </TabsList>
+          {/* Fixed TabsList with proper horizontal scroll */}
+          <Card className="p-1 bg-card/50 backdrop-blur-sm border-border/50">
+            <ScrollArea className="w-full">
+              <div className="flex space-x-1 p-1">
+                <TabsList className="flex bg-transparent">
+                  <TabsTrigger value="enhance" className="whitespace-nowrap">Cường Hóa</TabsTrigger>
+                  <TabsTrigger value="synthesis" className="whitespace-nowrap">Hợp Thành</TabsTrigger>
+                  <TabsTrigger value="upgrade" className="whitespace-nowrap">Tăng Cấp</TabsTrigger>
+                  <TabsTrigger value="seals" className="whitespace-nowrap">Phù Hiệu</TabsTrigger>
+                  <TabsTrigger value="energy" className="whitespace-nowrap">Năng Lượng</TabsTrigger>
+                </TabsList>
+              </div>
             </ScrollArea>
-          </div>
+          </Card>
 
           {/* Enhancement Tab */}
           <TabsContent value="enhance" className="space-y-4">
