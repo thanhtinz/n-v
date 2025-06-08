@@ -13,7 +13,12 @@ import {
   Package,
   TreePine,
   Flower2,
-  Wheat
+  Wheat,
+  Beaker,
+  Zap,
+  Shield,
+  Plus,
+  Check
 } from 'lucide-react';
 
 interface Plant {
@@ -33,6 +38,36 @@ interface HomeItem {
   level: number;
   description: string;
   owned: boolean;
+}
+
+interface Material {
+  id: string;
+  name: string;
+  type: 'herb' | 'mineral' | 'essence' | 'core';
+  quantity: number;
+  rarity: 'common' | 'rare' | 'epic' | 'legendary';
+}
+
+interface Recipe {
+  id: string;
+  name: string;
+  type: 'pill' | 'weapon' | 'armor' | 'talisman';
+  materials: { materialId: string; quantity: number }[];
+  craftTime: number; // in minutes
+  successRate: number; // percentage
+  result: {
+    name: string;
+    description: string;
+    rarity: 'common' | 'rare' | 'epic' | 'legendary';
+  };
+}
+
+interface CraftingJob {
+  id: string;
+  recipeId: string;
+  startTime: Date;
+  endTime: Date;
+  isCompleted: boolean;
 }
 
 const HomeSystem = () => {
@@ -95,6 +130,72 @@ const HomeSystem = () => {
     }
   ]);
 
+  const [materials, setMaterials] = useState<Material[]>([
+    { id: '1', name: 'Linh Thảo', type: 'herb', quantity: 15, rarity: 'common' },
+    { id: '2', name: 'Thiên Linh Quả', type: 'herb', quantity: 3, rarity: 'rare' },
+    { id: '3', name: 'Sắt Tinh', type: 'mineral', quantity: 8, rarity: 'common' },
+    { id: '4', name: 'Linh Thạch', type: 'essence', quantity: 50, rarity: 'common' },
+    { id: '5', name: 'Ma Thú Tinh Hạch', type: 'core', quantity: 2, rarity: 'epic' }
+  ]);
+
+  const [recipes] = useState<Recipe[]>([
+    {
+      id: '1',
+      name: 'Hồi Khí Đan',
+      type: 'pill',
+      materials: [{ materialId: '1', quantity: 3 }, { materialId: '4', quantity: 10 }],
+      craftTime: 15,
+      successRate: 85,
+      result: {
+        name: 'Hồi Khí Đan',
+        description: 'Hồi phục 50% HP',
+        rarity: 'common'
+      }
+    },
+    {
+      id: '2',
+      name: 'Linh Kiếm',
+      type: 'weapon',
+      materials: [{ materialId: '3', quantity: 5 }, { materialId: '4', quantity: 20 }],
+      craftTime: 45,
+      successRate: 70,
+      result: {
+        name: 'Linh Kiếm',
+        description: 'Tăng 25% sát thương',
+        rarity: 'rare'
+      }
+    },
+    {
+      id: '3',
+      name: 'Thiên Linh Đan',
+      type: 'pill',
+      materials: [{ materialId: '2', quantity: 2 }, { materialId: '5', quantity: 1 }],
+      craftTime: 90,
+      successRate: 50,
+      result: {
+        name: 'Thiên Linh Đan',
+        description: 'Đột phá cảnh giới',
+        rarity: 'epic'
+      }
+    },
+    {
+      id: '4',
+      name: 'Hộ Thân Phù',
+      type: 'talisman',
+      materials: [{ materialId: '1', quantity: 2 }, { materialId: '4', quantity: 15 }],
+      craftTime: 30,
+      successRate: 75,
+      result: {
+        name: 'Hộ Thân Phù',
+        description: 'Tăng 15% phòng thủ',
+        rarity: 'common'
+      }
+    }
+  ]);
+
+  const [craftingJobs, setCraftingJobs] = useState<CraftingJob[]>([]);
+  const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
+
   useEffect(() => {
     const interval = setInterval(() => {
       setGarden(prev => prev.map(plant => {
@@ -102,17 +203,28 @@ const HomeSystem = () => {
           const elapsed = Date.now() - plant.planted.getTime();
           const isReady = elapsed >= (plant.growthTime * 60 * 1000);
           if (isReady && !plant.isReady) {
-            // Show notification when plant is ready
             setTimeout(() => alert(`${plant.name} đã chín! Có thể thu hoạch.`), 100);
           }
           return { ...plant, isReady };
         }
         return plant;
       }));
+
+      // Check crafting jobs
+      setCraftingJobs(prev => prev.map(job => {
+        if (!job.isCompleted && Date.now() >= job.endTime.getTime()) {
+          const recipe = recipes.find(r => r.id === job.recipeId);
+          if (recipe) {
+            setTimeout(() => alert(`Chế tạo hoàn thành: ${recipe.result.name}!`), 100);
+          }
+          return { ...job, isCompleted: true };
+        }
+        return job;
+      }));
     }, 1000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [recipes]);
 
   const getPlantIcon = (type: string) => {
     switch (type) {
@@ -138,7 +250,17 @@ const HomeSystem = () => {
           ? { ...p, planted: null, isReady: false }
           : p
       ));
-      alert(`Thu hoạch thành công! +${plant.value} Linh Thạch`);
+      
+      // Add harvested material
+      if (plant.type === 'herb') {
+        setMaterials(prev => prev.map(m => 
+          m.name === plant.name 
+            ? { ...m, quantity: m.quantity + 1 }
+            : m
+        ));
+      }
+      
+      alert(`Thu hoạch thành công! +1 ${plant.name}`);
     }
   };
 
@@ -152,6 +274,71 @@ const HomeSystem = () => {
       ));
       alert(`Đã gieo hạt ${plant.name}. Thời gian sinh trưởng: ${plant.growthTime} phút.`);
     }
+  };
+
+  const getRarityColor = (rarity: string) => {
+    switch (rarity) {
+      case 'common': return 'text-gray-400 border-gray-400';
+      case 'rare': return 'text-blue-400 border-blue-400';
+      case 'epic': return 'text-purple-400 border-purple-400';
+      case 'legendary': return 'text-yellow-400 border-yellow-400';
+      default: return 'text-gray-400 border-gray-400';
+    }
+  };
+
+  const getTypeIcon = (type: string) => {
+    switch (type) {
+      case 'pill': return <Beaker className="w-4 h-4" />;
+      case 'weapon': return <Zap className="w-4 h-4" />;
+      case 'armor': return <Shield className="w-4 h-4" />;
+      case 'talisman': return <Star className="w-4 h-4" />;
+      default: return <Hammer className="w-4 h-4" />;
+    }
+  };
+
+  const canCraft = (recipe: Recipe) => {
+    return recipe.materials.every(req => {
+      const material = materials.find(m => m.id === req.materialId);
+      return material && material.quantity >= req.quantity;
+    });
+  };
+
+  const startCrafting = (recipe: Recipe) => {
+    if (!canCraft(recipe)) {
+      alert('Không đủ nguyên liệu!');
+      return;
+    }
+
+    // Consume materials
+    setMaterials(prev => prev.map(material => {
+      const requirement = recipe.materials.find(req => req.materialId === material.id);
+      if (requirement) {
+        return { ...material, quantity: material.quantity - requirement.quantity };
+      }
+      return material;
+    }));
+
+    // Start crafting job
+    const now = new Date();
+    const endTime = new Date(now.getTime() + recipe.craftTime * 60 * 1000);
+    
+    const newJob: CraftingJob = {
+      id: Date.now().toString(),
+      recipeId: recipe.id,
+      startTime: now,
+      endTime,
+      isCompleted: false
+    };
+
+    setCraftingJobs(prev => [...prev, newJob]);
+    alert(`Bắt đầu chế tạo ${recipe.name}. Thời gian: ${recipe.craftTime} phút.`);
+  };
+
+  const getCraftingProgress = (job: CraftingJob) => {
+    if (job.isCompleted) return 100;
+    const elapsed = Date.now() - job.startTime.getTime();
+    const total = job.endTime.getTime() - job.startTime.getTime();
+    return Math.min((elapsed / total) * 100, 100);
   };
 
   const sections = [
@@ -308,14 +495,111 @@ const HomeSystem = () => {
 
       {/* Craft Section */}
       {activeSection === 'craft' && (
-        <Card className="p-3 sm:p-4 bg-card/80 backdrop-blur-sm border-border/50">
-          <h3 className="font-semibold text-sm sm:text-base mb-3 text-cultivator-gold">Chế Tạo</h3>
-          <div className="text-center py-8 text-muted-foreground">
-            <Hammer className="w-12 h-12 mx-auto mb-4 opacity-50" />
-            <p className="text-sm">Hệ thống chế tạo đang được phát triển...</p>
-            <p className="text-xs mt-2">Luyện đan, rèn vũ khí, chế tạo trang bị!</p>
-          </div>
-        </Card>
+        <div className="space-y-3">
+          {/* Materials Inventory */}
+          <Card className="p-3 sm:p-4 bg-card/80 backdrop-blur-sm border-border/50">
+            <h3 className="font-semibold text-sm sm:text-base mb-3 text-cultivator-gold">Kho Nguyên Liệu</h3>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+              {materials.map((material) => (
+                <div key={material.id} className="p-2 bg-muted/20 rounded-lg border border-border/30">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-medium">{material.name}</span>
+                    <Badge variant="outline" className={`text-xs ${getRarityColor(material.rarity)}`}>
+                      x{material.quantity}
+                    </Badge>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </Card>
+
+          {/* Active Crafting Jobs */}
+          {craftingJobs.filter(job => !job.isCompleted).length > 0 && (
+            <Card className="p-3 sm:p-4 bg-card/80 backdrop-blur-sm border-border/50">
+              <h3 className="font-semibold text-sm sm:text-base mb-3 text-cultivator-gold">Đang Chế Tạo</h3>
+              <div className="space-y-2">
+                {craftingJobs.filter(job => !job.isCompleted).map((job) => {
+                  const recipe = recipes.find(r => r.id === job.recipeId);
+                  if (!recipe) return null;
+                  
+                  return (
+                    <div key={job.id} className="p-3 bg-muted/20 rounded-lg border border-border/30">
+                      <div className="flex items-center gap-2 mb-2">
+                        {getTypeIcon(recipe.type)}
+                        <span className="font-medium text-sm">{recipe.name}</span>
+                        <Badge variant="outline" className={`text-xs ${getRarityColor(recipe.result.rarity)}`}>
+                          {recipe.result.rarity}
+                        </Badge>
+                      </div>
+                      <Progress value={getCraftingProgress(job)} className="h-2 mb-2" />
+                      <div className="text-xs text-muted-foreground">
+                        {Math.round(getCraftingProgress(job))}% - 
+                        {job.isCompleted ? ' Hoàn thành!' : ` ${Math.ceil((job.endTime.getTime() - Date.now()) / 60000)} phút còn lại`}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </Card>
+          )}
+
+          {/* Recipe List */}
+          <Card className="p-3 sm:p-4 bg-card/80 backdrop-blur-sm border-border/50">
+            <h3 className="font-semibold text-sm sm:text-base mb-3 text-cultivator-gold">Công Thức Chế Tạo</h3>
+            <div className="space-y-3">
+              {recipes.map((recipe) => (
+                <div key={recipe.id} className="p-3 bg-muted/20 rounded-lg border border-border/30">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      {getTypeIcon(recipe.type)}
+                      <span className="font-medium text-sm">{recipe.name}</span>
+                      <Badge variant="outline" className={`text-xs ${getRarityColor(recipe.result.rarity)}`}>
+                        {recipe.result.rarity}
+                      </Badge>
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      {recipe.craftTime}m • {recipe.successRate}%
+                    </div>
+                  </div>
+                  
+                  <div className="text-xs text-muted-foreground mb-2">
+                    {recipe.result.description}
+                  </div>
+
+                  <div className="space-y-2">
+                    <div className="text-xs font-medium">Nguyên liệu cần:</div>
+                    <div className="flex flex-wrap gap-2">
+                      {recipe.materials.map((req) => {
+                        const material = materials.find(m => m.id === req.materialId);
+                        const hasEnough = material && material.quantity >= req.quantity;
+                        
+                        return (
+                          <Badge 
+                            key={req.materialId}
+                            variant="outline" 
+                            className={`text-xs ${hasEnough ? 'border-green-400 text-green-400' : 'border-red-400 text-red-400'}`}
+                          >
+                            {material?.name} x{req.quantity} ({material?.quantity || 0})
+                          </Badge>
+                        );
+                      })}
+                    </div>
+                    
+                    <Button
+                      size="sm"
+                      onClick={() => startCrafting(recipe)}
+                      disabled={!canCraft(recipe)}
+                      className="w-full"
+                    >
+                      <Plus className="w-3 h-3 mr-2" />
+                      Chế Tạo
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </Card>
+        </div>
       )}
     </div>
   );
