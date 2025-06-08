@@ -32,6 +32,7 @@ const EntertainmentSystem = () => {
   const [fishingProgress, setFishingProgress] = useState(0);
   const [fishingActive, setFishingActive] = useState(false);
   const [selectedBet, setSelectedBet] = useState(100);
+  const [selectedTaiXiuBet, setSelectedTaiXiuBet] = useState('');
   const [diceResults, setDiceResults] = useState<number[]>([]);
   const [wishCount, setWishCount] = useState(0);
   const [selectedFortune, setSelectedFortune] = useState<any>(null);
@@ -193,24 +194,21 @@ const EntertainmentSystem = () => {
   };
 
   const rollDice = () => {
-    if (gameState.player.silver < selectedBet) return;
+    if (gameState.player.silver < selectedBet || !selectedTaiXiuBet) return;
     
     const results = Array.from({ length: 3 }, () => Math.floor(Math.random() * 6) + 1);
     setDiceResults(results);
     
-    let winAmount = 0;
     const sum = results.reduce((a, b) => a + b, 0);
+    let winAmount = 0;
     
-    if (results.every(r => r === results[0])) {
-      // Triple same
-      winAmount = selectedBet * 10;
-    } else if (sum >= 15) {
-      // High roll
-      winAmount = selectedBet * 2;
-    } else if (sum <= 6) {
-      // Low roll
-      winAmount = selectedBet * 3;
+    // Luật tài xỉu chuẩn
+    if (sum > 10 && selectedTaiXiuBet === 'tai') {
+      winAmount = selectedBet * 2; // Trả lại tiền cược + tiền thắng (1:1)
+    } else if (sum < 10 && selectedTaiXiuBet === 'xiu') {
+      winAmount = selectedBet * 2; // Trả lại tiền cược + tiền thắng (1:1)
     }
+    // Nếu sum = 10, nhà cái thắng (không trả gì)
     
     updateGameState({
       player: {
@@ -448,12 +446,12 @@ const EntertainmentSystem = () => {
               {getDiceIcon(3)}
             </div>
             <h3 className="text-lg font-bold">Tài Xỉu Xúc Xắc</h3>
-            <p className="text-sm text-muted-foreground">Cược và thử vận may</p>
+            <p className="text-sm text-muted-foreground">Đặt cược Tài hoặc Xỉu</p>
           </div>
 
           <div className="mb-4">
             <p className="text-sm mb-2">Chọn mức cược:</p>
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-3 gap-2 mb-4">
               {[100, 500, 1000].map(bet => (
                 <Button
                   key={bet}
@@ -467,6 +465,32 @@ const EntertainmentSystem = () => {
             </div>
           </div>
 
+          <div className="mb-4">
+            <p className="text-sm mb-2">Chọn cửa cược:</p>
+            <div className="grid grid-cols-2 gap-3">
+              <Button
+                variant={selectedTaiXiuBet === 'tai' ? "default" : "outline"}
+                onClick={() => setSelectedTaiXiuBet('tai')}
+                className="h-16 text-lg font-bold"
+              >
+                <div className="text-center">
+                  <div>TÀI</div>
+                  <div className="text-xs opacity-80">Tổng > 10</div>
+                </div>
+              </Button>
+              <Button
+                variant={selectedTaiXiuBet === 'xiu' ? "default" : "outline"}
+                onClick={() => setSelectedTaiXiuBet('xiu')}
+                className="h-16 text-lg font-bold"
+              >
+                <div className="text-center">
+                  <div>XỈU</div>
+                  <div className="text-xs opacity-80">Tổng < 10</div>
+                </div>
+              </Button>
+            </div>
+          </div>
+
           {diceResults.length > 0 && (
             <div className="mb-4 p-3 bg-muted/50 rounded text-center">
               <div className="flex justify-center gap-2 mb-2">
@@ -474,24 +498,32 @@ const EntertainmentSystem = () => {
                   <div key={index}>{getDiceIcon(result)}</div>
                 ))}
               </div>
-              <p className="text-sm">
+              <p className="text-sm mb-1">
                 Tổng: {diceResults.reduce((a, b) => a + b, 0)}
+              </p>
+              <p className="text-sm font-bold">
+                Kết quả: {
+                  diceResults.reduce((a, b) => a + b, 0) > 10 ? 'TÀI' :
+                  diceResults.reduce((a, b) => a + b, 0) < 10 ? 'XỈU' : 'HÒA'
+                }
               </p>
             </div>
           )}
 
-          <div className="mb-4 text-xs text-muted-foreground">
-            <p>• Ba số giống nhau: x10</p>
-            <p>• Tổng ≥15: x2</p>
-            <p>• Tổng ≤6: x3</p>
+          <div className="mb-4 text-xs text-muted-foreground bg-blue-50 p-3 rounded">
+            <p className="font-bold mb-2">Luật chơi:</p>
+            <p>• Tài: Tổng 3 xúc xắc > 10 (11-18)</p>
+            <p>• Xỉu: Tổng 3 xúc xắc < 10 (3-9)</p>
+            <p>• Hòa: Tổng = 10 (nhà cái thắng)</p>
+            <p>• Tỷ lệ thưởng: 1:1</p>
           </div>
 
           <Button 
             onClick={rollDice} 
-            disabled={gameState.player.silver < selectedBet}
+            disabled={gameState.player.silver < selectedBet || !selectedTaiXiuBet}
             className="w-full"
           >
-            Lắc Xúc Xắc ({selectedBet} Bạc)
+            Lắc Xúc Xắc ({selectedBet} Bạc - {selectedTaiXiuBet ? selectedTaiXiuBet.toUpperCase() : 'Chưa chọn'})
           </Button>
         </Card>
       )}
