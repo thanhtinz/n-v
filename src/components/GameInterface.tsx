@@ -49,6 +49,7 @@ import PlayerOverview from './PlayerOverview';
 import ShopSystem from './ShopSystem';
 import DailyActivitiesSystem from './DailyActivitiesSystem';
 import GuildSystem from './GuildSystem';
+import SocialSystem from './SocialSystem';
 
 const GameInterface = () => {
   const [activeTab, setActiveTab] = useState('overview');
@@ -398,24 +399,7 @@ const GameInterface = () => {
           </TabsContent>
 
           <TabsContent value="social" className="mt-0">
-            <div className="grid grid-cols-2 gap-4">
-              <Card className="p-4 text-center cursor-pointer hover:bg-muted/50 transition-colors">
-                <Users className="w-8 h-8 mx-auto mb-2 text-spirit-jade" />
-                <p className="text-sm font-medium">Bạn Bè</p>
-              </Card>
-              <Card className="p-4 text-center cursor-pointer hover:bg-muted/50 transition-colors">
-                <Crown className="w-8 h-8 mx-auto mb-2 text-mystical-purple" />
-                <p className="text-sm font-medium">Kết Hôn</p>
-              </Card>
-              <Card className="p-4 text-center cursor-pointer hover:bg-muted/50 transition-colors">
-                <BookOpen className="w-8 h-8 mx-auto mb-2 text-cultivator-gold" />
-                <p className="text-sm font-medium">Sư Đồ</p>
-              </Card>
-              <Card className="p-4 text-center cursor-pointer hover:bg-muted/50 transition-colors">
-                <Gift className="w-8 h-8 mx-auto mb-2 text-divine-blue" />
-                <p className="text-sm font-medium">Tặng Quà</p>
-              </Card>
-            </div>
+            <SocialSystem />
           </TabsContent>
         </Tabs>
       </div>
