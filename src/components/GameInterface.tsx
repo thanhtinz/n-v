@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Bell, Settings, User, MessageCircle, Gift } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -156,7 +155,7 @@ const GameInterface = () => {
       case 'shop':
         return <ShopSystem />;
       case 'inventory':
-        return <InventorySystem />;
+        return <InventorySystem playerGender="male" playerClass="sword" />;
       case 'quest':
         return <QuestSystem />;
       case 'event':
@@ -257,7 +256,7 @@ const GameInterface = () => {
         {/* Notifications Panel */}
         {showNotifications && (
           <div className="w-80 bg-card/95 backdrop-blur-sm border-l border-border/50 min-h-screen">
-            <NotificationSystem onClose={() => setShowNotifications(false)} />
+            <NotificationSystem />
           </div>
         )}
       </div>
