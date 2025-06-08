@@ -27,7 +27,9 @@ import {
   Hash,
   RotateCcw,
   HelpCircle,
-  X
+  X,
+  Spades,
+  Cherry
 } from 'lucide-react';
 import { useGameState } from '@/hooks/useGameState';
 import FishingSystem from './FishingSystem';
@@ -36,6 +38,8 @@ import Game2048 from './games/Game2048';
 import SudokuGame from './games/SudokuGame';
 import QuizGame from './games/QuizGame';
 import CaroGame from './games/CaroGame';
+import BlackJackGame from './games/BlackJackGame';
+import SlotMachineGame from './games/SlotMachineGame';
 import LuckyWheelSystem from './LuckyWheelSystem';
 
 const EntertainmentSystem = () => {
@@ -71,6 +75,22 @@ const EntertainmentSystem = () => {
       icon: Dice1,
       color: 'text-cultivator-gold',
       bgColor: 'bg-cultivator-gold/10'
+    },
+    {
+      id: 'blackjack',
+      title: 'BlackJack',
+      description: 'Trò chơi bài kinh điển',
+      icon: Spades,
+      color: 'text-gray-800',
+      bgColor: 'bg-gray-800/10'
+    },
+    {
+      id: 'slot',
+      title: 'Slot Machine',
+      description: 'Máy đánh bạc may mắn',
+      icon: Cherry,
+      color: 'text-red-600',
+      bgColor: 'bg-red-600/10'
     },
     {
       id: 'baucua',
@@ -406,6 +426,14 @@ const EntertainmentSystem = () => {
 
   if (currentView === 'fishing') {
     return <FishingSystem onBack={() => setCurrentView('menu')} />;
+  }
+
+  if (currentView === 'blackjack') {
+    return <BlackJackGame onBack={() => setCurrentView('menu')} />;
+  }
+
+  if (currentView === 'slot') {
+    return <SlotMachineGame onBack={() => setCurrentView('menu')} />;
   }
 
   if (currentView === 'lucky-wheel') {
