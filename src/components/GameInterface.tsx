@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useGameState } from '@/hooks/useGameState';
 import { Card } from "@/components/ui/card";
@@ -29,7 +30,10 @@ import {
   Dumbbell,
   Sparkles,
   Hammer,
-  ShoppingCart
+  ShoppingCart,
+  RotateCcw,
+  Target,
+  Clock
 } from 'lucide-react';
 import DailyQuestSystem from './DailyQuestSystem';
 import EventSystem from './EventSystem';
@@ -45,6 +49,11 @@ import EnhancementSystem from './EnhancementSystem';
 import CentralDisplay from './CentralDisplay';
 import PlayerOverview from './PlayerOverview';
 import ShopSystem from './ShopSystem';
+import DailyActivitiesSystem from './DailyActivitiesSystem';
+import ArenaSystem from './ArenaSystem';
+import GuildSystem from './GuildSystem';
+import GiftCodeSystem from './GiftCodeSystem';
+import LuckyWheelSystem from './LuckyWheelSystem';
 
 const GameInterface = () => {
   const [activeTab, setActiveTab] = useState('overview');
@@ -219,10 +228,50 @@ const GameInterface = () => {
               <Button
                 variant="ghost"
                 className="w-full justify-start"
+                onClick={() => handleMenuClick('activities', 'Hoạt Động')}
+              >
+                <Clock className="w-4 h-4 mr-2" />
+                Hoạt Động
+              </Button>
+              <Button
+                variant="ghost"
+                className="w-full justify-start"
+                onClick={() => handleMenuClick('arena', 'Đấu Trường')}
+              >
+                <Target className="w-4 h-4 mr-2" />
+                Đấu Trường
+              </Button>
+              <Button
+                variant="ghost"
+                className="w-full justify-start"
+                onClick={() => handleMenuClick('guild', 'Bang Hội')}
+              >
+                <Shield className="w-4 h-4 mr-2" />
+                Bang Hội
+              </Button>
+              <Button
+                variant="ghost"
+                className="w-full justify-start"
                 onClick={() => handleMenuClick('shop', 'Cửa Hàng')}
               >
                 <ShoppingCart className="w-4 h-4 mr-2" />
                 Cửa Hàng
+              </Button>
+              <Button
+                variant="ghost"
+                className="w-full justify-start"
+                onClick={() => handleMenuClick('luckywheel', 'Vòng Quay')}
+              >
+                <RotateCcw className="w-4 h-4 mr-2" />
+                Vòng Quay
+              </Button>
+              <Button
+                variant="ghost"
+                className="w-full justify-start"
+                onClick={() => handleMenuClick('giftcode', 'Code Quà')}
+              >
+                <Gift className="w-4 h-4 mr-2" />
+                Code Quà
               </Button>
               <Button
                 variant="ghost"
@@ -330,8 +379,28 @@ const GameInterface = () => {
             <HomeSystem />
           </TabsContent>
 
+          <TabsContent value="activities" className="mt-0">
+            <DailyActivitiesSystem />
+          </TabsContent>
+
+          <TabsContent value="arena" className="mt-0">
+            <ArenaSystem />
+          </TabsContent>
+
+          <TabsContent value="guild" className="mt-0">
+            <GuildSystem />
+          </TabsContent>
+
           <TabsContent value="shop" className="mt-0">
             <ShopSystem />
+          </TabsContent>
+
+          <TabsContent value="luckywheel" className="mt-0">
+            <LuckyWheelSystem />
+          </TabsContent>
+
+          <TabsContent value="giftcode" className="mt-0">
+            <GiftCodeSystem />
           </TabsContent>
 
           <TabsContent value="inventory" className="mt-0">
