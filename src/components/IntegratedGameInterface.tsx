@@ -38,7 +38,8 @@ import {
   PawPrint,
   Settings as SettingsIcon,
   MessageSquare,
-  Music
+  Music,
+  Fish
 } from 'lucide-react';
 
 // Keep all existing component imports
@@ -68,6 +69,7 @@ import AuthSystem from './AuthSystem';
 import OfflineCultivationSystem from './OfflineCultivationSystem';
 import StorySystem from './StorySystem';
 import EnhancedFairyGuideAI from './EnhancedFairyGuideAI';
+import EntertainmentSystem from './EntertainmentSystem';
 
 const IntegratedGameInterface = () => {
   const [activeTab, setActiveTab] = useState('overview');
@@ -162,6 +164,7 @@ const IntegratedGameInterface = () => {
     { id: 'sect', label: 'Tông Môn', icon: Crown, description: 'Học tập rèn luyện' },
     { id: 'guild', label: 'Bang Hội', icon: Users, description: 'Tu tiên giả lập' },
     { id: 'pet', label: 'Thú Cưng', icon: PawPrint },
+    { id: 'entertainment', label: 'Giải Trí', icon: Fish, description: 'Câu cá, cờ bạc, ước nguyện' },
     { id: 'event', label: 'Sự Kiện', icon: Calendar },
     { id: 'welfare', label: 'Phúc Lợi', icon: Gift },
     { id: 'market', label: 'Chợ', icon: Coins },
@@ -375,6 +378,10 @@ const IntegratedGameInterface = () => {
 
           <TabsContent value="pet" className="mt-0">
             <PetSystem />
+          </TabsContent>
+
+          <TabsContent value="entertainment" className="mt-0">
+            <EntertainmentSystem />
           </TabsContent>
 
           <TabsContent value="activities" className="mt-0">
