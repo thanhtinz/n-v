@@ -1,295 +1,297 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Progress } from '@/components/ui/progress';
+import { Badge } from '@/components/ui/badge';
 import { useGameState } from '@/hooks/useGameState';
-import { Gift, Calendar, Star, Zap, Users, Trophy, Sparkles } from 'lucide-react';
+import { 
+  Gift, 
+  Calendar, 
+  Crown,
+  Star,
+  Clock,
+  Users,
+  Target,
+  Trophy,
+  Coins,
+  Gem,
+  Sparkles
+} from 'lucide-react';
 
 const WelfareSystem = () => {
   const { gameState, claimReward, addNotification } = useGameState();
-  const [codeRedemption, setCodeRedemption] = useState('');
-  
-  const [dailyRewards, setDailyRewards] = useState([
-    { day: 1, reward: '50 Vàng', claimed: true, type: 'gold', amount: 50 },
-    { day: 2, reward: '100 EXP', claimed: true, type: 'exp', amount: 100 },
-    { day: 3, reward: '10 Linh Thạch', claimed: true, type: 'spiritStones', amount: 10 },
-    { day: 4, reward: '1 Trang Bị', claimed: false, type: 'equipment', amount: 1 },
-    { day: 5, reward: '200 Vàng', claimed: false, type: 'gold', amount: 200 },
-    { day: 6, reward: '5 Linh Thạch Nạp', claimed: false, type: 'rechargeSpiritStones', amount: 5 },
-    { day: 7, reward: '500 Kim Cương', claimed: false, type: 'diamonds', amount: 500 }
-  ]);
+  const [activeTab, setActiveTab] = useState('daily');
 
-  const [levelRewards, setLevelRewards] = useState([
-    { level: 5, reward: 'Kiếm Thép + 50 Linh Thạch', claimed: false, type: 'equipment' },
-    { level: 10, reward: 'Áo Giáp Đồng + 10 Linh Thạch Nạp', claimed: false, type: 'equipment' },
-    { level: 15, reward: '1000 Vàng + 100 Linh Thạch', claimed: false, type: 'gold', amount: 1000 },
-    { level: 20, reward: 'Thú Cưng + 20 Linh Thạch Nạp', claimed: false, type: 'pet' }
-  ]);
+  const dailyRewards = [
+    { day: 1, reward: '1000 Bạc', claimed: true },
+    { day: 2, reward: '50 Kim Nguyên Bảo', claimed: true },
+    { day: 3, reward: '2 Linh Thạch', claimed: true },
+    { day: 4, reward: '2000 Bạc', claimed: false },
+    { day: 5, reward: '100 Kim Nguyên Bảo', claimed: false },
+    { day: 6, reward: '5 Linh Thạch', claimed: false },
+    { day: 7, reward: 'Hộp Quà Đặc Biệt', claimed: false }
+  ];
 
-  useEffect(() => {
-    setDailyRewards(prev => prev.map(reward => ({
-      ...reward,
-      claimed: reward.day <= gameState.dailyActivities.loginDays ? reward.claimed : false
-    })));
-  }, [gameState.dailyActivities.loginDays]);
+  const weeklyRewards = [
+    { 
+      id: 'week1', 
+      name: 'Hoàn thành 20 nhiệm vụ', 
+      progress: 15, 
+      max: 20, 
+      reward: '5000 Bạc + 3 Linh Thạch', 
+      claimed: false 
+    },
+    { 
+      id: 'week2', 
+      name: 'Đăng nhập 5 ngày', 
+      progress: 3, 
+      max: 5, 
+      reward: '200 Kim Nguyên Bảo', 
+      claimed: false 
+    },
+    { 
+      id: 'week3', 
+      name: 'Chiến thắng 10 trận PvP', 
+      progress: 7, 
+      max: 10, 
+      reward: '10 Linh Thạch + Trang bị Epic', 
+      claimed: false 
+    }
+  ];
 
-  useEffect(() => {
-    setLevelRewards(prev => prev.map(reward => ({
-      ...reward,
-      claimed: gameState.player.level >= reward.level ? reward.claimed : false
-    })));
-  }, [gameState.player.level]);
+  const monthlyRewards = [
+    { 
+      id: 'month1', 
+      name: 'Tích lũy đăng nhập 25 ngày', 
+      progress: 18, 
+      max: 25, 
+      reward: '50000 Bạc + 20 Linh Thạch', 
+      claimed: false 
+    },
+    { 
+      id: 'month2', 
+      name: 'Hoàn thành 100 nhiệm vụ', 
+      progress: 73, 
+      max: 100, 
+      reward: '1000 Kim Nguyên Bảo + Trang bị Legendary', 
+      claimed: false 
+    }
+  ];
 
-  const claimDailyReward = (day: number) => {
-    const reward = dailyRewards.find(r => r.day === day);
-    if (day <= gameState.dailyActivities.loginDays && reward && !reward.claimed) {
-      setDailyRewards(prev => prev.map(r => 
-        r.day === day ? { ...r, claimed: true } : r
-      ));
-      
-      if (reward.type === 'gold' || reward.type === 'exp' || reward.type === 'diamonds' || reward.type === 'spiritStones' || reward.type === 'rechargeSpiritStones') {
-        claimReward(reward.type, reward.amount);
-      } else {
-        addNotification(`Nhận được ${reward.reward}`, 'success');
-      }
+  const vipRewards = [
+    { level: 1, dailyReward: '500 Bạc', claimed: false },
+    { level: 2, dailyReward: '100 Kim Nguyên Bảo + 2 Linh Thạch', claimed: false },
+    { level: 3, dailyReward: '200 Kim Nguyên Bảo + 5 Linh Thạch', claimed: false },
+    { level: 4, dailyReward: '500 Kim Nguyên Bảo + 10 Linh Thạch', claimed: false },
+    { level: 5, dailyReward: '1000 Kim Nguyên Bảo + 20 Linh Thạch', claimed: false }
+  ];
+
+  const levelRewards = [
+    { level: 10, reward: '5000 Bạc + Trang bị Rare', claimed: true },
+    { level: 20, reward: '10000 Bạc + 100 Kim Nguyên Bảo', claimed: true },
+    { level: 30, reward: '20000 Bạc + 10 Linh Thạch', claimed: false },
+    { level: 40, reward: '50000 Bạc + Trang bị Epic', claimed: false },
+    { level: 50, reward: '100000 Bạc + Trang bị Legendary', claimed: false }
+  ];
+
+  const handleClaimDaily = (day: number) => {
+    claimReward('silver', 1000);
+    addNotification(`Đã nhận quà ngày ${day}!`, 'success');
+  };
+
+  const handleClaimWeekly = (reward: any) => {
+    if (reward.progress >= reward.max) {
+      addNotification(`Đã nhận thưởng: ${reward.reward}!`, 'success');
+    } else {
+      addNotification('Chưa đủ điều kiện nhận thưởng!', 'warning');
     }
   };
 
-  const claimLevelReward = (level: number) => {
-    const reward = levelRewards.find(r => r.level === level);
-    if (gameState.player.level >= level && reward && !reward.claimed) {
-      setLevelRewards(prev => prev.map(r => 
-        r.level === level ? { ...r, claimed: true } : r
-      ));
-      
-      // Claim bonus spirit stones along with equipment
-      if (level === 5) {
-        claimReward('spiritStones', 50);
-      } else if (level === 10) {
-        claimReward('rechargeSpiritStones', 10);
-      } else if (level === 15 && reward.amount) {
-        claimReward('gold', reward.amount);
-        claimReward('spiritStones', 100);
-      } else if (level === 20) {
-        claimReward('rechargeSpiritStones', 20);
-      }
-      
-      addNotification(`Nhận được ${reward.reward}`, 'success');
+  const handleClaimVip = (level: number) => {
+    if (gameState?.player?.vipLevel >= level) {
+      addNotification(`Đã nhận quà VIP${level}!`, 'success');
+    } else {
+      addNotification(`Cần đạt VIP${level} để nhận quà!`, 'warning');
     }
   };
 
-  const redeemCode = () => {
-    if (codeRedemption.trim()) {
-      const validCodes: { [key: string]: { gold?: number; diamonds?: number; exp?: number; spiritStones?: number; rechargeSpiritStones?: number } } = {
-        'TUTIEN2024': { diamonds: 500, exp: 1000, rechargeSpiritStones: 20 },
-        'NEWPLAYER': { gold: 2000, spiritStones: 50, rechargeSpiritStones: 10 }
-      };
-      
-      const rewards = validCodes[codeRedemption.toUpperCase()];
-      if (rewards) {
-        Object.entries(rewards).forEach(([type, amount]) => {
-          claimReward(type, amount);
-        });
-        addNotification(`Code ${codeRedemption} đã được sử dụng thành công!`, 'success');
-      } else {
-        addNotification('Code không hợp lệ hoặc đã hết hạn', 'warning');
-      }
-      setCodeRedemption('');
-    }
-  };
-
-  const getRewardIcon = (type: string) => {
-    switch (type) {
-      case 'gold': return '💰';
-      case 'exp': return '⭐';
-      case 'spiritStones': return '💎';
-      case 'rechargeSpiritStones': return '✨';
-      case 'equipment': return '⚔️';
-      case 'pill': return '🧪';
-      case 'diamonds': return '💠';
-      default: return '🎁';
-    }
+  const formatNumber = (num: number) => {
+    if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+    if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+    return num.toString();
   };
 
   return (
     <div className="space-y-4">
-      <Card className="p-4 bg-gradient-to-r from-spirit-jade/10 to-mystical-purple/10 border-spirit-jade/30">
-        <div className="flex items-center gap-2 mb-2">
-          <Gift className="w-5 h-5 text-spirit-jade" />
-          <h3 className="font-semibold text-spirit-jade">Hệ Thống Phúc Lợi</h3>
-        </div>
-        <p className="text-sm text-muted-foreground">
-          Nhận các phần thưởng miễn phí và ưu đãi đặc biệt.
-        </p>
-        <div className="mt-2 flex items-center gap-4 text-xs">
-          <span className="text-cultivator-gold">
-            Đăng nhập: {gameState.dailyActivities.loginDays}/7 ngày
-          </span>
-          <span className="text-spirit-jade">
-            VIP{gameState.player.vipLevel}: Nhận thêm phần thưởng
-          </span>
-        </div>
-        <div className="mt-2 flex items-center gap-4 text-xs">
-          <div className="flex items-center gap-1">
-            <Zap className="w-3 h-3 text-spirit-jade" />
-            <span>Linh Thạch Thường: {gameState.player.spiritStones}</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <Sparkles className="w-3 h-3 text-mystical-purple" />
-            <span>Linh Thạch Nạp: {gameState.player.rechargeSpiritStones}</span>
-          </div>
-        </div>
-      </Card>
+      <Card className="p-4 bg-card/80 backdrop-blur-sm border-border/50">
+        <h2 className="text-xl font-semibold text-cultivator-gold mb-4 flex items-center gap-2">
+          <Gift className="w-5 h-5" />
+          Phúc Lợi & Quà Tặng
+        </h2>
 
-      <Tabs defaultValue="daily" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="daily">Điểm Danh</TabsTrigger>
-          <TabsTrigger value="level">Mốc Cấp</TabsTrigger>
-          <TabsTrigger value="code">Code Quà</TabsTrigger>
-          <TabsTrigger value="events">Sự Kiện</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="daily" className="space-y-4">
-          <Card className="p-4">
-            <div className="flex items-center justify-between mb-4">
-              <h4 className="font-medium">Điểm Danh 7 Ngày</h4>
-              <Badge variant="outline" className="border-cultivator-gold text-cultivator-gold">
-                Ngày {gameState.dailyActivities.loginDays}/7
-              </Badge>
+        {/* Player Resources Summary */}
+        <Card className="p-3 mb-4 bg-muted/20">
+          <div className="flex items-center justify-between">
+            <h3 className="font-medium text-spirit-jade">Tài Nguyên Hiện Tại</h3>
+            <div className="flex items-center gap-4 text-sm">
+              <div className="flex items-center gap-1">
+                <Coins className="w-4 h-4 text-yellow-500" />
+                <span>{formatNumber(gameState?.player?.silver || 0)}</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <Gem className="w-4 h-4 text-blue-500" />
+                <span>{formatNumber(gameState?.player?.goldIngots || 0)}</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <Sparkles className="w-4 h-4 text-mystical-purple" />
+                <span>{gameState?.player?.rechargeSpiritStones || 0}</span>
+              </div>
             </div>
-            <div className="grid grid-cols-7 gap-2">
-              {dailyRewards.map(reward => {
-                const canClaim = reward.day <= gameState.dailyActivities.loginDays && !reward.claimed;
-                const isAvailable = reward.day <= gameState.dailyActivities.loginDays;
-                
-                return (
+          </div>
+        </Card>
+
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="daily" className="flex items-center gap-2">
+              <Calendar className="w-4 h-4" />
+              Hàng Ngày
+            </TabsTrigger>
+            <TabsTrigger value="weekly" className="flex items-center gap-2">
+              <Target className="w-4 h-4" />
+              Hàng Tuần
+            </TabsTrigger>
+            <TabsTrigger value="vip" className="flex items-center gap-2">
+              <Crown className="w-4 h-4" />
+              VIP
+            </TabsTrigger>
+            <TabsTrigger value="level" className="flex items-center gap-2">
+              <Trophy className="w-4 h-4" />
+              Cấp Độ
+            </TabsTrigger>
+          </TabsList>
+
+          {/* Daily Rewards */}
+          <TabsContent value="daily" className="space-y-4">
+            <Card className="p-4 bg-muted/20">
+              <h3 className="font-semibold mb-3 text-spirit-jade">Điểm Danh Hàng Ngày</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                {dailyRewards.map((dayReward, index) => (
                   <div 
-                    key={reward.day}
-                    className={`p-3 rounded-lg border text-center ${
-                      reward.claimed ? 'bg-spirit-jade/20 border-spirit-jade/50' :
-                      canClaim ? 'bg-cultivator-gold/20 border-cultivator-gold/50' :
-                      'bg-muted/20 border-border/30'
-                    }`}
+                    key={index} 
+                    className={`p-3 rounded-lg border ${dayReward.claimed ? 'border-green-500 bg-green-100/50' : 'border-border/30 bg-card/50'}`}
                   >
-                    <div className="text-lg mb-1">{getRewardIcon(reward.type)}</div>
-                    <div className="text-xs font-medium mb-1">Ngày {reward.day}</div>
-                    <div className="text-xs text-muted-foreground mb-2">{reward.reward}</div>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="font-medium">Ngày {dayReward.day}</span>
+                      {dayReward.claimed && <Star className="w-4 h-4 text-yellow-400" />}
+                    </div>
+                    <div className="text-sm text-muted-foreground mb-2">
+                      Phần thưởng: {dayReward.reward}
+                    </div>
+                    {!dayReward.claimed ? (
+                      <Button size="sm" className="w-full" onClick={() => handleClaimDaily(dayReward.day)}>
+                        Nhận
+                      </Button>
+                    ) : (
+                      <Badge variant="secondary" className="w-full">Đã Nhận</Badge>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </Card>
+          </TabsContent>
+
+          {/* Weekly Rewards */}
+          <TabsContent value="weekly" className="space-y-4">
+            <Card className="p-4 bg-muted/20">
+              <h3 className="font-semibold mb-3 text-spirit-jade">Nhiệm Vụ Hàng Tuần</h3>
+              <div className="space-y-3">
+                {weeklyRewards.map((reward) => (
+                  <div key={reward.id} className="p-3 rounded-lg bg-card/50 border border-border/30">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="font-medium">{reward.name}</span>
+                      {reward.claimed && <Star className="w-4 h-4 text-yellow-400" />}
+                    </div>
+                    <Progress value={(reward.progress / reward.max) * 100} className="h-2 mb-2" />
+                    <div className="flex items-center justify-between text-sm text-muted-foreground mb-2">
+                      <span>Tiến độ: {reward.progress}/{reward.max}</span>
+                      <span>Phần thưởng: {reward.reward}</span>
+                    </div>
                     <Button 
                       size="sm" 
-                      className="w-full text-xs h-6"
-                      disabled={!canClaim}
-                      onClick={() => claimDailyReward(reward.day)}
+                      className="w-full" 
+                      onClick={() => handleClaimWeekly(reward)}
+                      disabled={reward.claimed}
                     >
-                      {reward.claimed ? 'Đã Nhận' : canClaim ? 'Nhận' : 'Khóa'}
+                      {reward.claimed ? 'Đã Nhận' : 'Nhận Thưởng'}
                     </Button>
                   </div>
-                );
-              })}
-            </div>
-          </Card>
-        </TabsContent>
+                ))}
+              </div>
+            </Card>
+          </TabsContent>
 
-        <TabsContent value="level" className="space-y-3">
-          {levelRewards.map(reward => {
-            const canClaim = gameState.player.level >= reward.level && !reward.claimed;
-            
-            return (
-              <Card key={reward.level} className="p-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-mystical-purple/20 flex items-center justify-center">
-                      <Star className="w-5 h-5 text-mystical-purple" />
+          {/* VIP Rewards */}
+          <TabsContent value="vip" className="space-y-4">
+            <Card className="p-4 bg-muted/20">
+              <h3 className="font-semibold mb-3 text-spirit-jade">Quà VIP Hàng Ngày</h3>
+              <div className="space-y-3">
+                {vipRewards.map((vipReward, index) => (
+                  <div key={index} className="p-3 rounded-lg bg-card/50 border border-border/30">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="font-medium">VIP {vipReward.level}</span>
+                      <Badge variant="outline" className="border-yellow-500 text-yellow-500">
+                        {gameState?.player?.vipLevel >= vipReward.level ? 'Đủ Điều Kiện' : 'Chưa Đạt'}
+                      </Badge>
                     </div>
-                    <div>
-                      <div className="font-medium">Đạt Cấp {reward.level}</div>
-                      <div className="text-sm text-muted-foreground">{reward.reward}</div>
+                    <div className="text-sm text-muted-foreground mb-2">
+                      Phần thưởng: {vipReward.dailyReward}
                     </div>
-                  </div>
-                  <div className="text-right">
-                    {gameState.player.level < reward.level && (
-                      <div className="text-xs text-muted-foreground mb-1">
-                        Còn {reward.level - gameState.player.level} cấp
-                      </div>
-                    )}
                     <Button 
-                      size="sm"
-                      disabled={!canClaim}
-                      onClick={() => claimLevelReward(reward.level)}
+                      size="sm" 
+                      className="w-full" 
+                      onClick={() => handleClaimVip(vipReward.level)}
+                      disabled={gameState?.player?.vipLevel < vipReward.level}
                     >
-                      {reward.claimed ? 'Đã Nhận' : canClaim ? 'Nhận Thưởng' : 'Chưa Đạt'}
+                      Nhận Quà VIP {vipReward.level}
                     </Button>
                   </div>
-                </div>
-              </Card>
-            );
-          })}
-        </TabsContent>
-
-        <TabsContent value="code" className="space-y-4">
-          <Card className="p-4">
-            <h4 className="font-medium mb-3">Nhập Code Quà Tặng</h4>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                placeholder="Nhập code quà tặng..."
-                value={codeRedemption}
-                onChange={(e) => setCodeRedemption(e.target.value)}
-                className="flex-1 px-3 py-2 text-sm rounded-md border border-border bg-background"
-              />
-              <Button onClick={redeemCode}>Sử Dụng</Button>
-            </div>
-          </Card>
-
-          <Card className="p-4">
-            <h4 className="font-medium mb-3">Code Hiện Có</h4>
-            <div className="space-y-2">
-              <div className="p-3 bg-muted/20 rounded-lg">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="font-medium text-sm">TUTIEN2024</div>
-                    <div className="text-xs text-muted-foreground">500 Kim cương + 1000 EXP + 20 Linh Thạch Nạp</div>
-                  </div>
-                  <Badge variant="outline" className="text-xs">Còn hạn</Badge>
-                </div>
+                ))}
               </div>
-              <div className="p-3 bg-muted/20 rounded-lg">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="font-medium text-sm">NEWPLAYER</div>
-                    <div className="text-xs text-muted-foreground">2000 Vàng + 50 Linh Thạch + 10 Linh Thạch Nạp</div>
+            </Card>
+          </TabsContent>
+
+          {/* Level Rewards */}
+          <TabsContent value="level" className="space-y-4">
+            <Card className="p-4 bg-muted/20">
+              <h3 className="font-semibold mb-3 text-spirit-jade">Phần Thưởng Cấp Độ</h3>
+              <div className="space-y-3">
+                {levelRewards.map((levelReward, index) => (
+                  <div 
+                    key={index} 
+                    className={`p-3 rounded-lg border ${levelReward.claimed ? 'border-green-500 bg-green-100/50' : 'border-border/30 bg-card/50'}`}
+                  >
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="font-medium">Cấp {levelReward.level}</span>
+                      {levelReward.claimed && <Star className="w-4 h-4 text-yellow-400" />}
+                    </div>
+                    <div className="text-sm text-muted-foreground mb-2">
+                      Phần thưởng: {levelReward.reward}
+                    </div>
+                    {!levelReward.claimed ? (
+                      <Button size="sm" className="w-full">
+                        Nhận (Cấp {levelReward.level})
+                      </Button>
+                    ) : (
+                      <Badge variant="secondary" className="w-full">Đã Nhận</Badge>
+                    )}
                   </div>
-                  <Badge variant="outline" className="text-xs">Còn hạn</Badge>
-                </div>
+                ))}
               </div>
-            </div>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="events" className="space-y-3">
-          <Card className="p-4 bg-gradient-to-r from-cultivator-gold/10 to-blood-red/10 border-cultivator-gold/30">
-            <div className="flex items-center gap-2 mb-2">
-              <Trophy className="w-4 h-4 text-cultivator-gold" />
-              <h4 className="font-medium text-cultivator-gold">Sự Kiện Đặc Biệt</h4>
-            </div>
-            <p className="text-sm text-muted-foreground mb-3">
-              Sự kiện Tết Nguyên Đán - Nhận quà khủng
-            </p>
-            <Button size="sm" className="w-full">Tham Gia Ngay</Button>
-          </Card>
-
-          <Card className="p-4">
-            <div className="flex items-center gap-2 mb-2">
-              <Users className="w-4 h-4 text-mystical-purple" />
-              <h4 className="font-medium">Mời Bạn Bè</h4>
-            </div>
-            <p className="text-sm text-muted-foreground mb-3">
-              Mời bạn bè chơi game nhận thưởng lớn
-            </p>
-            <Button size="sm" variant="outline" className="w-full">Chia Sẻ</Button>
-          </Card>
-        </TabsContent>
-      </Tabs>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      </Card>
     </div>
   );
 };
