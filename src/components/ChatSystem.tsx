@@ -2,15 +2,20 @@
 import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useGameState } from '@/hooks/useGameState';
 import { 
   MessageCircle,
   Users,
   Globe,
   Send,
   Crown,
-  Star
+  Star,
+  Shield,
+  Bell,
+  Settings
 } from 'lucide-react';
 
 interface ChatMessage {
@@ -18,69 +23,62 @@ interface ChatMessage {
   sender: string;
   message: string;
   time: Date;
-  channel: 'world' | 'sect' | 'private';
+  channel: 'world' | 'sect' | 'private' | 'system';
   senderRealm: string;
   isVip?: boolean;
+  isSystem?: boolean;
 }
 
 const ChatSystem = () => {
+  const { gameState, addNotification } = useGameState();
   const [activeTab, setActiveTab] = useState('world');
   const [message, setMessage] = useState('');
 
-  const [messages] = useState<ChatMessage[]>([
+  const [messages, setMessages] = useState<ChatMessage[]>([
     {
       id: '1',
+      sender: 'Hệ Thống',
+      message: 'Chào mừng Tu Tiên Giả đến với thế giới tu tiên!',
+      time: new Date(Date.now() - 5 * 60 * 1000),
+      channel: 'system',
+      senderRealm: '',
+      isSystem: true
+    },
+    {
+      id: '2',
       sender: 'Kiếm Thánh',
       message: 'Ai muốn tham gia đánh boss Hỏa Long cùng ta?',
-      time: new Date(Date.now() - 5 * 60 * 1000),
+      time: new Date(Date.now() - 10 * 60 * 1000),
       channel: 'world',
       senderRealm: 'Hóa Thần',
       isVip: true
     },
     {
-      id: '2',
+      id: '3',
       sender: 'Đan Sư',
       message: 'Bán Hồi Linh Đan cấp 5, giá rẻ! Liên hệ riêng.',
-      time: new Date(Date.now() - 10 * 60 * 1000),
+      time: new Date(Date.now() - 15 * 60 * 1000),
       channel: 'world',
       senderRealm: 'Kim Đan'
     },
     {
-      id: '3',
-      sender: 'Phượng Hoàng Nữ Đế',
-      message: 'Phượng Hoàng Cung tuyển thành viên mới, yêu cầu Trúc Cơ trở lên.',
-      time: new Date(Date.now() - 15 * 60 * 1000),
-      channel: 'world',
-      senderRealm: 'Hóa Thần',
-      isVip: true
-    },
-    {
       id: '4',
-      sender: 'Tu Luyện Giả',
-      message: 'Có ai biết chỗ farm Linh Thạch tốt không?',
+      sender: 'Hệ Thống',
+      message: 'Sự kiện Lễ Hội Mùa Hè đã bắt đầu! Nhận quà miễn phí tại NPC Sự Kiện.',
       time: new Date(Date.now() - 20 * 60 * 1000),
-      channel: 'world',
-      senderRealm: 'Luyện Khí'
-    },
-    {
-      id: '5',
-      sender: 'Băng Tuyết Tiên Nữ',
-      message: 'Event sắp tới sẽ có nhiều phần thưởng hấp dẫn!',
-      time: new Date(Date.now() - 25 * 60 * 1000),
-      channel: 'world',
-      senderRealm: 'Nguyên Anh',
-      isVip: true
+      channel: 'system',
+      senderRealm: '',
+      isSystem: true
     }
   ]);
 
   const [onlineUsers] = useState([
-    { name: 'Kiếm Thánh', realm: 'Hóa Thần', isVip: true },
-    { name: 'Đan Sư', realm: 'Kim Đan', isVip: false },
-    { name: 'Phượng Hoàng Nữ Đế', realm: 'Hóa Thần', isVip: true },
-    { name: 'Tu Luyện Giả', realm: 'Luyện Khí', isVip: false },
-    { name: 'Băng Tuyết Tiên Nữ', realm: 'Nguyên Anh', isVip: true },
-    { name: 'Long Vương', realm: 'Nguyên Anh', isVip: true },
-    { name: 'Tu Tiên Giả', realm: 'Phàm Nhân', isVip: false }
+    { name: 'Kiếm Thánh', realm: 'Hóa Thần', isVip: true, status: 'online' },
+    { name: 'Đan Sư', realm: 'Kim Đan', isVip: false, status: 'online' },
+    { name: 'Phượng Hoàng Nữ Đế', realm: 'Hóa Thần', isVip: true, status: 'online' },
+    { name: 'Tu Luyện Giả', realm: 'Luyện Khí', isVip: false, status: 'online' },
+    { name: 'Băng Tuyết Tiên Nữ', realm: 'Nguyên Anh', isVip: true, status: 'away' },
+    { name: 'Long Vương', realm: 'Nguyên Anh', isVip: true, status: 'busy' }
   ]);
 
   const getRealmColor = (realm: string) => {
@@ -98,21 +96,43 @@ const ChatSystem = () => {
 
   const sendMessage = () => {
     if (message.trim()) {
-      console.log(`Gửi tin nhắn: ${message}`);
+      const newMessage: ChatMessage = {
+        id: Date.now().toString(),
+        sender: gameState.player.name,
+        message: message.trim(),
+        time: new Date(),
+        channel: activeTab as 'world' | 'sect' | 'private',
+        senderRealm: 'Phàm Nhân',
+        isVip: gameState.player.vipLevel > 0
+      };
+
+      setMessages(prev => [newMessage, ...prev.slice(0, 49)]);
       setMessage('');
+      addNotification(`Đã gửi tin nhắn đến ${activeTab === 'world' ? 'Thế Giới' : activeTab === 'sect' ? 'Tông Môn' : 'Riêng Tư'}`, 'success');
     }
   };
 
-  const filteredMessages = messages.filter(msg => msg.channel === activeTab);
+  const filteredMessages = messages.filter(msg => 
+    msg.channel === activeTab || (activeTab === 'world' && msg.channel === 'system')
+  );
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'online': return 'bg-green-400';
+      case 'away': return 'bg-yellow-400';
+      case 'busy': return 'bg-red-400';
+      default: return 'bg-gray-400';
+    }
+  };
 
   return (
     <div className="space-y-4">
       <Card className="p-4 bg-card/80 backdrop-blur-sm border-border/50">
         <div className="flex items-center gap-2 mb-4">
           <MessageCircle className="w-6 h-6 text-cultivator-gold" />
-          <h2 className="text-xl font-semibold text-cultivator-gold">Cộng Đồng</h2>
+          <h2 className="text-xl font-semibold text-cultivator-gold">Trò Chuyện</h2>
           <Badge variant="outline" className="text-xs border-green-400 text-green-400">
-            {onlineUsers.length} online
+            {onlineUsers.filter(u => u.status === 'online').length} online
           </Badge>
         </div>
 
@@ -126,7 +146,7 @@ const ChatSystem = () => {
                   Thế Giới
                 </TabsTrigger>
                 <TabsTrigger value="sect" className="flex items-center gap-2">
-                  <Users className="w-4 h-4" />
+                  <Shield className="w-4 h-4" />
                   Tông Môn
                 </TabsTrigger>
                 <TabsTrigger value="private" className="flex items-center gap-2">
@@ -142,19 +162,27 @@ const ChatSystem = () => {
                       <div key={msg.id} className="text-sm">
                         <div className="flex items-center gap-2 mb-1">
                           <span className="flex items-center gap-1">
-                            {msg.isVip && <Crown className="w-3 h-3 text-yellow-400" />}
-                            <span className={`font-medium ${getRealmColor(msg.senderRealm)}`}>
+                            {msg.isSystem ? (
+                              <Bell className="w-3 h-3 text-blue-400" />
+                            ) : (
+                              msg.isVip && <Crown className="w-3 h-3 text-yellow-400" />
+                            )}
+                            <span className={`font-medium ${
+                              msg.isSystem ? 'text-blue-400' : getRealmColor(msg.senderRealm)
+                            }`}>
                               {msg.sender}
                             </span>
                           </span>
-                          <Badge variant="outline" className={`text-xs ${getRealmColor(msg.senderRealm)}`}>
-                            {msg.senderRealm}
-                          </Badge>
+                          {!msg.isSystem && (
+                            <Badge variant="outline" className={`text-xs ${getRealmColor(msg.senderRealm)}`}>
+                              {msg.senderRealm}
+                            </Badge>
+                          )}
                           <span className="text-xs text-muted-foreground">
                             {msg.time.toLocaleTimeString()}
                           </span>
                         </div>
-                        <div className="pl-4 text-foreground">
+                        <div className={`pl-4 ${msg.isSystem ? 'text-blue-300' : 'text-foreground'}`}>
                           {msg.message}
                         </div>
                       </div>
@@ -164,7 +192,7 @@ const ChatSystem = () => {
 
                 {/* Message Input */}
                 <div className="flex gap-2">
-                  <input
+                  <Input
                     type="text"
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
@@ -172,7 +200,7 @@ const ChatSystem = () => {
                     className="flex-1 px-3 py-2 bg-muted/20 border border-border/50 rounded-md text-sm"
                     onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
                   />
-                  <Button onClick={sendMessage} size="sm">
+                  <Button onClick={sendMessage} size="sm" disabled={!message.trim()}>
                     <Send className="w-4 h-4" />
                   </Button>
                 </div>
@@ -181,7 +209,7 @@ const ChatSystem = () => {
               <TabsContent value="sect" className="space-y-3">
                 <Card className="p-4 bg-muted/20 h-64 flex items-center justify-center">
                   <div className="text-center text-muted-foreground">
-                    <Users className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                    <Shield className="w-12 h-12 mx-auto mb-4 opacity-50" />
                     <p>Bạn chưa tham gia tông môn nào.</p>
                     <p className="text-xs mt-2">Tham gia tông môn để chat với thành viên!</p>
                   </div>
@@ -206,8 +234,15 @@ const ChatSystem = () => {
               <h3 className="font-semibold text-sm mb-3 text-spirit-jade">Đang Online</h3>
               <div className="space-y-2 max-h-64 overflow-y-auto">
                 {onlineUsers.map((user, index) => (
-                  <div key={index} className="flex items-center justify-between p-2 bg-card/30 rounded hover:bg-card/50 transition-colors cursor-pointer">
-                    <div>
+                  <div 
+                    key={index} 
+                    className="flex items-center justify-between p-2 bg-card/30 rounded hover:bg-card/50 transition-colors cursor-pointer"
+                    onClick={() => {
+                      setActiveTab('private');
+                      addNotification(`Đã mở chat riêng với ${user.name}`, 'info');
+                    }}
+                  >
+                    <div className="flex-1">
                       <div className="flex items-center gap-1">
                         {user.isVip && <Crown className="w-3 h-3 text-yellow-400" />}
                         <span className={`text-xs font-medium ${getRealmColor(user.realm)}`}>
@@ -218,7 +253,7 @@ const ChatSystem = () => {
                         {user.realm}
                       </div>
                     </div>
-                    <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                    <div className={`w-2 h-2 rounded-full ${getStatusColor(user.status)}`}></div>
                   </div>
                 ))}
               </div>

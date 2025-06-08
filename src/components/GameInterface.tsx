@@ -53,6 +53,9 @@ import GuildSystem from './GuildSystem';
 import SocialSystem from './SocialSystem';
 import PetSystem from './PetSystem';
 import AdminSystem from './AdminSystem';
+import ChatSystem from './ChatSystem';
+import NotificationSystem from './NotificationSystem';
+import SettingsSystem from './SettingsSystem';
 
 const GameInterface = () => {
   const [activeTab, setActiveTab] = useState('overview');
@@ -202,7 +205,7 @@ const GameInterface = () => {
               </div>
             </div>
 
-            {/* Menu Items - Updated to include Admin */}
+            {/* Menu Items - Updated to include new systems */}
             <div className="space-y-2">
               <Button
                 variant="ghost"
@@ -340,6 +343,30 @@ const GameInterface = () => {
                 <Users className="w-4 h-4 mr-2" />
                 Xã Hội
               </Button>
+              <Button
+                variant="ghost"
+                className="w-full justify-start"
+                onClick={() => handleMenuClick('chat', 'Trò Chuyện')}
+              >
+                <MessageCircle className="w-4 h-4 mr-2" />
+                Trò Chuyện
+              </Button>
+              <Button
+                variant="ghost"
+                className="w-full justify-start"
+                onClick={() => handleMenuClick('notifications', 'Thông Báo')}
+              >
+                <Bell className="w-4 h-4 mr-2" />
+                Thông Báo
+              </Button>
+              <Button
+                variant="ghost"
+                className="w-full justify-start"
+                onClick={() => handleMenuClick('settings', 'Cài Đặt')}
+              >
+                <Settings className="w-4 h-4 mr-2" />
+                Cài Đặt
+              </Button>
             </div>
           </div>
         </div>
@@ -427,6 +454,18 @@ const GameInterface = () => {
 
           <TabsContent value="social" className="mt-0">
             <SocialSystem />
+          </TabsContent>
+
+          <TabsContent value="chat" className="mt-0">
+            <ChatSystem />
+          </TabsContent>
+
+          <TabsContent value="notifications" className="mt-0">
+            <NotificationSystem />
+          </TabsContent>
+
+          <TabsContent value="settings" className="mt-0">
+            <SettingsSystem />
           </TabsContent>
         </Tabs>
       </div>
