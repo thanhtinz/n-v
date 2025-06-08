@@ -20,7 +20,8 @@ import {
   Grid3X3,
   ArrowLeft,
   Sparkles,
-  ScrollText
+  ScrollText,
+  Shell
 } from 'lucide-react';
 import { useGameState } from '@/hooks/useGameState';
 import FishingSystem from './FishingSystem';
@@ -35,6 +36,11 @@ const EntertainmentSystem = () => {
   const [wishCount, setWishCount] = useState(0);
   const [selectedFortune, setSelectedFortune] = useState<any>(null);
   const [fortuneDrawn, setFortuneDrawn] = useState(false);
+  
+  // Bầu Cua Tôm Cá state
+  const [bauCuaBets, setBauCuaBets] = useState<Record<string, number>>({});
+  const [bauCuaResults, setBauCuaResults] = useState<string[]>([]);
+  const [bauCuaRolling, setBauCuaRolling] = useState(false);
 
   const entertainmentFeatures = [
     {
@@ -52,6 +58,14 @@ const EntertainmentSystem = () => {
       icon: Dice1,
       color: 'text-cultivator-gold',
       bgColor: 'bg-cultivator-gold/10'
+    },
+    {
+      id: 'baucua',
+      title: 'Bầu Cua Tôm Cá',
+      description: 'Trò chơi dân gian truyền thống',
+      icon: Shell,
+      color: 'text-red-500',
+      bgColor: 'bg-red-500/10'
     },
     {
       id: 'chess',
@@ -256,6 +270,80 @@ const EntertainmentSystem = () => {
   const resetFortune = () => {
     setSelectedFortune(null);
     setFortuneDrawn(false);
+  };
+
+  const bauCuaSymbols = [
+    { id: 'bau', name: 'Bầu', emoji: '🎃', color: 'text-green-600' },
+    { id: 'cua', name: 'Cua', emoji: '🦀', color: 'text-red-600' },
+    { id: 'tom', name: 'Tôm', emoji: '🦐', color: 'text-pink-600' },
+    { id: 'ca', name: 'Cá', emoji: '🐟', color: 'text-blue-600' },
+    { id: 'ga', name: 'Gà', emoji: '🐔', color: 'text-yellow-600' },
+    { id: 'nai', name: 'Nai', emoji: '🦌', color: 'text-brown-600' }
+  ];
+
+  const placeBauCuaBet = (symbolId: string, amount: number) => {
+    if (gameState.player.silver < amount) return;
+    
+    setBauCuaBets(prev => ({
+      ...prev,
+      [symbolId]: (prev[symbolId] || 0) + amount
+    }));
+    
+    updateGameState({
+      player: {
+        ...gameState.player,
+        silver: gameState.player.silver - amount
+      }
+    });
+  };
+
+  const rollBauCua = () => {
+    if (Object.keys(bauCuaBets).length === 0) return;
+    
+    setBauCuaRolling(true);
+    
+    setTimeout(() => {
+      const results = Array.from({ length: 3 }, () => {
+        const randomIndex = Math.floor(Math.random() * bauCuaSymbols.length);
+        return bauCuaSymbols[randomIndex].id;
+      });
+      
+      setBauCuaResults(results);
+      
+      // Calculate winnings
+      let totalWinnings = 0;
+      Object.entries(bauCuaBets).forEach(([symbolId, betAmount]) => {
+        const matches = results.filter(result => result === symbolId).length;
+        if (matches > 0) {
+          totalWinnings += betAmount * matches;
+        }
+      });
+      
+      if (totalWinnings > 0) {
+        updateGameState({
+          player: {
+            ...gameState.player,
+            silver: gameState.player.silver + totalWinnings
+          }
+        });
+      }
+      
+      setBauCuaRolling(false);
+    }, 2000);
+  };
+
+  const clearBauCuaBets = () => {
+    // Return bet money
+    const totalBets = Object.values(bauCuaBets).reduce((sum, bet) => sum + bet, 0);
+    if (totalBets > 0) {
+      updateGameState({
+        player: {
+          ...gameState.player,
+          silver: gameState.player.silver + totalBets
+        }
+      });
+    }
+    setBauCuaBets({});
   };
 
   if (currentView === 'fishing') {
@@ -519,7 +607,7 @@ const EntertainmentSystem = () => {
 
               <div className="grid grid-cols-3 gap-2 mb-4">
                 {Array.from({ length: 6 }, (_, i) => (
-                  <div key={i} className="aspect-[3/4] bg-gradient-to-b from-red-600 to-red-800 rounded-lg flex items-center justify-center border-2 border-yellow-400">
+                  <div key={i} className="aspect-[3/4] bg-gradient-to-b from-red-600 to-red-800 rounded-lg flex items-center justify-center text-xs">
                     <Sparkles className="w-6 h-6 text-yellow-300" />
                   </div>
                 ))}
@@ -571,6 +659,110 @@ const EntertainmentSystem = () => {
               </Button>
             </div>
           )}
+        </Card>
+      )}
+
+      {currentView === 'baucua' && (
+        <Card className="p-4">
+          <div className="text-center mb-4">
+            <Shell className="w-16 h-16 mx-auto mb-2 text-red-500" />
+            <h3 className="text-lg font-bold">Bầu Cua Tôm Cá</h3>
+            <p className="text-sm text-muted-foreground">Trò chơi dân gian truyền thống</p>
+          </div>
+
+          {/* Betting Board */}
+          <div className="grid grid-cols-3 gap-3 mb-4">
+            {bauCuaSymbols.map(symbol => (
+              <Card key={symbol.id} className="p-3 border-2">
+                <div className="text-center mb-2">
+                  <div className="text-4xl mb-1">{symbol.emoji}</div>
+                  <div className={`font-bold ${symbol.color}`}>{symbol.name}</div>
+                  <div className="text-sm text-muted-foreground">
+                    Đặt: {bauCuaBets[symbol.id] || 0} Bạc
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-3 gap-1">
+                  {[50, 100, 200].map(amount => (
+                    <Button
+                      key={amount}
+                      size="sm"
+                      variant="outline"
+                      onClick={() => placeBauCuaBet(symbol.id, amount)}
+                      disabled={gameState.player.silver < amount || bauCuaRolling}
+                      className="text-xs"
+                    >
+                      {amount}
+                    </Button>
+                  ))}
+                </div>
+              </Card>
+            ))}
+          </div>
+
+          {/* Dice Results */}
+          {bauCuaResults.length > 0 && (
+            <Card className="p-4 bg-yellow-50 mb-4">
+              <h4 className="font-bold text-center mb-3">Kết Quả</h4>
+              <div className="flex justify-center gap-4">
+                {bauCuaResults.map((result, index) => {
+                  const symbol = bauCuaSymbols.find(s => s.id === result);
+                  return (
+                    <div key={index} className="text-center">
+                      <div className="text-4xl mb-1">{symbol?.emoji}</div>
+                      <div className={`text-sm font-bold ${symbol?.color}`}>
+                        {symbol?.name}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </Card>
+          )}
+
+          {/* Game Status */}
+          <div className="mb-4 text-center">
+            <div className="text-sm text-muted-foreground mb-2">
+              Tổng tiền đặt: {Object.values(bauCuaBets).reduce((sum, bet) => sum + bet, 0)} Bạc
+            </div>
+            {bauCuaRolling && (
+              <div className="flex items-center justify-center gap-2">
+                <div className="animate-spin text-2xl">🎲</div>
+                <span>Đang lắc xúc xắc...</span>
+              </div>
+            )}
+          </div>
+
+          {/* Game Controls */}
+          <div className="grid grid-cols-2 gap-4">
+            <Button
+              onClick={rollBauCua}
+              disabled={Object.keys(bauCuaBets).length === 0 || bauCuaRolling}
+              className="w-full"
+            >
+              {bauCuaRolling ? 'Đang Lắc...' : 'Lắc Xúc Xắc'}
+            </Button>
+            <Button
+              onClick={clearBauCuaBets}
+              variant="outline"
+              disabled={Object.keys(bauCuaBets).length === 0 || bauCuaRolling}
+              className="w-full"
+            >
+              Hủy Cược
+            </Button>
+          </div>
+
+          {/* Rules */}
+          <Card className="p-3 bg-blue-50 mt-4">
+            <h4 className="font-bold text-blue-800 mb-2">Luật Chơi</h4>
+            <ul className="text-xs text-blue-700 space-y-1">
+              <li>• Đặt tiền vào các hình ảnh bạn dự đoán</li>
+              <li>• 1 hình trúng: được x1 tiền cược</li>
+              <li>• 2 hình trúng: được x2 tiền cược</li>
+              <li>• 3 hình trúng: được x3 tiền cược</li>
+              <li>• Có thể đặt nhiều hình cùng lúc</li>
+            </ul>
+          </Card>
         </Card>
       )}
     </div>
