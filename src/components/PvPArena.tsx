@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -72,7 +71,7 @@ const PvPArena = ({ playerStats }: PvPArenaProps) => {
       losses: 8,
       rank: 5
     }
-  ];
+  ]);
 
   const [selectedOpponent, setSelectedOpponent] = useState<PvPPlayer | null>(null);
   const [isSearching, setIsSearching] = useState(false);
