@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -46,16 +45,20 @@ const OfflineCultivationSystem = () => {
 
   const calculateOfflineRewards = (hours: number) => {
     const baseExpPerHour = 50;
-    const baseSpiritStones = 5;
-    const baseGold = 20;
+    const baseSilver = 200;
     
     // Apply cultivation speed bonus
     const multiplier = cultivationSpeed / 100;
     
+    // Calculate gold ingot drop chance (5% per hour, max 50%)
+    const goldIngotChance = Math.min(hours * 0.05, 0.5);
+    const hasGoldIngot = Math.random() < goldIngotChance;
+    const goldIngotAmount = hasGoldIngot ? Math.floor(Math.random() * 10) + 1 : 0;
+    
     const rewards = {
       exp: Math.floor(hours * baseExpPerHour * multiplier),
-      spiritStones: Math.floor(hours * baseSpiritStones * multiplier),
-      gold: Math.floor(hours * baseGold * multiplier),
+      silver: Math.floor(hours * baseSilver * multiplier),
+      goldIngots: goldIngotAmount,
       hours: Math.floor(hours * 10) / 10,
       treasures: hours > 8 ? ['Thiên Cấp Đan Dược', 'Linh Khí Tinh Thể'] : hours > 4 ? ['Địa Cấp Đan Dược'] : []
     };
@@ -91,8 +94,10 @@ const OfflineCultivationSystem = () => {
   const claimOfflineRewards = () => {
     if (offlineRewards) {
       claimReward('exp', offlineRewards.exp);
-      claimReward('rechargeSpiritStones', offlineRewards.spiritStones);
-      claimReward('silver', offlineRewards.gold);
+      claimReward('silver', offlineRewards.silver);
+      if (offlineRewards.goldIngots > 0) {
+        claimReward('goldIngots', offlineRewards.goldIngots);
+      }
       
       addNotification(`Tu hành ${offlineRewards.hours}h - Nhận được phần thưởng!`, 'success');
       setOfflineRewards(null);
@@ -118,7 +123,7 @@ const OfflineCultivationSystem = () => {
           <h3 className="font-semibold text-divine-blue">Tu Hành Tự Động</h3>
         </div>
         <p className="text-sm text-muted-foreground">
-          Để nhân vật tu luyện khi offline, thu thập linh thạch và kinh nghiệm.
+          Để nhân vật tu luyện khi offline, thu thập bạc, kinh nghiệm và có cơ hội nhận Kim Nguyên Bảo.
         </p>
       </Card>
 
@@ -140,15 +145,17 @@ const OfflineCultivationSystem = () => {
               <div className="text-xs text-muted-foreground">Kinh Nghiệm</div>
             </div>
             <div className="text-center p-3 bg-card/50 rounded-lg">
-              <Gem className="w-6 h-6 text-mystical-purple mx-auto mb-1" />
-              <div className="font-medium">+{offlineRewards.spiritStones}</div>
-              <div className="text-xs text-muted-foreground">Linh Thạch</div>
-            </div>
-            <div className="text-center p-3 bg-card/50 rounded-lg">
               <Coins className="w-6 h-6 text-yellow-500 mx-auto mb-1" />
-              <div className="font-medium">+{offlineRewards.gold}</div>
+              <div className="font-medium">+{offlineRewards.silver}</div>
               <div className="text-xs text-muted-foreground">Bạc</div>
             </div>
+            {offlineRewards.goldIngots > 0 && (
+              <div className="text-center p-3 bg-card/50 rounded-lg">
+                <Gem className="w-6 h-6 text-cultivator-gold mx-auto mb-1" />
+                <div className="font-medium">+{offlineRewards.goldIngots}</div>
+                <div className="text-xs text-muted-foreground">Kim Nguyên Bảo</div>
+              </div>
+            )}
             <div className="text-center p-3 bg-card/50 rounded-lg">
               <Star className="w-6 h-6 text-spirit-jade mx-auto mb-1" />
               <div className="font-medium">{offlineRewards.treasures.length}</div>
@@ -218,9 +225,14 @@ const OfflineCultivationSystem = () => {
                   <div className="text-xs text-muted-foreground">Kinh Nghiệm</div>
                 </div>
                 <div className="text-center p-3 bg-muted/20 rounded-lg">
-                  <Gem className="w-5 h-5 text-mystical-purple mx-auto mb-1" />
-                  <div className="text-sm font-medium">~5/h</div>
-                  <div className="text-xs text-muted-foreground">Linh Thạch</div>
+                  <Coins className="w-5 h-5 text-yellow-500 mx-auto mb-1" />
+                  <div className="text-sm font-medium">~200 Bạc/h</div>
+                  <div className="text-xs text-muted-foreground">Bạc</div>
+                </div>
+                <div className="text-center p-3 bg-muted/20 rounded-lg col-span-2">
+                  <Gem className="w-5 h-5 text-cultivator-gold mx-auto mb-1" />
+                  <div className="text-sm font-medium">5% cơ hội/h</div>
+                  <div className="text-xs text-muted-foreground">Kim Nguyên Bảo</div>
                 </div>
               </div>
 
