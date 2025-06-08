@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -8,6 +7,9 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useGameState } from '@/hooks/useGameState';
+import AdminItemManager from './AdminItemManager';
+import AdminNPCManager from './AdminNPCManager';
+import AdminQuestManager from './AdminQuestManager';
 import { 
   Settings, 
   ShoppingCart, 
@@ -110,10 +112,12 @@ const AdminSystem = () => {
         </h2>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-4 lg:grid-cols-7">
+          <TabsList className="grid w-full grid-cols-4 lg:grid-cols-9">
             <TabsTrigger value="overview">Tổng Quan</TabsTrigger>
-            <TabsTrigger value="shop">Shop</TabsTrigger>
+            <TabsTrigger value="items">Vật Phẩm</TabsTrigger>
+            <TabsTrigger value="npcs">NPC</TabsTrigger>
             <TabsTrigger value="quests">Nhiệm Vụ</TabsTrigger>
+            <TabsTrigger value="shop">Shop</TabsTrigger>
             <TabsTrigger value="events">Sự Kiện</TabsTrigger>
             <TabsTrigger value="giftcodes">Gift Code</TabsTrigger>
             <TabsTrigger value="packages">Gói Nạp</TabsTrigger>
@@ -208,6 +212,18 @@ const AdminSystem = () => {
             </Card>
           </TabsContent>
 
+          <TabsContent value="items" className="space-y-4">
+            <AdminItemManager />
+          </TabsContent>
+
+          <TabsContent value="npcs" className="space-y-4">
+            <AdminNPCManager />
+          </TabsContent>
+
+          <TabsContent value="quests" className="space-y-4">
+            <AdminQuestManager />
+          </TabsContent>
+
           <TabsContent value="shop" className="space-y-4">
             <div className="flex justify-between items-center">
               <h3 className="font-semibold">Quản Lý Shop</h3>
@@ -253,68 +269,6 @@ const AdminSystem = () => {
                           </Button>
                           <Button size="sm" variant="outline">
                             <Eye className="w-3 h-3" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="quests" className="space-y-4">
-            <div className="flex justify-between items-center">
-              <h3 className="font-semibold">Quản Lý Nhiệm Vụ</h3>
-              <Button onClick={() => setShowAddModal(true)} className="bg-green-600 hover:bg-green-700">
-                <Plus className="w-4 h-4 mr-1" />
-                Thêm Nhiệm Vụ
-              </Button>
-            </div>
-
-            <Card className="p-4">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Tên Nhiệm Vụ</TableHead>
-                    <TableHead>Loại</TableHead>
-                    <TableHead>Phần Thưởng</TableHead>
-                    <TableHead>Tỷ Lệ Hoàn Thành</TableHead>
-                    <TableHead>Trạng Thái</TableHead>
-                    <TableHead>Thao Tác</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {adminData.quests.map((quest) => (
-                    <TableRow key={quest.id}>
-                      <TableCell className="font-medium">{quest.name}</TableCell>
-                      <TableCell>
-                        <Badge variant="outline">{quest.type}</Badge>
-                      </TableCell>
-                      <TableCell>{quest.reward}</TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <div className="flex-1 bg-gray-200 rounded-full h-2">
-                            <div 
-                              className="bg-blue-500 h-2 rounded-full" 
-                              style={{ width: `${quest.completion}%` }}
-                            ></div>
-                          </div>
-                          <span className="text-xs">{quest.completion}%</span>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge className={quest.status === 'active' ? 'bg-green-500' : 'bg-red-500'}>
-                          {quest.status === 'active' ? 'Hoạt động' : 'Tạm dừng'}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex gap-1">
-                          <Button size="sm" variant="outline" onClick={() => handleEditItem(quest, 'quest')}>
-                            <Edit className="w-3 h-3" />
-                          </Button>
-                          <Button size="sm" variant="outline" onClick={() => handleDeleteItem(quest.id, 'quest')}>
-                            <Trash2 className="w-3 h-3" />
                           </Button>
                         </div>
                       </TableCell>

@@ -33,7 +33,9 @@ import {
   RotateCcw,
   Target,
   Clock,
-  Heart
+  Heart,
+  PawPrint,
+  Settings as SettingsIcon
 } from 'lucide-react';
 import EventSystem from './EventSystem';
 import HomeSystem from './HomeSystem';
@@ -110,6 +112,31 @@ const GameInterface = () => {
       setSelectedAction(null);
     }, 2000);
   };
+
+  const menuItems = [
+    { id: 'home', label: 'Trang Chủ', icon: Home },
+    { id: 'character', label: 'Nhân Vật', icon: User },
+    { id: 'combat', label: 'Chiến Đấu', icon: Sword },
+    { id: 'cultivation', label: 'Tu Luyện', icon: Zap },
+    { id: 'inventory', label: 'Hành Trang', icon: Shield },
+    { id: 'quest', label: 'Nhiệm Vụ', icon: BookOpen },
+    { id: 'shop', label: 'Cửa Hàng', icon: ShoppingCart },
+    { id: 'enhancement', label: 'Cường Hóa', icon: Star },
+    { id: 'arena', label: 'Đấu Trường', icon: Trophy },
+    { id: 'guild', label: 'Tông Môn', icon: Users },
+    { id: 'sect', label: 'Phái', icon: Crown },
+    { id: 'pet', label: 'Thú Cưng', icon: PawPrint },
+    { id: 'event', label: 'Sự Kiện', icon: Calendar },
+    { id: 'welfare', label: 'Phúc Lợi', icon: Gift },
+    { id: 'vip', label: 'VIP', icon: Crown },
+    { id: 'market', label: 'Chợ', icon: Coins },
+    { id: 'social', label: 'Bạn Bè', icon: Heart },
+    { id: 'ranking', label: 'Xếp Hạng', icon: Trophy },
+    { id: 'chat', label: 'Trò Chuyện', icon: MessageSquare },
+    { id: 'notifications', label: 'Thông Báo', icon: Bell },
+    { id: 'settings', label: 'Cài Đặt', icon: SettingsIcon },
+    { id: 'admin', label: 'Quản Trị', icon: Settings }
+  ];
 
   if (!gameState) {
     return <div>Loading...</div>;
@@ -207,166 +234,17 @@ const GameInterface = () => {
 
             {/* Menu Items - Updated to include new systems */}
             <div className="space-y-2">
-              <Button
-                variant="ghost"
-                className="w-full justify-start"
-                onClick={() => handleMenuClick('overview', 'Trang Chủ')}
-              >
-                <User className="w-4 h-4 mr-2" />
-                Trang Chủ
-              </Button>
-              <Button
-                variant="ghost"
-                className="w-full justify-start"
-                onClick={() => handleMenuClick('admin', 'Quản Trị')}
-              >
-                <Settings className="w-4 h-4 mr-2" />
-                Quản Trị Game
-              </Button>
-              <Button
-                variant="ghost"
-                className="w-full justify-start"
-                onClick={() => handleMenuClick('home', 'Động Phủ')}
-              >
-                <Home className="w-4 h-4 mr-2" />
-                Động Phủ
-              </Button>
-              <Button
-                variant="ghost"
-                className="w-full justify-start"
-                onClick={() => handleMenuClick('pet', 'Pet & Nông Trại')}
-              >
-                <Heart className="w-4 h-4 mr-2" />
-                Pet & Nông Trại
-              </Button>
-              <Button
-                variant="ghost"
-                className="w-full justify-start"
-                onClick={() => handleMenuClick('activities', 'Hoạt Động')}
-              >
-                <Clock className="w-4 h-4 mr-2" />
-                Hoạt Động
-              </Button>
-              <Button
-                variant="ghost"
-                className="w-full justify-start"
-                onClick={() => handleMenuClick('guild', 'Bang Hội')}
-              >
-                <Shield className="w-4 h-4 mr-2" />
-                Bang Hội
-              </Button>
-              <Button
-                variant="ghost"
-                className="w-full justify-start"
-                onClick={() => handleMenuClick('shop', 'Cửa Hàng')}
-              >
-                <ShoppingCart className="w-4 h-4 mr-2" />
-                Cửa Hàng
-              </Button>
-              <Button
-                variant="ghost"
-                className="w-full justify-start"
-                onClick={() => handleMenuClick('inventory', 'Hành Trang')}
-              >
-                <Package className="w-4 h-4 mr-2" />
-                Hành Trang
-              </Button>
-              <Button
-                variant="ghost"
-                className="w-full justify-start"
-                onClick={() => handleMenuClick('combat', 'Chiến Đấu')}
-              >
-                <Sword className="w-4 h-4 mr-2" />
-                Chiến Đấu
-              </Button>
-              <Button
-                variant="ghost"
-                className="w-full justify-start"
-                onClick={() => handleMenuClick('cultivation', 'Tu Luyện')}
-              >
-                <Dumbbell className="w-4 h-4 mr-2" />
-                Tu Luyện
-              </Button>
-              <Button
-                variant="ghost"
-                className="w-full justify-start"
-                onClick={() => handleMenuClick('enhancement', 'Rèn Đồ')}
-              >
-                <Hammer className="w-4 h-4 mr-2" />
-                Rèn Đồ
-              </Button>
-              <Button
-                variant="ghost"
-                className="w-full justify-start"
-                onClick={() => handleMenuClick('quests', 'Nhiệm Vụ')}
-              >
-                <BookOpen className="w-4 h-4 mr-2" />
-                Nhiệm Vụ
-              </Button>
-              <Button
-                variant="ghost"
-                className="w-full justify-start"
-                onClick={() => handleMenuClick('events', 'Sự Kiện')}
-              >
-                <Flame className="w-4 h-4 mr-2" />
-                Sự Kiện
-              </Button>
-              <Button
-                variant="ghost"
-                className="w-full justify-start"
-                onClick={() => handleMenuClick('sect', 'Tông Môn')}
-              >
-                <Shield className="w-4 h-4 mr-2" />
-                Tông Môn
-              </Button>
-              <Button
-                variant="ghost"
-                className="w-full justify-start"
-                onClick={() => handleMenuClick('ranking', 'Bảng Xếp Hạng')}
-              >
-                <Trophy className="w-4 h-4 mr-2" />
-                Bảng Xếp Hạng
-              </Button>
-              <Button
-                variant="ghost"
-                className="w-full justify-start"
-                onClick={() => handleMenuClick('welfare', 'Phúc Lợi')}
-              >
-                <Gift className="w-4 h-4 mr-2" />
-                Phúc Lợi
-              </Button>
-              <Button
-                variant="ghost"
-                className="w-full justify-start"
-                onClick={() => handleMenuClick('social', 'Xã Hội')}
-              >
-                <Users className="w-4 h-4 mr-2" />
-                Xã Hội
-              </Button>
-              <Button
-                variant="ghost"
-                className="w-full justify-start"
-                onClick={() => handleMenuClick('chat', 'Trò Chuyện')}
-              >
-                <MessageCircle className="w-4 h-4 mr-2" />
-                Trò Chuyện
-              </Button>
-              <Button
-                variant="ghost"
-                className="w-full justify-start"
-                onClick={() => handleMenuClick('notifications', 'Thông Báo')}
-              >
-                <Bell className="w-4 h-4 mr-2" />
-                Thông Báo
-              </Button>
-              <Button
-                variant="ghost"
-                className="w-full justify-start"
-                onClick={() => handleMenuClick('settings', 'Cài Đặt')}
-              >
-                <Settings className="w-4 h-4 mr-2" />
-                Cài Đặt
-              </Button>
+              {menuItems.map(item => (
+                <Button
+                  key={item.id}
+                  variant="ghost"
+                  className="w-full justify-start"
+                  onClick={() => handleMenuClick(item.id, item.label)}
+                >
+                  <item.icon className="w-4 h-4 mr-2" />
+                  {item.label}
+                </Button>
+              ))}
             </div>
           </div>
         </div>
