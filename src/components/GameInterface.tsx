@@ -21,7 +21,11 @@ import {
   Gem,
   Zap,
   Menu,
-  X
+  X,
+  Crown,
+  Users,
+  Trophy,
+  Gift
 } from 'lucide-react';
 import DailyQuestSystem from './DailyQuestSystem';
 import EventSystem from './EventSystem';
@@ -45,7 +49,7 @@ const GameInterface = () => {
   return (
     <GameStateProvider>
       <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted">
-        {/* Mobile Header */}
+        {/* Enhanced Mobile Header */}
         <div className="sticky top-0 z-50 bg-card/95 backdrop-blur-sm border-b border-border">
           <div className="flex items-center justify-between p-4">
             <div className="flex items-center gap-3">
@@ -63,27 +67,56 @@ const GameInterface = () => {
               </div>
             </div>
             
+            {/* Header Actions */}
             <div className="flex items-center gap-2">
-              <Bell className="w-5 h-5 text-muted-foreground" />
-              <Settings className="w-5 h-5 text-muted-foreground" />
+              <Button variant="ghost" size="sm" onClick={() => setActiveTab('cultivation')}>
+                <Zap className="w-4 h-4" />
+              </Button>
+              <Button variant="ghost" size="sm" onClick={() => setActiveTab('pvp')}>
+                <Sword className="w-4 h-4" />
+              </Button>
+              <Button variant="ghost" size="sm" onClick={() => setActiveTab('events')}>
+                <Calendar className="w-4 h-4" />
+              </Button>
+              <Button variant="ghost" size="sm">
+                <Bell className="w-4 h-4" />
+              </Button>
+              <Button variant="ghost" size="sm">
+                <Settings className="w-4 h-4" />
+              </Button>
             </div>
           </div>
 
-          {/* Player Info Bar */}
+          {/* Enhanced Player Info Bar */}
           <div className="px-4 pb-3">
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-full bg-gradient-to-r from-cultivator-gold to-spirit-jade flex items-center justify-center">
-                  <User className="w-4 h-4 text-white" />
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-r from-cultivator-gold to-spirit-jade flex items-center justify-center">
+                  <User className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-cultivator-gold">{gameState.player.name}</p>
-                  <p className="text-xs text-muted-foreground">Lv.{gameState.player.level} • VIP{gameState.player.vipLevel}</p>
+                  <div className="flex items-center gap-2">
+                    <p className="text-sm font-medium text-cultivator-gold">{gameState.player.name}</p>
+                    <div className="flex items-center gap-1">
+                      <Crown className="w-3 h-3 text-mystical-purple" />
+                      <span className="text-xs text-mystical-purple">VIP{gameState.player.vipLevel}</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                    <span>Lv.{gameState.player.level}</span>
+                    <span>•</span>
+                    <div className="flex items-center gap-1">
+                      <Star className="w-3 h-3 text-divine-blue" />
+                      <span className="text-divine-blue font-medium">{formatNumber(gameState.player.combatPower)}</span>
+                    </div>
+                  </div>
                 </div>
               </div>
+              
+              {/* Quick Stats */}
               <div className="text-right">
-                <p className="text-xs text-muted-foreground">Lực Chiến</p>
-                <p className="text-sm font-bold text-divine-blue">{formatNumber(gameState.player.combatPower)}</p>
+                <p className="text-xs text-muted-foreground">Cảnh Giới</p>
+                <p className="text-sm font-bold text-spirit-jade">Luyện Khí</p>
               </div>
             </div>
             
@@ -96,38 +129,38 @@ const GameInterface = () => {
               <Progress value={expPercentage} className="h-2" />
             </div>
 
-            {/* Resources */}
+            {/* Enhanced Resources Grid */}
             <div className="grid grid-cols-4 gap-2">
-              <div className="text-center">
-                <div className="flex items-center justify-center gap-1">
-                  <Coins className="w-3 h-3 text-yellow-500" />
-                  <span className="text-xs font-medium">{formatNumber(gameState.player.gold)}</span>
+              <Card className="p-2 bg-card/60">
+                <div className="text-center">
+                  <Coins className="w-4 h-4 text-yellow-500 mx-auto mb-1" />
+                  <span className="text-xs font-medium block">{formatNumber(gameState.player.gold)}</span>
                 </div>
-              </div>
-              <div className="text-center">
-                <div className="flex items-center justify-center gap-1">
-                  <Gem className="w-3 h-3 text-blue-500" />
-                  <span className="text-xs font-medium">{formatNumber(gameState.player.diamonds)}</span>
+              </Card>
+              <Card className="p-2 bg-card/60">
+                <div className="text-center">
+                  <Gem className="w-4 h-4 text-blue-500 mx-auto mb-1" />
+                  <span className="text-xs font-medium block">{formatNumber(gameState.player.diamonds)}</span>
                 </div>
-              </div>
-              <div className="text-center">
-                <div className="flex items-center justify-center gap-1">
-                  <Zap className="w-3 h-3 text-spirit-jade" />
-                  <span className="text-xs font-medium">{formatNumber(gameState.player.spiritStones)}</span>
+              </Card>
+              <Card className="p-2 bg-card/60">
+                <div className="text-center">
+                  <Zap className="w-4 h-4 text-spirit-jade mx-auto mb-1" />
+                  <span className="text-xs font-medium block">{formatNumber(gameState.player.spiritStones)}</span>
                 </div>
-              </div>
-              <div className="text-center">
-                <div className="flex items-center justify-center gap-1">
-                  <Star className="w-3 h-3 text-mystical-purple" />
-                  <span className="text-xs font-medium">{formatNumber(gameState.player.rechargeSpiritStones)}</span>
+              </Card>
+              <Card className="p-2 bg-card/60">
+                <div className="text-center">
+                  <Star className="w-4 h-4 text-mystical-purple mx-auto mb-1" />
+                  <span className="text-xs font-medium block">{formatNumber(gameState.player.rechargeSpiritStones)}</span>
                 </div>
-              </div>
+              </Card>
             </div>
           </div>
         </div>
 
         {/* Main Content */}
-        <div className="container mx-auto px-4 py-4 max-w-md">
+        <div className="container mx-auto px-4 py-4 max-w-md pb-4">
           {/* Character Display Card */}
           <Card className="mb-6 p-6 bg-gradient-to-br from-card to-muted/50 border-cultivator-gold/20">
             <div className="text-center">
@@ -148,20 +181,24 @@ const GameInterface = () => {
             </div>
           </Card>
 
-          {/* Navigation Tabs */}
+          {/* Enhanced Navigation */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-3 mb-4">
-              <TabsTrigger value="home" className="text-xs">
-                <Home className="w-4 h-4 mr-1" />
-                Trang Chủ
+            <TabsList className="grid w-full grid-cols-4 mb-4">
+              <TabsTrigger value="home" className="text-xs flex flex-col py-2">
+                <Home className="w-4 h-4 mb-1" />
+                <span>Trang Chủ</span>
               </TabsTrigger>
-              <TabsTrigger value="quests" className="text-xs">
-                <BookOpen className="w-4 h-4 mr-1" />
-                Nhiệm Vụ
+              <TabsTrigger value="quests" className="text-xs flex flex-col py-2">
+                <BookOpen className="w-4 h-4 mb-1" />
+                <span>Nhiệm Vụ</span>
               </TabsTrigger>
-              <TabsTrigger value="more" className="text-xs">
-                <Menu className="w-4 h-4 mr-1" />
-                Thêm
+              <TabsTrigger value="social" className="text-xs flex flex-col py-2">
+                <Users className="w-4 h-4 mb-1" />
+                <span>Xã Hội</span>
+              </TabsTrigger>
+              <TabsTrigger value="more" className="text-xs flex flex-col py-2">
+                <Menu className="w-4 h-4 mb-1" />
+                <span>Thêm</span>
               </TabsTrigger>
             </TabsList>
 
@@ -186,23 +223,44 @@ const GameInterface = () => {
               </div>
             </TabsContent>
 
+            <TabsContent value="social" className="mt-0">
+              <div className="grid grid-cols-2 gap-4">
+                <Card className="p-4 text-center cursor-pointer hover:bg-muted/50 transition-colors">
+                  <Users className="w-8 h-8 mx-auto mb-2 text-spirit-jade" />
+                  <p className="text-sm font-medium">Bạn Bè</p>
+                </Card>
+                <Card className="p-4 text-center cursor-pointer hover:bg-muted/50 transition-colors" onClick={() => setActiveTab('sect')}>
+                  <Shield className="w-8 h-8 mx-auto mb-2 text-mystical-purple" />
+                  <p className="text-sm font-medium">Tông Môn</p>
+                </Card>
+                <Card className="p-4 text-center cursor-pointer hover:bg-muted/50 transition-colors">
+                  <Trophy className="w-8 h-8 mx-auto mb-2 text-cultivator-gold" />
+                  <p className="text-sm font-medium">Bảng Xếp Hạng</p>
+                </Card>
+                <Card className="p-4 text-center cursor-pointer hover:bg-muted/50 transition-colors">
+                  <Gift className="w-8 h-8 mx-auto mb-2 text-blood-red" />
+                  <p className="text-sm font-medium">Phúc Lợi</p>
+                </Card>
+              </div>
+            </TabsContent>
+
             <TabsContent value="more" className="mt-0">
               <div className="grid grid-cols-2 gap-4">
                 <Card className="p-4 text-center cursor-pointer hover:bg-muted/50 transition-colors" onClick={() => setActiveTab('events')}>
                   <Flame className="w-8 h-8 mx-auto mb-2 text-blood-red" />
                   <p className="text-sm font-medium">Sự Kiện</p>
                 </Card>
-                <Card className="p-4 text-center cursor-pointer hover:bg-muted/50 transition-colors" onClick={() => setActiveTab('sect')}>
-                  <Shield className="w-8 h-8 mx-auto mb-2 text-spirit-jade" />
-                  <p className="text-sm font-medium">Tông Môn</p>
-                </Card>
                 <Card className="p-4 text-center cursor-pointer hover:bg-muted/50 transition-colors">
                   <Sword className="w-8 h-8 mx-auto mb-2 text-divine-blue" />
                   <p className="text-sm font-medium">Chiến Đấu</p>
                 </Card>
                 <Card className="p-4 text-center cursor-pointer hover:bg-muted/50 transition-colors">
-                  <Star className="w-8 h-8 mx-auto mb-2 text-cultivator-gold" />
+                  <Zap className="w-8 h-8 mx-auto mb-2 text-spirit-jade" />
                   <p className="text-sm font-medium">Tu Luyện</p>
+                </Card>
+                <Card className="p-4 text-center cursor-pointer hover:bg-muted/50 transition-colors">
+                  <Settings className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
+                  <p className="text-sm font-medium">Cài Đặt</p>
                 </Card>
               </div>
             </TabsContent>
@@ -219,35 +277,13 @@ const GameInterface = () => {
 
             <TabsContent value="sect" className="mt-0">
               <div className="mb-4">
-                <Button variant="ghost" size="sm" onClick={() => setActiveTab('more')}>
+                <Button variant="ghost" size="sm" onClick={() => setActiveTab('social')}>
                   ← Quay lại
                 </Button>
               </div>
               <SectSystem />
             </TabsContent>
           </Tabs>
-        </div>
-
-        {/* Quick Action Bar */}
-        <div className="fixed bottom-0 left-0 right-0 bg-card/95 backdrop-blur-sm border-t border-border p-4">
-          <div className="flex justify-around max-w-md mx-auto">
-            <Button size="sm" variant="ghost" className="flex-col h-auto py-2">
-              <Zap className="w-5 h-5 mb-1" />
-              <span className="text-xs">Tu Luyện</span>
-            </Button>
-            <Button size="sm" variant="ghost" className="flex-col h-auto py-2">
-              <Sword className="w-5 h-5 mb-1" />
-              <span className="text-xs">Đánh Boss</span>
-            </Button>
-            <Button size="sm" variant="ghost" className="flex-col h-auto py-2">
-              <Calendar className="w-5 h-5 mb-1" />
-              <span className="text-xs">Sự Kiện</span>
-            </Button>
-            <Button size="sm" variant="ghost" className="flex-col h-auto py-2">
-              <Settings className="w-5 h-5 mb-1" />
-              <span className="text-xs">Cài Đặt</span>
-            </Button>
-          </div>
         </div>
       </div>
     </GameStateProvider>
