@@ -21,10 +21,22 @@ import {
   ArrowLeft,
   Sparkles,
   ScrollText,
-  Shell
+  Shell,
+  Type,
+  Grid2X2,
+  Hash,
+  RotateCcw,
+  HelpCircle,
+  X
 } from 'lucide-react';
 import { useGameState } from '@/hooks/useGameState';
 import FishingSystem from './FishingSystem';
+import HangmanGame from './games/HangmanGame';
+import Game2048 from './games/Game2048';
+import SudokuGame from './games/SudokuGame';
+import QuizGame from './games/QuizGame';
+import CaroGame from './games/CaroGame';
+import LuckyWheelSystem from './LuckyWheelSystem';
 
 const EntertainmentSystem = () => {
   const { gameState, claimReward, updateGameState } = useGameState();
@@ -69,6 +81,14 @@ const EntertainmentSystem = () => {
       bgColor: 'bg-red-500/10'
     },
     {
+      id: 'lucky-wheel',
+      title: 'Vòng Quay May Mắn',
+      description: 'Quay để nhận phần thưởng',
+      icon: RotateCcw,
+      color: 'text-mystical-purple',
+      bgColor: 'bg-mystical-purple/10'
+    },
+    {
       id: 'chess',
       title: 'Cờ Tướng Linh Thần',
       description: 'Thách đấu AI',
@@ -91,6 +111,46 @@ const EntertainmentSystem = () => {
       icon: ScrollText,
       color: 'text-red-500',
       bgColor: 'bg-red-500/10'
+    },
+    {
+      id: 'hangman',
+      title: 'Trò Chơi Đoán Từ',
+      description: 'Hangman - Đoán từ để thắng',
+      icon: Type,
+      color: 'text-green-500',
+      bgColor: 'bg-green-500/10'
+    },
+    {
+      id: '2048',
+      title: 'Game 2048',
+      description: 'Ghép số để đạt 2048',
+      icon: Grid2X2,
+      color: 'text-orange-500',
+      bgColor: 'bg-orange-500/10'
+    },
+    {
+      id: 'sudoku',
+      title: 'Sudoku',
+      description: 'Trò chơi trí tuệ số học',
+      icon: Hash,
+      color: 'text-purple-500',
+      bgColor: 'bg-purple-500/10'
+    },
+    {
+      id: 'quiz',
+      title: 'Đố Vui Trí Tuệ',
+      description: 'Trả lời câu hỏi kiến thức',
+      icon: HelpCircle,
+      color: 'text-blue-500',
+      bgColor: 'bg-blue-500/10'
+    },
+    {
+      id: 'caro',
+      title: 'Caro 5 Trong 1 Dòng',
+      description: 'Cờ caro với AI',
+      icon: X,
+      color: 'text-indigo-500',
+      bgColor: 'bg-indigo-500/10'
     }
   ];
 
@@ -346,6 +406,46 @@ const EntertainmentSystem = () => {
 
   if (currentView === 'fishing') {
     return <FishingSystem onBack={() => setCurrentView('menu')} />;
+  }
+
+  if (currentView === 'lucky-wheel') {
+    return (
+      <div className="space-y-4">
+        <div className="flex items-center gap-3 mb-4">
+          <Button 
+            variant="ghost" 
+            size="sm"
+            onClick={() => setCurrentView('menu')}
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Quay Lại
+          </Button>
+          <RotateCcw className="w-6 h-6 text-mystical-purple" />
+          <h2 className="text-xl font-bold text-mystical-purple">Vòng Quay May Mắn</h2>
+        </div>
+        <LuckyWheelSystem />
+      </div>
+    );
+  }
+
+  if (currentView === 'hangman') {
+    return <HangmanGame onBack={() => setCurrentView('menu')} />;
+  }
+
+  if (currentView === '2048') {
+    return <Game2048 onBack={() => setCurrentView('menu')} />;
+  }
+
+  if (currentView === 'sudoku') {
+    return <SudokuGame onBack={() => setCurrentView('menu')} />;
+  }
+
+  if (currentView === 'quiz') {
+    return <QuizGame onBack={() => setCurrentView('menu')} />;
+  }
+
+  if (currentView === 'caro') {
+    return <CaroGame onBack={() => setCurrentView('menu')} />;
   }
 
   if (currentView === 'menu') {
