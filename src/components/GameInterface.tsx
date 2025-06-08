@@ -14,6 +14,7 @@ import RankingSystem from './RankingSystem';
 import ChatSystem from './ChatSystem';
 import SettingsSystem from './SettingsSystem';
 import StoryDialog from './StoryDialog';
+import CharacterCreation from './CharacterCreation';
 import { 
   User, 
   Zap, 
@@ -27,12 +28,30 @@ import {
   Backpack
 } from 'lucide-react';
 
+interface PlayerCharacter {
+  name: string;
+  realm: string;
+  level: number;
+  gender: 'male' | 'female';
+  class: 'sword' | 'magic' | 'defense';
+  equipment: {
+    clothing: string;
+    weapon: string;
+    wings: string;
+    pet: string;
+    aura: string;
+  };
+}
+
 const GameInterface = () => {
   const [activeTab, setActiveTab] = useState('character');
-  const [player] = useState({
+  const [isCharacterCreated, setIsCharacterCreated] = useState(false);
+  const [player, setPlayer] = useState<PlayerCharacter>({
     name: 'Tu Tiên Giả',
     realm: 'Phàm Nhân',
     level: 1,
+    gender: 'male',
+    class: 'sword',
     equipment: {
       clothing: 'Áo Vải Thô',
       weapon: 'Kiếm Sắt',
@@ -42,6 +61,44 @@ const GameInterface = () => {
     }
   });
 
+  // Check if character was already created
+  useEffect(() => {
+    const savedCharacter = localStorage.getItem('playerCharacter');
+    if (savedCharacter) {
+      setPlayer(JSON.parse(savedCharacter));
+      setIsCharacterCreated(true);
+    }
+  }, []);
+
+  const handleCharacterCreation = (character: {
+    name: string;
+    gender: 'male' | 'female';
+    class: 'sword' | 'magic' | 'defense';
+  }) => {
+    const newPlayer: PlayerCharacter = {
+      ...character,
+      realm: 'Phàm Nhân',
+      level: 1,
+      equipment: {
+        clothing: character.gender === 'male' ? 'Áo Vải Thô Nam' : 'Áo Vải Thô Nữ',
+        weapon: character.class === 'sword' ? 'Kiếm Sắt' : 
+                character.class === 'magic' ? 'Trượng Pháp Cơ Bản' : 'Khiên Sắt',
+        wings: '',
+        pet: '',
+        aura: ''
+      }
+    };
+    
+    setPlayer(newPlayer);
+    setIsCharacterCreated(true);
+    localStorage.setItem('playerCharacter', JSON.stringify(newPlayer));
+  };
+
+  // If character hasn't been created, show character creation
+  if (!isCharacterCreated) {
+    return <CharacterCreation onComplete={handleCharacterCreation} />;
+  }
+
   // Calculate combat power from equipped items
   const calculateCombatPower = () => {
     // Base power from realm and level
@@ -49,8 +106,8 @@ const GameInterface = () => {
     
     // Equipment power (these would normally come from the actual equipped items)
     const equipmentPower = {
-      weapon: 50, // Kiếm Sắt
-      armor: 30,  // Áo Vải Thô
+      weapon: player.class === 'sword' ? 50 : player.class === 'magic' ? 40 : 35,
+      armor: 30,
       pants: 0,
       hair: 0,
       hat: 0,
@@ -107,6 +164,10 @@ const GameInterface = () => {
               <div className="text-xs sm:text-sm text-muted-foreground">
                 <span className="hidden sm:inline">Chào mừng, </span>
                 <span className="text-cultivator-gold font-medium">{player.name}</span>
+                <Badge variant="outline" className="ml-2 text-xs border-spirit-jade text-spirit-jade">
+                  {player.class === 'sword' ? 'Kiếm Khách' : 
+                   player.class === 'magic' ? 'Pháp Sư' : 'Hộ Vệ'}
+                </Badge>
               </div>
             </div>
           </div>
@@ -185,6 +246,19 @@ const GameInterface = () => {
                           <div className="text-base sm:text-lg font-medium text-spirit-jade">{player.realm}</div>
                         </div>
                         <div>
+                          <label className="text-sm text-muted-foreground">Class</label>
+                          <div className="text-base sm:text-lg font-medium text-mystical-purple">
+                            {player.class === 'sword' ? 'Kiếm Khách' : 
+                             player.class === 'magic' ? 'Pháp Sư' : 'Hộ Vệ'}
+                          </div>
+                        </div>
+                        <div>
+                          <label className="text-sm text-muted-foreground">Giới Tính</label>
+                          <div className="text-base sm:text-lg font-medium">
+                            {player.gender === 'male' ? 'Nam' : 'Nữ'}
+                          </div>
+                        </div>
+                        <div>
                           <label className="text-sm text-muted-foreground">Lực Chiến</label>
                           <div className="text-base sm:text-lg font-medium text-cultivator-gold flex items-center gap-2">
                             <Zap className="w-5 h-5" />
@@ -222,6 +296,18 @@ const GameInterface = () => {
                             <div className="text-cultivator-gold">Lực chiến hiện tại: {combatPower.toLocaleString()}</div>
                           </div>
                         </div>
+                        <div>
+                          <Button 
+                            variant="outline" 
+                            onClick={() => {
+                              localStorage.removeItem('playerCharacter');
+                              setIsCharacterCreated(false);
+                            }}
+                            className="w-full text-red-400 border-red-400 hover:bg-red-400/10"
+                          >
+                            Tạo Lại Nhân Vật
+                          </Button>
+                        </div>
                       </div>
                     </div>
                   </Card>
@@ -236,7 +322,7 @@ const GameInterface = () => {
                 </TabsContent>
 
                 <TabsContent value="inventory">
-                  <InventorySystem />
+                  <InventorySystem playerGender={player.gender} playerClass={player.class} />
                 </TabsContent>
 
                 <TabsContent value="sect">

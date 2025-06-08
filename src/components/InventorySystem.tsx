@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -27,8 +26,11 @@ interface Item {
   quantity: number;
   description: string;
   equipped?: boolean;
-  setName?: string; // For set items
-  imageUrl?: string; // For item images
+  setName?: string;
+  imageUrl?: string;
+  gender?: 'male' | 'female' | 'unisex';
+  class?: 'sword' | 'magic' | 'defense' | 'all';
+  weaponType?: 'sword' | 'staff' | 'shield' | 'bow';
 }
 
 interface EquipmentSlot {
@@ -37,12 +39,51 @@ interface EquipmentSlot {
   item?: Item;
 }
 
-const InventorySystem = () => {
+interface InventorySystemProps {
+  playerGender: 'male' | 'female';
+  playerClass: 'sword' | 'magic' | 'defense';
+}
+
+const InventorySystem = ({ playerGender, playerClass }: InventorySystemProps) => {
   const [activeTab, setActiveTab] = useState('equipment');
   
   const [equipmentSlots, setEquipmentSlots] = useState<EquipmentSlot[]>([
-    { type: 'weapon', name: 'Vũ Khí', item: { id: 'eq1', name: 'Kiếm Sắt', type: 'weapon', quality: 'common', stats: { attack: 10, agility: -2 }, quantity: 1, description: 'Kiếm sắt cơ bản, +10 Công Kích, -2 Nhanh Nhẹn', equipped: true, imageUrl: 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=64&h=64&fit=crop' } },
-    { type: 'armor', name: 'Áo Giáp', item: { id: 'eq2', name: 'Áo Vải Thô', type: 'armor', quality: 'common', stats: { defense: 5, agility: -1 }, quantity: 1, description: 'Áo vải thô, +5 Phòng Thủ, -1 Nhanh Nhẹn', equipped: true, imageUrl: 'https://images.unsplash.com/photo-1582562124811-c09040d0a901?w=64&h=64&fit=crop' } },
+    { 
+      type: 'weapon', 
+      name: 'Vũ Khí', 
+      item: { 
+        id: 'eq1', 
+        name: playerClass === 'sword' ? 'Kiếm Sắt' : playerClass === 'magic' ? 'Trượng Pháp Cơ Bản' : 'Khiên Sắt', 
+        type: 'weapon', 
+        quality: 'common', 
+        stats: { attack: 10, agility: -2 }, 
+        quantity: 1, 
+        description: playerClass === 'sword' ? 'Kiếm sắt cơ bản, +10 Công Kích, -2 Nhanh Nhẹn' : 
+                    playerClass === 'magic' ? 'Trượng pháp cơ bản, +10 Công Kích, -2 Nhanh Nhẹn' :
+                    'Khiên sắt cơ bản, +10 Công Kích, -2 Nhanh Nhẹn', 
+        equipped: true, 
+        imageUrl: 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=64&h=64&fit=crop',
+        gender: 'unisex',
+        class: playerClass,
+        weaponType: playerClass === 'sword' ? 'sword' : playerClass === 'magic' ? 'staff' : 'shield'
+      } 
+    },
+    { 
+      type: 'armor', 
+      name: 'Áo Giáp', 
+      item: { 
+        id: 'eq2', 
+        name: playerGender === 'male' ? 'Áo Vải Thô Nam' : 'Áo Vải Thô Nữ', 
+        type: 'armor', 
+        quality: 'common', 
+        stats: { defense: 5, agility: -1 }, 
+        quantity: 1, 
+        description: 'Áo vải thô, +5 Phòng Thủ, -1 Nhanh Nhẹn', 
+        equipped: true, 
+        imageUrl: 'https://images.unsplash.com/photo-1582562124811-c09040d0a901?w=64&h=64&fit=crop',
+        gender: playerGender
+      } 
+    },
     { type: 'pants', name: 'Quần' },
     { type: 'hair', name: 'Tóc' },
     { type: 'hat', name: 'Nón' },
@@ -62,7 +103,9 @@ const InventorySystem = () => {
       quality: 'common',
       quantity: 5,
       description: 'Phục hồi 100 HP',
-      imageUrl: 'https://images.unsplash.com/photo-1493962853295-0fd70327578a?w=64&h=64&fit=crop'
+      imageUrl: 'https://images.unsplash.com/photo-1493962853295-0fd70327578a?w=64&h=64&fit=crop',
+      gender: 'unisex',
+      class: 'all'
     },
     {
       id: 'inv2',
@@ -71,8 +114,11 @@ const InventorySystem = () => {
       quality: 'common',
       quantity: 50,
       description: 'Nguyên liệu tu luyện cơ bản',
-      imageUrl: 'https://images.unsplash.com/photo-1535268647677-300dbf3d78d1?w=64&h=64&fit=crop'
+      imageUrl: 'https://images.unsplash.com/photo-1535268647677-300dbf3d78d1?w=64&h=64&fit=crop',
+      gender: 'unisex',
+      class: 'all'
     },
+    // Weapons for Sword class
     {
       id: 'inv3',
       name: 'Kiếm Phong Lôi',
@@ -81,30 +127,103 @@ const InventorySystem = () => {
       stats: { attack: 25, luck: 5, agility: -3 },
       quantity: 1,
       description: 'Kiếm với sức mạnh phong lôi, +25 Công Kích, +5 May Mắn, -3 Nhanh Nhẹn',
-      imageUrl: 'https://images.unsplash.com/photo-1501286353178-1ec881214838?w=64&h=64&fit=crop'
+      imageUrl: 'https://images.unsplash.com/photo-1501286353178-1ec881214838?w=64&h=64&fit=crop',
+      gender: 'unisex',
+      class: 'sword',
+      weaponType: 'sword'
     },
+    // Weapons for Magic class  
     {
       id: 'inv4',
-      name: 'Nhẫn Linh Lực',
-      type: 'ring',
+      name: 'Trượng Phong Hỏa',
+      type: 'weapon',
       quality: 'rare',
-      stats: { luck: 8, defense: -2 },
+      stats: { attack: 20, luck: 8, defense: -2 },
       quantity: 1,
-      description: 'Nhẫn tăng may mắn, +8 May Mắn, -2 Phòng Thủ',
-      imageUrl: 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=64&h=64&fit=crop'
+      description: 'Trượng pháp với sức mạnh phong hỏa, +20 Công Kích, +8 May Mắn, -2 Phòng Thủ',
+      imageUrl: 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=64&h=64&fit=crop',
+      gender: 'unisex',
+      class: 'magic',
+      weaponType: 'staff'
     },
+    // Weapons for Defense class
     {
       id: 'inv5',
-      name: 'Bộ Áo Thiên Hạ',
+      name: 'Khiên Thiên Long',
+      type: 'weapon',
+      quality: 'epic',
+      stats: { defense: 30, attack: -5, luck: 10 },
+      quantity: 1,
+      description: 'Khiên với sức mạnh thiên long, +30 Phòng Thủ, +10 May Mắn, -5 Công Kích',
+      imageUrl: 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=64&h=64&fit=crop',
+      gender: 'unisex',
+      class: 'defense',
+      weaponType: 'shield'
+    },
+    // Female clothing
+    {
+      id: 'inv6',
+      name: 'Áo Dài Lụa Nữ',
+      type: 'armor',
+      quality: 'rare',
+      stats: { defense: 15, agility: 5 },
+      quantity: 1,
+      description: 'Áo dài lụa nữ thanh lịch, +15 Phòng Thủ, +5 Nhanh Nhẹn',
+      imageUrl: 'https://images.unsplash.com/photo-1582562124811-c09040d0a901?w=64&h=64&fit=crop',
+      gender: 'female',
+      class: 'all'
+    },
+    // Male clothing
+    {
+      id: 'inv7',
+      name: 'Áo Giáp Chiến Binh Nam',
+      type: 'armor',
+      quality: 'rare',
+      stats: { defense: 20, attack: 5, agility: -3 },
+      quantity: 1,
+      description: 'Áo giáp chiến binh nam mạnh mẽ, +20 Phòng Thủ, +5 Công Kích, -3 Nhanh Nhẹn',
+      imageUrl: 'https://images.unsplash.com/photo-1582562124811-c09040d0a901?w=64&h=64&fit=crop',
+      gender: 'male',
+      class: 'all'
+    },
+    {
+      id: 'inv8',
+      name: 'Bộ Đồ Kiếm Khách',
       type: 'set',
       quality: 'legendary',
       stats: { attack: 15, defense: 15, agility: 10 },
       quantity: 1,
-      description: 'Bộ đồ huyền thoại, +15 Công Kích, +15 Phòng Thủ, +10 Nhanh Nhẹn',
-      setName: 'Thiên Hạ',
-      imageUrl: 'https://images.unsplash.com/photo-1582562124811-c09040d0a901?w=64&h=64&fit=crop'
+      description: 'Bộ đồ huyền thoại dành cho kiếm khách, +15 Công Kích, +15 Phòng Thủ, +10 Nhanh Nhẹn',
+      setName: 'Kiếm Khách',
+      imageUrl: 'https://images.unsplash.com/photo-1582562124811-c09040d0a901?w=64&h=64&fit=crop',
+      gender: 'unisex',
+      class: 'sword'
     }
   ]);
+
+  // Filter inventory based on player's gender and class
+  const getFilteredInventory = () => {
+    return inventory.filter(item => {
+      // Check gender compatibility
+      const genderMatch = item.gender === 'unisex' || item.gender === playerGender;
+      
+      // Check class compatibility
+      const classMatch = item.class === 'all' || item.class === playerClass;
+      
+      // For weapons, also check weapon type compatibility
+      if (item.type === 'weapon' && item.weaponType) {
+        const weaponMatch = 
+          (playerClass === 'sword' && item.weaponType === 'sword') ||
+          (playerClass === 'magic' && item.weaponType === 'staff') ||
+          (playerClass === 'defense' && item.weaponType === 'shield');
+        return genderMatch && weaponMatch;
+      }
+      
+      return genderMatch && classMatch;
+    });
+  };
+
+  const filteredInventory = getFilteredInventory();
 
   const getQualityColor = (quality: string) => {
     switch (quality) {
@@ -170,7 +289,18 @@ const InventorySystem = () => {
   return (
     <div className="space-y-4">
       <Card className="p-4 bg-card/80 backdrop-blur-sm border-border/50">
-        <h2 className="text-xl font-semibold text-cultivator-gold mb-4">Hành Trang</h2>
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-semibold text-cultivator-gold">Hành Trang</h2>
+          <div className="flex gap-2">
+            <Badge variant="outline" className="text-xs border-spirit-jade text-spirit-jade">
+              {playerGender === 'male' ? 'Nam' : 'Nữ'}
+            </Badge>
+            <Badge variant="outline" className="text-xs border-mystical-purple text-mystical-purple">
+              {playerClass === 'sword' ? 'Kiếm Khách' : 
+               playerClass === 'magic' ? 'Pháp Sư' : 'Hộ Vệ'}
+            </Badge>
+          </div>
+        </div>
         
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="grid w-full grid-cols-2">
@@ -180,7 +310,7 @@ const InventorySystem = () => {
             </TabsTrigger>
             <TabsTrigger value="inventory" className="flex items-center gap-2">
               <Package className="w-4 h-4" />
-              Kho Đồ
+              Kho Đồ ({filteredInventory.length})
             </TabsTrigger>
           </TabsList>
 
@@ -269,8 +399,11 @@ const InventorySystem = () => {
           </TabsContent>
 
           <TabsContent value="inventory" className="space-y-4">
+            <div className="text-sm text-muted-foreground mb-3">
+              Hiển thị vật phẩm phù hợp với giới tính và class của bạn
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-              {inventory.map((item) => {
+              {filteredInventory.map((item) => {
                 return (
                   <Card key={item.id} className="p-3 bg-card/50 hover:bg-card/70 transition-colors">
                     <div className="flex items-start justify-between mb-2">
@@ -355,6 +488,11 @@ const InventorySystem = () => {
                   </Card>
                 );
               })}
+              {filteredInventory.length === 0 && (
+                <div className="col-span-full text-center py-8 text-muted-foreground">
+                  Không có vật phẩm phù hợp với class và giới tính của bạn
+                </div>
+              )}
             </div>
           </TabsContent>
         </Tabs>
