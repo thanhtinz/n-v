@@ -23,6 +23,7 @@ import {
   ScrollText
 } from 'lucide-react';
 import { useGameState } from '@/hooks/useGameState';
+import FishingSystem from './FishingSystem';
 
 const EntertainmentSystem = () => {
   const { gameState, claimReward, updateGameState } = useGameState();
@@ -38,8 +39,8 @@ const EntertainmentSystem = () => {
   const entertainmentFeatures = [
     {
       id: 'fishing',
-      title: 'Câu Cá Linh Hồ',
-      description: 'Câu cá để kiếm bạc',
+      title: 'Hệ Thống Câu Cá',
+      description: 'Hệ thống câu cá hoàn chỉnh',
       icon: Fish,
       color: 'text-divine-blue',
       bgColor: 'bg-divine-blue/10'
@@ -256,6 +257,10 @@ const EntertainmentSystem = () => {
     setSelectedFortune(null);
     setFortuneDrawn(false);
   };
+
+  if (currentView === 'fishing') {
+    return <FishingSystem onBack={() => setCurrentView('menu')} />;
+  }
 
   if (currentView === 'menu') {
     return (
