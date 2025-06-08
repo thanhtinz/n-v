@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -19,7 +18,9 @@ import {
   Dice5,
   Dice6,
   Grid3X3,
-  ArrowLeft
+  ArrowLeft,
+  Sparkles,
+  ScrollText
 } from 'lucide-react';
 import { useGameState } from '@/hooks/useGameState';
 
@@ -31,6 +32,8 @@ const EntertainmentSystem = () => {
   const [selectedBet, setSelectedBet] = useState(100);
   const [diceResults, setDiceResults] = useState<number[]>([]);
   const [wishCount, setWishCount] = useState(0);
+  const [selectedFortune, setSelectedFortune] = useState<any>(null);
+  const [fortuneDrawn, setFortuneDrawn] = useState(false);
 
   const entertainmentFeatures = [
     {
@@ -64,6 +67,65 @@ const EntertainmentSystem = () => {
       icon: Star,
       color: 'text-spirit-jade',
       bgColor: 'bg-spirit-jade/10'
+    },
+    {
+      id: 'fortune',
+      title: 'Xin Xăm Cầu May',
+      description: 'Tìm hiểu vận mệnh',
+      icon: ScrollText,
+      color: 'text-red-500',
+      bgColor: 'bg-red-500/10'
+    }
+  ];
+
+  const fortuneCards = [
+    {
+      id: 1,
+      title: "Đại Cát",
+      poem: "Thiên thời địa lợi nhân hòa,\nVạn sự như ý phát tài hoa.\nCông danh hiển đạt tài lộc đến,\nGia đình hạnh phúc khắp mọi nhà.",
+      meaning: "Quẻ này báo hiệu vận may cực tốt. Mọi việc đều thuận lợi, tài lộc dồi dào, công danh thăng tiến.",
+      type: "great_luck",
+      reward: { type: 'silver', amount: 1000 }
+    },
+    {
+      id: 2,
+      title: "Trung Cát",
+      poem: "Mây tan sương khói dần khai,\nNắng xuân ấm áp khắp nơi.\nKiên nhẫn chờ đợi thời cơ đến,\nThành công trong tầm tay thôi.",
+      meaning: "Vận may trung bình. Cần kiên nhẫn và nỗ lực, thành công sẽ đến trong thời gian tới.",
+      type: "medium_luck",
+      reward: { type: 'silver', amount: 500 }
+    },
+    {
+      id: 3,
+      title: "Tiểu Cát",
+      poem: "Từng bước từng bước đi lên,\nKhông vội không vàng kẻo hối tiền.\nChăm chi tích tiểu thành đại,\nVui vẻ an yên trọn kiếp này.",
+      meaning: "May mắn nhỏ. Nên từ từ phát triển, tích lũy từng chút một để có kết quả tốt.",
+      type: "small_luck",
+      reward: { type: 'silver', amount: 200 }
+    },
+    {
+      id: 4,
+      title: "Bình An",
+      poem: "Yên tâm an tâm đi trên đường,\nKhông gian không khó không âu sầu.\nSức khỏe dồi dào tài lộc đủ,\nCuộc đời bình yên vạn năm sau.",
+      meaning: "Bình an vô sự. Cuộc sống ổn định, không có biến động lớn, sức khỏe tốt.",
+      type: "peace",
+      reward: { type: 'exp', amount: 30 }
+    },
+    {
+      id: 5,
+      title: "Cần Thận",
+      poem: "Con đường phía trước nhiều gai,\nCẩn thận suy nghĩ chớ vội vàng.\nKiên nhẫn vượt qua khó khăn này,\nSáng sủa tương lai ở phía sau.",
+      meaning: "Cần cẩn trọng. Thời gian này có thể gặp khó khăn, cần suy nghĩ kỹ trước khi hành động.",
+      type: "caution",
+      reward: { type: 'rechargeSpiritStones', amount: 1 }
+    },
+    {
+      id: 6,
+      title: "Thử Thách",
+      poem: "Bão tố qua đi nắng lại về,\nKhó khăn chỉ là thử thách thôi.\nVững lòng vượt qua tháng ngày này,\nHoa thơm kết trái ngọt ngào rồi.",
+      meaning: "Đang gặp thử thách. Cần vững vàng và kiên trì, khó khăn chỉ là tạm thời.",
+      type: "challenge",
+      reward: { type: 'goldIngots', amount: 3 }
     }
   ];
 
@@ -170,6 +232,29 @@ const EntertainmentSystem = () => {
     const icons = [Dice1, Dice2, Dice3, Dice4, Dice5, Dice6];
     const Icon = icons[value - 1];
     return <Icon className="w-8 h-8" />;
+  };
+
+  const drawFortune = () => {
+    if (gameState.player.silver < 100) return;
+    
+    const randomFortune = fortuneCards[Math.floor(Math.random() * fortuneCards.length)];
+    setSelectedFortune(randomFortune);
+    setFortuneDrawn(true);
+    
+    // Deduct cost and give reward
+    updateGameState({
+      player: {
+        ...gameState.player,
+        silver: gameState.player.silver - 100
+      }
+    });
+    
+    claimReward(randomFortune.reward.type, randomFortune.reward.amount);
+  };
+
+  const resetFortune = () => {
+    setSelectedFortune(null);
+    setFortuneDrawn(false);
   };
 
   if (currentView === 'menu') {
@@ -407,6 +492,80 @@ const EntertainmentSystem = () => {
           >
             Thực Hiện Ước Nguyện (10 KNYB)
           </Button>
+        </Card>
+      )}
+
+      {currentView === 'fortune' && (
+        <Card className="p-4">
+          <div className="text-center mb-4">
+            <ScrollText className="w-16 h-16 mx-auto mb-2 text-red-500" />
+            <h3 className="text-lg font-bold">Xin Xăm Cầu May</h3>
+            <p className="text-sm text-muted-foreground">Chi phí: 100 Bạc mỗi lần</p>
+          </div>
+
+          {!fortuneDrawn ? (
+            <div className="space-y-4">
+              <div className="bg-gradient-to-br from-red-50 to-orange-50 p-4 rounded-lg border">
+                <p className="text-sm text-gray-700 leading-relaxed">
+                  Xin xăm là tập tục lâu đời, giúp bạn tìm hiểu vận mệnh và nhận lời khuyên từ thế giới tâm linh. 
+                  Hãy thành tâm cầu nguyện trước khi rút thẻ xăm.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-3 gap-2 mb-4">
+                {Array.from({ length: 6 }, (_, i) => (
+                  <div key={i} className="aspect-[3/4] bg-gradient-to-b from-red-600 to-red-800 rounded-lg flex items-center justify-center border-2 border-yellow-400">
+                    <Sparkles className="w-6 h-6 text-yellow-300" />
+                  </div>
+                ))}
+              </div>
+
+              <Button 
+                onClick={drawFortune} 
+                disabled={gameState.player.silver < 100}
+                className="w-full bg-red-600 hover:bg-red-700"
+              >
+                Rút Thẻ Xăm (100 Bạc)
+              </Button>
+            </div>
+          ) : selectedFortune && (
+            <div className="space-y-4">
+              <div className="bg-gradient-to-br from-yellow-50 to-orange-50 p-4 rounded-lg border-2 border-yellow-400">
+                <div className="text-center mb-3">
+                  <Badge className={`text-lg px-3 py-1 ${
+                    selectedFortune.type === 'great_luck' ? 'bg-red-600' :
+                    selectedFortune.type === 'medium_luck' ? 'bg-orange-500' :
+                    selectedFortune.type === 'small_luck' ? 'bg-yellow-500' :
+                    selectedFortune.type === 'peace' ? 'bg-green-500' :
+                    selectedFortune.type === 'caution' ? 'bg-blue-500' :
+                    'bg-purple-500'
+                  }`}>
+                    {selectedFortune.title}
+                  </Badge>
+                </div>
+                
+                <div className="bg-white p-4 rounded border-l-4 border-red-500 mb-3">
+                  <p className="text-sm font-medium text-gray-800 whitespace-pre-line leading-relaxed">
+                    {selectedFortune.poem}
+                  </p>
+                </div>
+                
+                <div className="bg-yellow-50 p-3 rounded border">
+                  <p className="text-sm text-gray-700">
+                    <strong>Ý nghĩa:</strong> {selectedFortune.meaning}
+                  </p>
+                </div>
+              </div>
+
+              <Button 
+                onClick={resetFortune}
+                variant="outline"
+                className="w-full"
+              >
+                Rút Thẻ Mới
+              </Button>
+            </div>
+          )}
         </Card>
       )}
     </div>
