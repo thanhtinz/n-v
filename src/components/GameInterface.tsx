@@ -40,9 +40,10 @@ import CombatSystem from './CombatSystem';
 import InventorySystem from './InventorySystem';
 import CultivationSystem from './CultivationSystem';
 import CentralDisplay from './CentralDisplay';
+import PlayerOverview from './PlayerOverview';
 
 const GameInterface = () => {
-  const [activeTab, setActiveTab] = useState('home');
+  const [activeTab, setActiveTab] = useState('overview');
   const [showMenu, setShowMenu] = useState(false);
   const [selectedAction, setSelectedAction] = useState<string | null>(null);
   const { gameState } = useGameState();
@@ -186,10 +187,18 @@ const GameInterface = () => {
                 <Button
                   variant="ghost"
                   className="w-full justify-start"
-                  onClick={() => handleMenuClick('home', 'Trang Chủ')}
+                  onClick={() => handleMenuClick('overview', 'Trang Chủ')}
+                >
+                  <User className="w-4 h-4 mr-2" />
+                  Trang Chủ
+                </Button>
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start"
+                  onClick={() => handleMenuClick('home', 'Động Phủ')}
                 >
                   <Home className="w-4 h-4 mr-2" />
-                  Trang Chủ
+                  Động Phủ
                 </Button>
                 <Button
                   variant="ghost"
@@ -281,6 +290,10 @@ const GameInterface = () => {
           )}
 
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <TabsContent value="overview" className="mt-0">
+              <PlayerOverview />
+            </TabsContent>
+
             <TabsContent value="home" className="mt-0">
               <HomeSystem />
             </TabsContent>
