@@ -64,6 +64,11 @@ import MusicSystem from './MusicSystem';
 import AuthSystem from './AuthSystem';
 import OfflineCultivationSystem from './OfflineCultivationSystem';
 import StorySystem from './StorySystem';
+import ServerCalamitySystem from './ServerCalamitySystem';
+import SpiritGuideSystem from './SpiritGuideSystem';
+import GoldenFateSystem from './GoldenFateSystem';
+import Flask from 'lucide-react/dist/icons/flask';
+import AlertTriangle from 'lucide-react/dist/icons/alert-triangle';
 
 const GameInterface = () => {
   const [activeTab, setActiveTab] = useState('overview');
@@ -143,7 +148,35 @@ const GameInterface = () => {
     { id: 'music', label: 'Âm Nhạc', icon: Music },
     { id: 'auth', label: 'Đăng Nhập', icon: User },
     { id: 'settings', label: 'Cài Đặt', icon: SettingsIcon },
-    { id: 'admin', label: 'Quản Trị', icon: Settings }
+    { id: 'admin', label: 'Quản Trị', icon: Settings },
+    { 
+      id: 'laboratory', 
+      icon: <Flask className="w-5 h-5" />, 
+      label: 'Phòng Thí Nghiệm', 
+      component: <div className="p-4"><h2>Phòng Thí Nghiệm - Đang phát triển</h2></div>,
+      description: 'Thí nghiệm và nghiên cứu'
+    },
+    { 
+      id: 'calamity', 
+      icon: <AlertTriangle className="w-5 h-5" />, 
+      label: 'Thiên Kiếp', 
+      component: <ServerCalamitySystem />,
+      description: 'Thiên kiếp toàn server chu kỳ'
+    },
+    { 
+      id: 'spirit', 
+      icon: <Sparkles className="w-5 h-5" />, 
+      label: 'Thần Linh', 
+      component: <SpiritGuideSystem />,
+      description: 'AI thần linh đồng hành'
+    },
+    { 
+      id: 'fate', 
+      icon: <Crown className="w-5 h-5" />, 
+      label: 'Kỳ Ngộ', 
+      component: <GoldenFateSystem />,
+      description: 'Kỳ ngộ hoàng kim độc quyền'
+    }
   ];
 
   if (!gameState) {
@@ -301,7 +334,11 @@ const GameInterface = () => {
                   className="w-full justify-start"
                   onClick={() => handleMenuClick(item.id, item.label)}
                 >
-                  <item.icon className="w-4 h-4 mr-2" />
+                  {item.component ? (
+                    item.component
+                  ) : (
+                    <item.icon className="w-4 h-4 mr-2" />
+                  )}
                   <div className="flex flex-col items-start">
                     <span>{item.label}</span>
                     {item.description && (
