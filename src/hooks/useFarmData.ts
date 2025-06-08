@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 
 export interface FarmPlot {
@@ -180,5 +181,3 @@ export const useFarmData = () => {
     togglePetHelp
   };
 };
-
-export type { FarmData };
