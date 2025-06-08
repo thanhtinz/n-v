@@ -64,6 +64,7 @@ import MusicSystem from './MusicSystem';
 import AuthSystem from './AuthSystem';
 import OfflineCultivationSystem from './OfflineCultivationSystem';
 import StorySystem from './StorySystem';
+import FairyGuideAI from './FairyGuideAI';
 
 const GameInterface = () => {
   const [activeTab, setActiveTab] = useState('overview');
@@ -152,6 +153,9 @@ const GameInterface = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted">
+      {/* Add Fairy Guide AI */}
+      <FairyGuideAI />
+      
       {/* Enhanced Header with Notifications */}
       <div className="sticky top-0 z-50 bg-card/95 backdrop-blur-sm border-b border-border">
         <div className="flex items-center justify-between p-4">
