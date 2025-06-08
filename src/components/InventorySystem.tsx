@@ -9,13 +9,29 @@ import {
   Zap,
   Plus,
   Minus,
-  Info
+  Info,
+  Sword,
+  Shield,
+  Gem,
+  Gift,
+  TreeDeciduous,
+  TreePalm,
+  Flower,
+  Flower2,
+  Shrub,
+  Carrot,
+  Banana,
+  Apple,
+  Egg,
+  Fish,
+  Cat,
+  Dog
 } from 'lucide-react';
 
 interface Item {
   id: string;
   name: string;
-  type: 'weapon' | 'armor' | 'pants' | 'hair' | 'hat' | 'chest' | 'treasure' | 'ring' | 'bracelet' | 'necklace' | 'set' | 'pill' | 'material';
+  type: 'weapon' | 'armor' | 'pants' | 'hair' | 'hat' | 'chest' | 'treasure' | 'ring' | 'bracelet' | 'necklace' | 'set' | 'pill' | 'material' | 'pet' | 'plant' | 'event' | 'food';
   quality: 'common' | 'rare' | 'epic' | 'legendary';
   stats?: {
     attack?: number;
@@ -28,6 +44,8 @@ interface Item {
   equipped?: boolean;
   setName?: string;
   imageUrl?: string;
+  icon?: string;
+  iconType?: 'lucide' | 'image';
   gender?: 'male' | 'female' | 'unisex';
   class?: 'sword' | 'magic' | 'defense' | 'all';
   weaponType?: 'sword' | 'staff' | 'shield' | 'bow';
@@ -62,7 +80,8 @@ const InventorySystem = ({ playerGender, playerClass }: InventorySystemProps) =>
                     playerClass === 'magic' ? 'Trượng pháp cơ bản, +10 Công Kích, -2 Nhanh Nhẹn' :
                     'Khiên sắt cơ bản, +10 Công Kích, -2 Nhanh Nhẹn', 
         equipped: true, 
-        imageUrl: 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=64&h=64&fit=crop',
+        icon: 'Sword',
+        iconType: 'lucide',
         gender: 'unisex',
         class: playerClass,
         weaponType: playerClass === 'sword' ? 'sword' : playerClass === 'magic' ? 'staff' : 'shield'
@@ -80,7 +99,8 @@ const InventorySystem = ({ playerGender, playerClass }: InventorySystemProps) =>
         quantity: 1, 
         description: 'Áo vải thô, +5 Phòng Thủ, -1 Nhanh Nhẹn', 
         equipped: true, 
-        imageUrl: 'https://images.unsplash.com/photo-1582562124811-c09040d0a901?w=64&h=64&fit=crop',
+        icon: 'Shield',
+        iconType: 'lucide',
         gender: playerGender
       } 
     },
@@ -96,6 +116,7 @@ const InventorySystem = ({ playerGender, playerClass }: InventorySystemProps) =>
   ]);
 
   const [inventory] = useState<Item[]>([
+    // Pills
     {
       id: 'inv1',
       name: 'Hồi Linh Đan',
@@ -103,10 +124,12 @@ const InventorySystem = ({ playerGender, playerClass }: InventorySystemProps) =>
       quality: 'common',
       quantity: 5,
       description: 'Phục hồi 100 HP',
-      imageUrl: 'https://images.unsplash.com/photo-1493962853295-0fd70327578a?w=64&h=64&fit=crop',
+      icon: 'Gift',
+      iconType: 'lucide',
       gender: 'unisex',
       class: 'all'
     },
+    // Materials
     {
       id: 'inv2',
       name: 'Linh Thạch',
@@ -114,11 +137,12 @@ const InventorySystem = ({ playerGender, playerClass }: InventorySystemProps) =>
       quality: 'common',
       quantity: 50,
       description: 'Nguyên liệu tu luyện cơ bản',
-      imageUrl: 'https://images.unsplash.com/photo-1535268647677-300dbf3d78d1?w=64&h=64&fit=crop',
+      icon: 'Gem',
+      iconType: 'lucide',
       gender: 'unisex',
       class: 'all'
     },
-    // Weapons for Sword class
+    // Weapons for different classes
     {
       id: 'inv3',
       name: 'Kiếm Phong Lôi',
@@ -127,12 +151,12 @@ const InventorySystem = ({ playerGender, playerClass }: InventorySystemProps) =>
       stats: { attack: 25, luck: 5, agility: -3 },
       quantity: 1,
       description: 'Kiếm với sức mạnh phong lôi, +25 Công Kích, +5 May Mắn, -3 Nhanh Nhẹn',
-      imageUrl: 'https://images.unsplash.com/photo-1501286353178-1ec881214838?w=64&h=64&fit=crop',
+      icon: 'Sword',
+      iconType: 'lucide',
       gender: 'unisex',
       class: 'sword',
       weaponType: 'sword'
     },
-    // Weapons for Magic class  
     {
       id: 'inv4',
       name: 'Trượng Phong Hỏa',
@@ -141,12 +165,12 @@ const InventorySystem = ({ playerGender, playerClass }: InventorySystemProps) =>
       stats: { attack: 20, luck: 8, defense: -2 },
       quantity: 1,
       description: 'Trượng pháp với sức mạnh phong hỏa, +20 Công Kích, +8 May Mắn, -2 Phòng Thủ',
-      imageUrl: 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=64&h=64&fit=crop',
+      icon: 'Sword',
+      iconType: 'lucide',
       gender: 'unisex',
       class: 'magic',
       weaponType: 'staff'
     },
-    // Weapons for Defense class
     {
       id: 'inv5',
       name: 'Khiên Thiên Long',
@@ -155,39 +179,183 @@ const InventorySystem = ({ playerGender, playerClass }: InventorySystemProps) =>
       stats: { defense: 30, attack: -5, luck: 10 },
       quantity: 1,
       description: 'Khiên với sức mạnh thiên long, +30 Phòng Thủ, +10 May Mắn, -5 Công Kích',
-      imageUrl: 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=64&h=64&fit=crop',
+      icon: 'Shield',
+      iconType: 'lucide',
       gender: 'unisex',
       class: 'defense',
       weaponType: 'shield'
     },
-    // Female clothing
+    // Pets
     {
       id: 'inv6',
+      name: 'Mèo Linh Thiêng',
+      type: 'pet',
+      quality: 'rare',
+      stats: { luck: 30, agility: 20 },
+      quantity: 1,
+      description: 'Chú mèo linh thiêng mang lại may mắn, +30 May Mắn, +20 Nhanh Nhẹn',
+      icon: 'Cat',
+      iconType: 'lucide',
+      gender: 'unisex',
+      class: 'all'
+    },
+    {
+      id: 'inv7',
+      name: 'Chó Thần Canh Gác',
+      type: 'pet',
+      quality: 'epic',
+      stats: { defense: 25, attack: 15 },
+      quantity: 1,
+      description: 'Chú chó thần bảo vệ chủ nhân, +25 Phòng Thủ, +15 Công Kích',
+      icon: 'Dog',
+      iconType: 'lucide',
+      gender: 'unisex',
+      class: 'all'
+    },
+    // Plants
+    {
+      id: 'inv8',
+      name: 'Cây Linh Chi Ngàn Năm',
+      type: 'plant',
+      quality: 'legendary',
+      stats: { defense: 50, luck: 40 },
+      quantity: 1,
+      description: 'Cây linh chi quý hiếm, +50 Phòng Thủ, +40 May Mắn',
+      icon: 'TreeDeciduous',
+      iconType: 'lucide',
+      gender: 'unisex',
+      class: 'all'
+    },
+    {
+      id: 'inv9',
+      name: 'Hoa Sen Thiên Thủy',
+      type: 'plant',
+      quality: 'rare',
+      stats: { luck: 25, agility: 15 },
+      quantity: 1,
+      description: 'Hoa sen từ thiên giới, +25 May Mắn, +15 Nhanh Nhẹn',
+      icon: 'Flower',
+      iconType: 'lucide',
+      gender: 'unisex',
+      class: 'all'
+    },
+    {
+      id: 'inv10',
+      name: 'Cây Dừa Linh Thần',
+      type: 'plant',
+      quality: 'epic',
+      stats: { attack: 20, defense: 30 },
+      quantity: 1,
+      description: 'Cây dừa từ đảo thiêng, +20 Công Kích, +30 Phòng Thủ',
+      icon: 'TreePalm',
+      iconType: 'lucide',
+      gender: 'unisex',
+      class: 'all'
+    },
+    // Food items
+    {
+      id: 'inv11',
+      name: 'Táo Thần Kỳ',
+      type: 'food',
+      quality: 'rare',
+      quantity: 3,
+      description: 'Phục hồi 500 HP và tăng tạm thời tất cả chỉ số',
+      icon: 'Apple',
+      iconType: 'lucide',
+      gender: 'unisex',
+      class: 'all'
+    },
+    {
+      id: 'inv12',
+      name: 'Chuối Vàng Thiên Đường',
+      type: 'food',
+      quality: 'epic',
+      quantity: 2,
+      description: 'Tăng EXP thu được trong 1 giờ',
+      icon: 'Banana',
+      iconType: 'lucide',
+      gender: 'unisex',
+      class: 'all'
+    },
+    {
+      id: 'inv13',
+      name: 'Cà Rốt Linh Dược',
+      type: 'food',
+      quality: 'rare',
+      quantity: 5,
+      description: 'Tăng tốc độ di chuyển trong 30 phút',
+      icon: 'Carrot',
+      iconType: 'lucide',
+      gender: 'unisex',
+      class: 'all'
+    },
+    {
+      id: 'inv14',
+      name: 'Trứng Phượng Hoàng',
+      type: 'food',
+      quality: 'legendary',
+      quantity: 1,
+      description: 'Hồi sinh khi chết với 50% HP/MP',
+      icon: 'Egg',
+      iconType: 'lucide',
+      gender: 'unisex',
+      class: 'all'
+    },
+    {
+      id: 'inv15',
+      name: 'Cá Thiên Nga',
+      type: 'food',
+      quality: 'epic',
+      quantity: 2,
+      description: 'Tăng MP regeneration trong 2 giờ',
+      icon: 'Fish',
+      iconType: 'lucide',
+      gender: 'unisex',
+      class: 'all'
+    },
+    // Event items
+    {
+      id: 'inv16',
+      name: 'Quà Tết Nguyên Đán',
+      type: 'event',
+      quality: 'legendary',
+      stats: { luck: 100 },
+      quantity: 1,
+      description: 'Vật phẩm đặc biệt từ sự kiện Tết, +100 May Mắn',
+      icon: 'Gift',
+      iconType: 'lucide',
+      gender: 'unisex',
+      class: 'all'
+    },
+    // Armor variations
+    {
+      id: 'inv17',
       name: 'Áo Dài Lụa Nữ',
       type: 'armor',
       quality: 'rare',
       stats: { defense: 15, agility: 5 },
       quantity: 1,
       description: 'Áo dài lụa nữ thanh lịch, +15 Phòng Thủ, +5 Nhanh Nhẹn',
-      imageUrl: 'https://images.unsplash.com/photo-1582562124811-c09040d0a901?w=64&h=64&fit=crop',
+      icon: 'Shirt',
+      iconType: 'lucide',
       gender: 'female',
       class: 'all'
     },
-    // Male clothing
     {
-      id: 'inv7',
+      id: 'inv18',
       name: 'Áo Giáp Chiến Binh Nam',
       type: 'armor',
       quality: 'rare',
       stats: { defense: 20, attack: 5, agility: -3 },
       quantity: 1,
       description: 'Áo giáp chiến binh nam mạnh mẽ, +20 Phòng Thủ, +5 Công Kích, -3 Nhanh Nhẹn',
-      imageUrl: 'https://images.unsplash.com/photo-1582562124811-c09040d0a901?w=64&h=64&fit=crop',
+      icon: 'Shield',
+      iconType: 'lucide',
       gender: 'male',
       class: 'all'
     },
     {
-      id: 'inv8',
+      id: 'inv19',
       name: 'Bộ Đồ Kiếm Khách',
       type: 'set',
       quality: 'legendary',
@@ -195,22 +363,23 @@ const InventorySystem = ({ playerGender, playerClass }: InventorySystemProps) =>
       quantity: 1,
       description: 'Bộ đồ huyền thoại dành cho kiếm khách, +15 Công Kích, +15 Phòng Thủ, +10 Nhanh Nhẹn',
       setName: 'Kiếm Khách',
-      imageUrl: 'https://images.unsplash.com/photo-1582562124811-c09040d0a901?w=64&h=64&fit=crop',
+      icon: 'Shirt',
+      iconType: 'lucide',
       gender: 'unisex',
       class: 'sword'
     }
   ]);
 
-  // Filter inventory based on player's gender and class
+  const lucideIconComponents = {
+    Sword, Shield, Gem, Gift, Package, Cat, Dog, TreeDeciduous, TreePalm, 
+    Flower, Flower2, Shrub, Apple, Banana, Carrot, Egg, Fish, Shirt
+  };
+
   const getFilteredInventory = () => {
     return inventory.filter(item => {
-      // Check gender compatibility
       const genderMatch = item.gender === 'unisex' || item.gender === playerGender;
-      
-      // Check class compatibility
       const classMatch = item.class === 'all' || item.class === playerClass;
       
-      // For weapons, also check weapon type compatibility
       if (item.type === 'weapon' && item.weaponType) {
         const weaponMatch = 
           (playerClass === 'sword' && item.weaponType === 'sword') ||
@@ -235,6 +404,27 @@ const InventorySystem = ({ playerGender, playerClass }: InventorySystemProps) =>
     }
   };
 
+  const getItemIcon = (item: Item) => {
+    if (item.iconType === 'lucide' && item.icon) {
+      const IconComponent = lucideIconComponents[item.icon as keyof typeof lucideIconComponents] || Package;
+      return <IconComponent className="w-6 h-6" />;
+    } else if (item.imageUrl) {
+      return (
+        <img 
+          src={item.imageUrl} 
+          alt={item.name}
+          className="w-6 h-6 rounded object-cover border border-border/50"
+          onError={(e) => {
+            const target = e.target as HTMLImageElement;
+            target.style.display = 'none';
+          }}
+        />
+      );
+    } else {
+      return <Package className="w-6 h-6" />;
+    }
+  };
+
   const getDefaultItemImage = (type: string) => {
     switch (type) {
       case 'weapon': return 'https://images.unsplash.com/photo-1501286353178-1ec881214838?w=64&h=64&fit=crop';
@@ -250,6 +440,10 @@ const InventorySystem = ({ playerGender, playerClass }: InventorySystemProps) =>
       case 'set': return 'https://images.unsplash.com/photo-1582562124811-c09040d0a901?w=64&h=64&fit=crop';
       case 'pill': return 'https://images.unsplash.com/photo-1493962853295-0fd70327578a?w=64&h=64&fit=crop';
       case 'material': return 'https://images.unsplash.com/photo-1535268647677-300dbf3d78d1?w=64&h=64&fit=crop';
+      case 'pet': return 'https://images.unsplash.com/photo-1582562124811-c09040d0a901?w=64&h=64&fit=crop';
+      case 'plant': return 'https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?w=64&h=64&fit=crop';
+      case 'event': return 'https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?w=64&h=64&fit=crop';
+      case 'food': return 'https://images.unsplash.com/photo-1493962853295-0fd70327578a?w=64&h=64&fit=crop';
       default: return 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=64&h=64&fit=crop';
     }
   };
@@ -268,7 +462,6 @@ const InventorySystem = ({ playerGender, playerClass }: InventorySystemProps) =>
     }
   };
 
-  // Calculate total stats from equipped items
   const calculateTotalStats = () => {
     let totalStats = { attack: 0, defense: 0, luck: 0, agility: 0 };
     
@@ -316,7 +509,6 @@ const InventorySystem = ({ playerGender, playerClass }: InventorySystemProps) =>
 
           <TabsContent value="equipment" className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Equipment Slots */}
               <Card className="p-4 bg-muted/20">
                 <h3 className="font-semibold mb-3 text-spirit-jade">Trang Bị Hiện Tại</h3>
                 <div className="grid grid-cols-2 gap-2">
@@ -327,15 +519,7 @@ const InventorySystem = ({ playerGender, playerClass }: InventorySystemProps) =>
                         {slot.item ? (
                           <div>
                             <div className="flex items-center gap-2 mb-1">
-                              <img 
-                                src={slot.item.imageUrl || getDefaultItemImage(slot.item.type)} 
-                                alt={slot.item.name}
-                                className="w-6 h-6 rounded object-cover border border-border/50"
-                                onError={(e) => {
-                                  const target = e.target as HTMLImageElement;
-                                  target.src = getDefaultItemImage(slot.item?.type || 'material');
-                                }}
-                              />
+                              {getItemIcon(slot.item)}
                               <span className="text-sm font-medium truncate">{slot.item.name}</span>
                             </div>
                             <Badge variant="outline" className={`text-xs ${getQualityColor(slot.item.quality)}`}>
@@ -408,15 +592,7 @@ const InventorySystem = ({ playerGender, playerClass }: InventorySystemProps) =>
                   <Card key={item.id} className="p-3 bg-card/50 hover:bg-card/70 transition-colors">
                     <div className="flex items-start justify-between mb-2">
                       <div className="flex items-center gap-2">
-                        <img 
-                          src={item.imageUrl || getDefaultItemImage(item.type)} 
-                          alt={item.name}
-                          className="w-8 h-8 rounded object-cover border border-border/50"
-                          onError={(e) => {
-                            const target = e.target as HTMLImageElement;
-                            target.src = getDefaultItemImage(item.type);
-                          }}
-                        />
+                        {getItemIcon(item)}
                         <span className="font-medium text-sm">{item.name}</span>
                       </div>
                       {item.quantity > 1 && (
@@ -470,7 +646,7 @@ const InventorySystem = ({ playerGender, playerClass }: InventorySystemProps) =>
                           <Plus className="w-3 h-3 mr-1" />
                           Trang Bị
                         </Button>
-                      ) : item.type === 'pill' ? (
+                      ) : ['pill', 'food'].includes(item.type) ? (
                         <Button
                           size="sm"
                           onClick={() => useItem(item)}
