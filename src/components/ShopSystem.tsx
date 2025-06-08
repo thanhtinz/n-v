@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { useGameState } from '@/hooks/useGameState';
+import { useShopData } from '@/hooks/useShopData';
 import { 
   ShoppingCart, 
   Gem, 
@@ -12,48 +13,17 @@ import {
   Coins,
   Sparkles,
   Star,
-  Zap,
-  Shield,
-  Sword,
-  Gift
+  Package,
+  Store
 } from 'lucide-react';
 
-type ShopTab = 'items' | 'recharge' | 'premium';
+type ShopTab = 'shops' | 'recharge' | 'premium';
 
 const ShopSystem = () => {
   const { gameState, addNotification } = useGameState();
-  const [activeTab, setActiveTab] = useState<ShopTab>('items');
-
-  // Shop items with different categories
-  const shopItems = [
-    {
-      id: 'weapon1',
-      name: 'Kiếm Thiên Thần',
-      price: { type: 'goldIngots', amount: 500 },
-      category: 'weapon',
-      rarity: 'legendary',
-      description: 'Vũ khí huyền thoại với sức mạnh thiêng liêng',
-      icon: Sword
-    },
-    {
-      id: 'armor1', 
-      name: 'Giáp Rồng Vàng',
-      price: { type: 'goldIngots', amount: 300 },
-      category: 'armor',
-      rarity: 'epic',
-      description: 'Bộ giáp được rèn từ vảy rồng cổ đại',
-      icon: Shield
-    },
-    {
-      id: 'enhancement1',
-      name: 'Đá Cường Hóa Cấp Cao',
-      price: { type: 'silver', amount: 10000 },
-      category: 'enhancement',
-      rarity: 'rare',
-      description: 'Tăng cơ hội cường hóa thành công',
-      icon: Gem
-    }
-  ];
+  const { activeShops } = useShopData();
+  const [activeTab, setActiveTab] = useState<ShopTab>('shops');
+  const [selectedShop, setSelectedShop] = useState<number | null>(null);
 
   // Recharge packages
   const rechargePackages = [
@@ -102,20 +72,13 @@ const ShopSystem = () => {
     }
   ];
 
-  const formatPrice = (price: any) => {
-    if (price.type === 'silver') return `${price.amount.toLocaleString()} Bạc`;
-    if (price.type === 'goldIngots') return `${price.amount} KNYB`;
-    if (price.type === 'rechargeSpiritStones') return `${price.amount} Linh Thạch`;
-    return price.amount.toString();
-  };
-
-  const handlePurchase = (item: any) => {
-    const playerCurrency = gameState.player[item.price.type as keyof typeof gameState.player] as number;
+  const handlePurchase = (item: any, price: number) => {
+    const playerSilver = gameState.player.silver;
     
-    if (playerCurrency >= item.price.amount) {
+    if (playerSilver >= price) {
       addNotification(`Mua ${item.name} thành công!`, 'success');
     } else {
-      addNotification(`Không đủ tiền để mua ${item.name}!`, 'warning');
+      addNotification(`Không đủ bạc để mua ${item.name}!`, 'warning');
     }
   };
 
@@ -133,6 +96,21 @@ const ShopSystem = () => {
     }
   };
 
+  const getCategoryColor = (category: string) => {
+    const colors = {
+      weapon: 'bg-red-100 text-red-700',
+      armor: 'bg-blue-100 text-blue-700',
+      pet: 'bg-green-100 text-green-700',
+      plant: 'bg-emerald-100 text-emerald-700',
+      food: 'bg-orange-100 text-orange-700',
+      material: 'bg-purple-100 text-purple-700',
+      event: 'bg-pink-100 text-pink-700'
+    };
+    return colors[category as keyof typeof colors] || 'bg-gray-100 text-gray-700';
+  };
+
+  const currentShop = selectedShop ? activeShops.find(shop => shop.id === selectedShop) : null;
+
   return (
     <div className="space-y-4">
       <Card className="p-4 bg-card/80 backdrop-blur-sm border-border/50">
@@ -143,9 +121,9 @@ const ShopSystem = () => {
 
         <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as ShopTab)} className="space-y-4">
           <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="items" className="flex items-center gap-2">
-              <Gift className="w-4 h-4" />
-              Vật Phẩm
+            <TabsTrigger value="shops" className="flex items-center gap-2">
+              <Store className="w-4 h-4" />
+              Cửa Hàng
             </TabsTrigger>
             <TabsTrigger value="recharge" className="flex items-center gap-2">
               <Coins className="w-4 h-4" />
@@ -157,46 +135,112 @@ const ShopSystem = () => {
             </TabsTrigger>
           </TabsList>
 
-          {/* Items Tab */}
-          <TabsContent value="items" className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {shopItems.map((item) => {
-                const ItemIcon = item.icon;
-                return (
-                  <Card key={item.id} className="p-4 bg-muted/20 hover:bg-muted/30 transition-colors">
-                    <div className="flex items-start gap-3">
+          {/* Shops Tab */}
+          <TabsContent value="shops" className="space-y-4">
+            {!selectedShop ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {activeShops.map((shop) => (
+                  <Card key={shop.id} className="p-4 bg-muted/20 hover:bg-muted/30 transition-colors cursor-pointer" onClick={() => setSelectedShop(shop.id)}>
+                    <div className="flex items-center gap-3 mb-3">
                       <div className="w-12 h-12 rounded-lg bg-gradient-to-r from-cultivator-gold/20 to-spirit-jade/20 flex items-center justify-center">
-                        <ItemIcon className="w-6 h-6 text-cultivator-gold" />
+                        <Package className="w-6 h-6 text-cultivator-gold" />
                       </div>
-                      
                       <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          <h3 className="font-medium">{item.name}</h3>
-                          <Badge variant="outline" className={getRarityColor(item.rarity)}>
-                            {item.rarity}
-                          </Badge>
-                        </div>
-                        
-                        <p className="text-sm text-muted-foreground mb-3">{item.description}</p>
-                        
-                        <div className="flex items-center justify-between">
-                          <span className="font-medium text-cultivator-gold">
-                            {formatPrice(item.price)}
-                          </span>
-                          <Button 
-                            size="sm" 
-                            onClick={() => handlePurchase(item)}
-                            className="bg-cultivator-gold hover:bg-cultivator-gold/80"
-                          >
-                            Mua
-                          </Button>
-                        </div>
+                        <h3 className="font-medium">{shop.name}</h3>
+                        <Badge className={`text-xs ${getCategoryColor(shop.category)}`}>
+                          {shop.category}
+                        </Badge>
                       </div>
                     </div>
+                    
+                    <div className="text-sm text-muted-foreground mb-3">
+                      {shop.items.length} vật phẩm có sẵn
+                    </div>
+                    
+                    <Button size="sm" className="w-full bg-cultivator-gold hover:bg-cultivator-gold/80 text-black">
+                      Vào Cửa Hàng
+                    </Button>
                   </Card>
-                );
-              })}
-            </div>
+                ))}
+                
+                {activeShops.length === 0 && (
+                  <div className="col-span-full text-center py-8 text-muted-foreground">
+                    <Store className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                    <p>Chưa có cửa hàng nào hoạt động</p>
+                    <p className="text-sm">Vui lòng liên hệ admin để thêm cửa hàng</p>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <Button variant="outline" size="sm" onClick={() => setSelectedShop(null)}>
+                    ← Quay Lại
+                  </Button>
+                  <h3 className="text-lg font-semibold">{currentShop?.name}</h3>
+                  <Badge className={getCategoryColor(currentShop?.category || '')}>
+                    {currentShop?.category}
+                  </Badge>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {currentShop?.items.map((shopItem) => (
+                    <Card key={shopItem.item.id} className="p-4 bg-muted/20 hover:bg-muted/30 transition-colors">
+                      <div className="flex items-start gap-3">
+                        <div className="w-12 h-12 rounded-lg bg-gradient-to-r from-cultivator-gold/20 to-spirit-jade/20 flex items-center justify-center">
+                          <img 
+                            src={shopItem.item.icon} 
+                            alt={shopItem.item.name}
+                            className="w-8 h-8 rounded object-cover"
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              target.src = '/images/placeholder-item.png';
+                            }}
+                          />
+                        </div>
+                        
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <h4 className="font-medium">{shopItem.item.name}</h4>
+                            <Badge variant="outline" className={getRarityColor(shopItem.item.rarity)}>
+                              {shopItem.item.rarity}
+                            </Badge>
+                          </div>
+                          
+                          <p className="text-sm text-muted-foreground mb-2">{shopItem.item.description}</p>
+                          
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <span className="font-medium text-cultivator-gold">
+                                {shopItem.price.toLocaleString()} Bạc
+                              </span>
+                              <span className="text-xs text-muted-foreground">
+                                Còn: {shopItem.quantity}
+                              </span>
+                            </div>
+                            <Button 
+                              size="sm" 
+                              onClick={() => handlePurchase(shopItem.item, shopItem.price)}
+                              className="bg-cultivator-gold hover:bg-cultivator-gold/80 text-black"
+                              disabled={shopItem.quantity <= 0}
+                            >
+                              Mua
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    </Card>
+                  ))}
+                </div>
+                
+                {currentShop?.items.length === 0 && (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <Package className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                    <p>Cửa hàng này chưa có vật phẩm nào</p>
+                  </div>
+                )}
+              </div>
+            )}
           </TabsContent>
 
           {/* Recharge Tab */}

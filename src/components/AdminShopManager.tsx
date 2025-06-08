@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -6,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useGameState } from '@/hooks/useGameState';
+import { useShopData, type Shop, type ShopItem, type GameItem } from '@/hooks/useShopData';
 import ItemSelector from './ItemSelector';
 import { 
   Plus, 
@@ -20,36 +22,9 @@ import {
   X
 } from 'lucide-react';
 
-interface GameItem {
-  id: number;
-  name: string;
-  description: string;
-  type: string;
-  rarity: string;
-  icon: string;
-  iconType: 'lucide' | 'image';
-  price: number;
-  level: number;
-}
-
-interface ShopItem {
-  item: GameItem;
-  quantity: number;
-  discountPrice?: number;
-}
-
-interface Shop {
-  id: number;
-  name: string;
-  category: string;
-  items: ShopItem[];
-  revenue: number;
-  status: 'active' | 'inactive';
-  lastUpdate: string;
-}
-
 const AdminShopManager = () => {
   const { addNotification } = useGameState();
+  const { shops, updateShops, addShop } = useShopData();
   const [searchTerm, setSearchTerm] = useState('');
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [formData, setFormData] = useState({
@@ -57,45 +32,6 @@ const AdminShopManager = () => {
     category: 'weapon',
     items: [] as ShopItem[]
   });
-
-  const [shops, setShops] = useState<Shop[]>([
-    { 
-      id: 1, 
-      name: 'Shop Vũ Khí', 
-      category: 'weapon', 
-      items: [], 
-      revenue: 2500000, 
-      status: 'active', 
-      lastUpdate: '2024-06-08' 
-    },
-    { 
-      id: 2, 
-      name: 'Shop Trang Phục', 
-      category: 'armor', 
-      items: [], 
-      revenue: 1800000, 
-      status: 'active', 
-      lastUpdate: '2024-06-07' 
-    },
-    { 
-      id: 3, 
-      name: 'Shop Linh Thạch', 
-      category: 'currency', 
-      items: [], 
-      revenue: 5000000, 
-      status: 'active', 
-      lastUpdate: '2024-06-08' 
-    },
-    { 
-      id: 4, 
-      name: 'Shop Event', 
-      category: 'special', 
-      items: [], 
-      revenue: 800000, 
-      status: 'inactive', 
-      lastUpdate: '2024-06-05' 
-    }
-  ]);
 
   const handleAddItem = (item: GameItem) => {
     const existingItem = formData.items.find(i => i.item.id === item.id);
@@ -114,7 +50,7 @@ const AdminShopManager = () => {
         items: [...prev.items, { 
           item, 
           quantity: 1,
-          discountPrice: 0 // Default price that needs to be set
+          price: 0 // Default price that needs to be set
         }]
       }));
     }
@@ -143,12 +79,12 @@ const AdminShopManager = () => {
     }));
   };
 
-  const handleItemPriceChange = (itemId: number, discountPrice: number) => {
+  const handleItemPriceChange = (itemId: number, price: number) => {
     setFormData(prev => ({
       ...prev,
       items: prev.items.map(i => 
         i.item.id === itemId 
-          ? { ...i, discountPrice: discountPrice || undefined }
+          ? { ...i, price }
           : i
       )
     }));
@@ -165,7 +101,7 @@ const AdminShopManager = () => {
       lastUpdate: new Date().toISOString().split('T')[0]
     };
     
-    setShops(prev => [...prev, newShop]);
+    addShop(newShop);
     addNotification('Đã tạo shop mới thành công!', 'success');
     setShowAddDialog(false);
     setFormData({
@@ -173,6 +109,12 @@ const AdminShopManager = () => {
       category: 'weapon',
       items: []
     });
+  };
+
+  const handleDeleteShop = (id: number) => {
+    const updatedShops = shops.filter(shop => shop.id !== id);
+    updateShops(updatedShops);
+    addNotification('Đã xóa shop thành công!', 'success');
   };
 
   const formatCurrency = (amount: number) => {
@@ -183,8 +125,12 @@ const AdminShopManager = () => {
     const colors = {
       weapon: 'bg-red-100 text-red-700',
       armor: 'bg-blue-100 text-blue-700',
-      currency: 'bg-yellow-100 text-yellow-700',
-      special: 'bg-purple-100 text-purple-700'
+      pet: 'bg-green-100 text-green-700',
+      plant: 'bg-emerald-100 text-emerald-700',
+      food: 'bg-orange-100 text-orange-700',
+      material: 'bg-purple-100 text-purple-700',
+      event: 'bg-pink-100 text-pink-700',
+      special: 'bg-yellow-100 text-yellow-700'
     };
     return colors[category as keyof typeof colors] || 'bg-gray-100 text-gray-700';
   };
@@ -237,10 +183,11 @@ const AdminShopManager = () => {
                   >
                     <option value="weapon">Vũ Khí</option>
                     <option value="armor">Trang Phục</option>
-                    <option value="consumable">Tiêu Hao</option>
-                    <option value="material">Nguyên Liệu</option>
                     <option value="pet">Thú Cưng</option>
                     <option value="plant">Cây Cối</option>
+                    <option value="food">Thức Ăn</option>
+                    <option value="material">Nguyên Liệu</option>
+                    <option value="event">Sự Kiện</option>
                     <option value="special">Đặc Biệt</option>
                   </select>
                 </div>
@@ -266,7 +213,7 @@ const AdminShopManager = () => {
                 {formData.items.length > 0 && (
                   <Card className="p-3">
                     <div className="space-y-3">
-                      {formData.items.map(({ item, quantity, discountPrice }) => (
+                      {formData.items.map(({ item, quantity, price }) => (
                         <div key={item.id} className="p-3 bg-muted/50 rounded-lg">
                           <div className="flex items-center justify-between mb-2">
                             <div className="flex items-center gap-2">
@@ -312,7 +259,7 @@ const AdminShopManager = () => {
                               <label className="text-xs text-muted-foreground">Giá Bán (Bạc) *</label>
                               <Input
                                 type="number"
-                                value={discountPrice || ''}
+                                value={price || ''}
                                 onChange={(e) => handleItemPriceChange(item.id, parseInt(e.target.value) || 0)}
                                 className="h-8 text-xs"
                                 placeholder="Nhập giá bán..."
@@ -387,59 +334,8 @@ const AdminShopManager = () => {
         </Card>
       </div>
 
-      {/* Mobile Cards View */}
-      <div className="block md:hidden space-y-3">
-        {filteredShops.map((shop) => (
-          <Card key={shop.id} className="p-4">
-            <div className="flex items-start justify-between mb-3">
-              <div className="flex-1">
-                <h3 className="font-medium text-sm">{shop.name}</h3>
-                <Badge className={`text-xs mt-1 ${getCategoryColor(shop.category)}`}>
-                  {shop.category}
-                </Badge>
-              </div>
-              <Button variant="ghost" size="sm">
-                <MoreVertical className="w-4 h-4" />
-              </Button>
-            </div>
-            
-            <div className="grid grid-cols-2 gap-3 text-xs">
-              <div>
-                <span className="text-muted-foreground">Vật phẩm:</span>
-                <span className="ml-1 font-medium">{shop.items.length}</span>
-              </div>
-              <div>
-                <span className="text-muted-foreground">Doanh thu:</span>
-                <span className="ml-1 font-medium">{formatCurrency(shop.revenue)}</span>
-              </div>
-              <div>
-                <span className="text-muted-foreground">Trạng thái:</span>
-                <Badge className={`ml-1 text-xs ${shop.status === 'active' ? 'bg-green-500' : 'bg-red-500'}`}>
-                  {shop.status === 'active' ? 'Hoạt động' : 'Tạm dừng'}
-                </Badge>
-              </div>
-              <div>
-                <span className="text-muted-foreground">Cập nhật:</span>
-                <span className="ml-1 font-medium">{shop.lastUpdate}</span>
-              </div>
-            </div>
-            
-            <div className="flex gap-2 mt-3">
-              <Button size="sm" variant="outline" className="flex-1">
-                <Eye className="w-3 h-3 mr-1" />
-                Xem
-              </Button>
-              <Button size="sm" variant="outline" className="flex-1">
-                <Edit className="w-3 h-3 mr-1" />
-                Sửa
-              </Button>
-            </div>
-          </Card>
-        ))}
-      </div>
-
       {/* Desktop Table View */}
-      <Card className="hidden md:block overflow-x-auto">
+      <Card className="overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow>
@@ -477,7 +373,7 @@ const AdminShopManager = () => {
                     <Button size="sm" variant="outline">
                       <Eye className="w-3 h-3" />
                     </Button>
-                    <Button size="sm" variant="outline">
+                    <Button size="sm" variant="outline" onClick={() => handleDeleteShop(shop.id)}>
                       <Trash2 className="w-3 h-3" />
                     </Button>
                   </div>

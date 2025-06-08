@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-export interface GameItem {
+interface GameItem {
   id: number;
   name: string;
   description: string;
@@ -21,7 +21,7 @@ export interface GameItem {
 }
 
 export const useItemData = () => {
-  const [items] = useState<GameItem[]>([
+  const items: GameItem[] = [
     {
       id: 1,
       name: 'Kiếm Thần Long',
@@ -64,7 +64,7 @@ export const useItemData = () => {
       description: 'Cây linh chi quý hiếm mọc trong thiên niên',
       type: 'plant',
       rarity: 'legendary',
-      icon: '/images/items/plant_tree_deciduous.png',
+      icon: '/images/items/plant_lingzhi.png',
       iconType: 'image',
       level: 60,
       stats: { hp: 2000, mp: 1000 },
@@ -88,7 +88,7 @@ export const useItemData = () => {
       description: 'Hoa sen quý hiếm từ ao thiêng, dùng để luyện đan',
       type: 'material',
       rarity: 'rare',
-      icon: '/images/items/material_flower.png',
+      icon: '/images/items/material_lotus.png',
       iconType: 'image',
       level: 30,
       stats: {},
@@ -100,7 +100,7 @@ export const useItemData = () => {
       description: 'Thú cưng đặc biệt từ sự kiện Tết Nguyên Đán',
       type: 'event',
       rarity: 'legendary',
-      icon: '/images/items/event_gift.png',
+      icon: '/images/items/event_dragon.png',
       iconType: 'image',
       level: 1,
       stats: { luck: 100, attack: 50 },
@@ -116,7 +116,7 @@ export const useItemData = () => {
       iconType: 'image',
       level: 5,
       stats: {},
-      effects: ['Tăng EXP thu được 50%', 'Hiệu lực 1 giờ']
+      effects: ['Tăng EXP thu được', 'Hồi phục HP nhẹ']
     },
     {
       id: 9,
@@ -127,8 +127,8 @@ export const useItemData = () => {
       icon: '/images/items/pet_dog.png',
       iconType: 'image',
       level: 35,
-      stats: { defense: 25, attack: 15 },
-      effects: ['Bảo vệ chủ nhân', 'Tăng phòng thủ']
+      stats: { attack: 200, defense: 150 },
+      effects: ['Bảo vệ chủ nhân', 'Tăng khả năng phòng thủ']
     },
     {
       id: 10,
@@ -136,13 +136,15 @@ export const useItemData = () => {
       description: 'Cây dừa từ đảo thiêng',
       type: 'plant',
       rarity: 'epic',
-      icon: '/images/items/plant_tree_palm.png',
+      icon: '/images/items/plant_coconut.png',
       iconType: 'image',
       level: 40,
-      stats: { attack: 20, defense: 30 },
-      effects: ['Tăng sức mạnh', 'Bảo vệ khỏi yếu tố môi trường']
+      stats: { hp: 800, mp: 600 },
+      effects: ['Hồi phục HP/MP', 'Tăng năng lượng']
     }
-  ]);
+  ];
 
   return { items };
 };
+
+export type { GameItem };
