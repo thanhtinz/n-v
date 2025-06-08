@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
+import { useGameState } from '@/hooks/useGameState';
 import CharacterDisplay from './CharacterDisplay';
 import CultivationSystem from './CultivationSystem';
 import CombatSystem from './CombatSystem';
@@ -32,7 +33,11 @@ import {
   Star,
   Gift,
   Crown,
-  Calendar
+  Calendar,
+  Coins,
+  Gem,
+  Sparkles,
+  Plus
 } from 'lucide-react';
 
 interface ElementalStats {
@@ -68,6 +73,7 @@ interface PlayerCharacter {
 }
 
 const GameInterface = () => {
+  const { gameState, addNotification } = useGameState();
   const [activeTab, setActiveTab] = useState('character');
   const [isCharacterCreated, setIsCharacterCreated] = useState(false);
   const [player, setPlayer] = useState<PlayerCharacter>({
@@ -208,6 +214,10 @@ const GameInterface = () => {
     localStorage.setItem('playerCharacter', JSON.stringify(newPlayer));
   };
 
+  const handleRecharge = () => {
+    addNotification('Chức năng nạp tiền sẽ sớm có!', 'info');
+  };
+
   const menuItems = [
     { id: 'character', label: 'Nhân Vật', icon: User },
     { id: 'cultivation', label: 'Tu Luyện', icon: Zap },
@@ -262,7 +272,7 @@ const GameInterface = () => {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      {/* Header */}
+      {/* Enhanced Header with Resources */}
       <div className="border-b border-border/50 bg-card/30 backdrop-blur-sm">
         <div className="container mx-auto px-2 sm:px-4 py-2 sm:py-3">
           <div className="flex items-center justify-between">
@@ -274,14 +284,70 @@ const GameInterface = () => {
                 Alpha v0.2
               </Badge>
             </div>
+            
+            {/* Player Info & Resources */}
             <div className="flex items-center gap-2 sm:gap-4">
-              <div className="text-xs sm:text-sm text-muted-foreground">
-                <span className="hidden sm:inline">Chào mừng, </span>
-                <span className="text-cultivator-gold font-medium">{player.name}</span>
-                <Badge variant="outline" className="ml-2 text-xs border-spirit-jade text-spirit-jade">
-                  {player.class === 'sword' ? 'Kiếm Khách' : 
-                   player.class === 'magic' ? 'Pháp Sư' : 'Hộ Vệ'}
-                </Badge>
+              {/* Player Name & Level */}
+              <div className="hidden sm:flex items-center gap-2">
+                <div className="text-xs sm:text-sm text-muted-foreground">
+                  <span className="text-cultivator-gold font-medium">{player.name}</span>
+                  <div className="flex items-center gap-1 mt-1">
+                    <Star className="w-3 h-3 text-spirit-jade" />
+                    <span>Lv.{player.level}</span>
+                    <Crown className="w-3 h-3 text-mystical-purple ml-2" />
+                    <span>VIP{gameState.player.vipLevel}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Resources */}
+              <div className="flex items-center gap-2 sm:gap-3">
+                <Card className="px-2 py-1 bg-card/60">
+                  <div className="flex items-center gap-1">
+                    <Coins className="w-4 h-4 text-yellow-500" />
+                    <span className="text-xs font-medium">{gameState.player.gold.toLocaleString()}</span>
+                    <Button size="sm" variant="ghost" className="h-4 w-4 p-0" onClick={handleRecharge}>
+                      <Plus className="w-3 h-3" />
+                    </Button>
+                  </div>
+                </Card>
+
+                <Card className="px-2 py-1 bg-card/60">
+                  <div className="flex items-center gap-1">
+                    <Gem className="w-4 h-4 text-blue-500" />
+                    <span className="text-xs font-medium">{gameState.player.diamonds.toLocaleString()}</span>
+                    <Button size="sm" variant="ghost" className="h-4 w-4 p-0" onClick={handleRecharge}>
+                      <Plus className="w-3 h-3" />
+                    </Button>
+                  </div>
+                </Card>
+
+                {/* Linh Thạch Thường */}
+                <Card className="px-2 py-1 bg-card/60">
+                  <div className="flex items-center gap-1">
+                    <Zap className="w-4 h-4 text-spirit-jade" />
+                    <span className="text-xs font-medium">{gameState.player.spiritStones}</span>
+                  </div>
+                </Card>
+
+                {/* Linh Thạch Nạp */}
+                <Card className="px-2 py-1 bg-card/60">
+                  <div className="flex items-center gap-1">
+                    <Sparkles className="w-4 h-4 text-mystical-purple" />
+                    <span className="text-xs font-medium">{gameState.player.rechargeSpiritStones}</span>
+                    <Button size="sm" variant="ghost" className="h-4 w-4 p-0" onClick={handleRecharge}>
+                      <Plus className="w-3 h-3" />
+                    </Button>
+                  </div>
+                </Card>
+
+                {/* Combat Power */}
+                <Card className="px-2 py-1 bg-card/60">
+                  <div className="flex items-center gap-1">
+                    <Star className="w-4 h-4 text-cultivator-gold" />
+                    <span className="text-xs font-medium">{gameState.player.combatPower.toLocaleString()}</span>
+                  </div>
+                </Card>
               </div>
             </div>
           </div>
