@@ -20,43 +20,41 @@ import {
 interface Item {
   id: string;
   name: string;
-  type: 'weapon' | 'armor' | 'accessory' | 'pill' | 'material';
+  type: 'weapon' | 'armor' | 'pants' | 'hair' | 'hat' | 'chest' | 'treasure' | 'ring' | 'bracelet' | 'necklace' | 'set' | 'pill' | 'material';
   quality: 'common' | 'rare' | 'epic' | 'legendary';
   stats?: {
     attack?: number;
     defense?: number;
-    speed?: number;
-    spiritual?: number;
+    luck?: number;
+    agility?: number;
   };
   quantity: number;
   description: string;
   equipped?: boolean;
+  setName?: string; // For set items
+}
+
+interface EquipmentSlot {
+  type: string;
+  name: string;
+  item?: Item;
 }
 
 const InventorySystem = () => {
   const [activeTab, setActiveTab] = useState('equipment');
   
-  const [equipment] = useState<Item[]>([
-    {
-      id: 'eq1',
-      name: 'Kiếm Sắt',
-      type: 'weapon',
-      quality: 'common',
-      stats: { attack: 10 },
-      quantity: 1,
-      description: 'Kiếm sắt cơ bản, +10 Công Kích',
-      equipped: true
-    },
-    {
-      id: 'eq2',
-      name: 'Áo Vải Thô',
-      type: 'armor',
-      quality: 'common',
-      stats: { defense: 5 },
-      quantity: 1,
-      description: 'Áo vải thô, +5 Phòng Thủ',
-      equipped: true
-    }
+  const [equipmentSlots, setEquipmentSlots] = useState<EquipmentSlot[]>([
+    { type: 'weapon', name: 'Vũ Khí', item: { id: 'eq1', name: 'Kiếm Sắt', type: 'weapon', quality: 'common', stats: { attack: 10, agility: -2 }, quantity: 1, description: 'Kiếm sắt cơ bản, +10 Công Kích, -2 Nhanh Nhẹn', equipped: true } },
+    { type: 'armor', name: 'Áo Giáp', item: { id: 'eq2', name: 'Áo Vải Thô', type: 'armor', quality: 'common', stats: { defense: 5, agility: -1 }, quantity: 1, description: 'Áo vải thô, +5 Phòng Thủ, -1 Nhanh Nhẹn', equipped: true } },
+    { type: 'pants', name: 'Quần' },
+    { type: 'hair', name: 'Tóc' },
+    { type: 'hat', name: 'Nón' },
+    { type: 'chest', name: 'Giáp Ngực' },
+    { type: 'treasure', name: 'Pháp Bảo' },
+    { type: 'ring', name: 'Nhẫn' },
+    { type: 'bracelet', name: 'Vòng Tay' },
+    { type: 'necklace', name: 'Dây Chuyền' },
+    { type: 'set', name: 'Bộ Đồ' }
   ]);
 
   const [inventory] = useState<Item[]>([
@@ -81,9 +79,28 @@ const InventorySystem = () => {
       name: 'Kiếm Phong Lôi',
       type: 'weapon',
       quality: 'epic',
-      stats: { attack: 25, speed: 5 },
+      stats: { attack: 25, luck: 5, agility: -3 },
       quantity: 1,
-      description: 'Kiếm với sức mạnh phong lôi, +25 Công Kích, +5 Tốc Độ'
+      description: 'Kiếm với sức mạnh phong lôi, +25 Công Kích, +5 May Mắn, -3 Nhanh Nhẹn'
+    },
+    {
+      id: 'inv4',
+      name: 'Nhẫn Linh Lực',
+      type: 'ring',
+      quality: 'rare',
+      stats: { luck: 8, defense: -2 },
+      quantity: 1,
+      description: 'Nhẫn tăng may mắn, +8 May Mắn, -2 Phòng Thủ'
+    },
+    {
+      id: 'inv5',
+      name: 'Bộ Áo Thiên Hạ',
+      type: 'set',
+      quality: 'legendary',
+      stats: { attack: 15, defense: 15, agility: 10 },
+      quantity: 1,
+      description: 'Bộ đồ huyền thoại, +15 Công Kích, +15 Phòng Thủ, +10 Nhanh Nhẹn',
+      setName: 'Thiên Hạ'
     }
   ]);
 
@@ -100,8 +117,16 @@ const InventorySystem = () => {
   const getTypeIcon = (type: string) => {
     switch (type) {
       case 'weapon': return Sword;
-      case 'armor': return Shield;
-      case 'accessory': return Crown;
+      case 'armor':
+      case 'pants':
+      case 'chest': return Shield;
+      case 'hat':
+      case 'hair': return Crown;
+      case 'ring':
+      case 'bracelet':
+      case 'necklace':
+      case 'treasure': return Star;
+      case 'set': return Shirt;
       case 'pill': return Zap;
       case 'material': return Package;
       default: return Package;
@@ -121,6 +146,24 @@ const InventorySystem = () => {
       console.log(`Đã sử dụng ${item.name}`);
     }
   };
+
+  // Calculate total stats from equipped items
+  const calculateTotalStats = () => {
+    let totalStats = { attack: 0, defense: 0, luck: 0, agility: 0 };
+    
+    equipmentSlots.forEach(slot => {
+      if (slot.item?.stats) {
+        totalStats.attack += slot.item.stats.attack || 0;
+        totalStats.defense += slot.item.stats.defense || 0;
+        totalStats.luck += slot.item.stats.luck || 0;
+        totalStats.agility += slot.item.stats.agility || 0;
+      }
+    });
+    
+    return totalStats;
+  };
+
+  const totalStats = calculateTotalStats();
 
   return (
     <div className="space-y-4">
@@ -144,34 +187,35 @@ const InventorySystem = () => {
               {/* Equipment Slots */}
               <Card className="p-4 bg-muted/20">
                 <h3 className="font-semibold mb-3 text-spirit-jade">Trang Bị Hiện Tại</h3>
-                <div className="space-y-3">
-                  {equipment.map((item) => {
-                    const Icon = getTypeIcon(item.type);
+                <div className="grid grid-cols-2 gap-2">
+                  {equipmentSlots.map((slot) => {
+                    const Icon = getTypeIcon(slot.type);
                     return (
-                      <div key={item.id} className="p-3 bg-card/50 rounded-lg border border-border/30">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                            <Icon className="w-5 h-5 text-cultivator-gold" />
-                            <div>
-                              <div className="flex items-center gap-2">
-                                <span className="font-medium">{item.name}</span>
-                                <Badge variant="outline" className={`text-xs ${getQualityColor(item.quality)}`}>
-                                  {item.quality}
-                                </Badge>
-                              </div>
-                              <div className="text-xs text-muted-foreground">
-                                {item.description}
-                              </div>
+                      <div key={slot.type} className="p-2 bg-card/50 rounded-lg border border-border/30 min-h-[80px]">
+                        <div className="text-xs text-muted-foreground mb-1">{slot.name}</div>
+                        {slot.item ? (
+                          <div>
+                            <div className="flex items-center gap-1 mb-1">
+                              <Icon className="w-4 h-4 text-cultivator-gold" />
+                              <span className="text-sm font-medium truncate">{slot.item.name}</span>
                             </div>
+                            <Badge variant="outline" className={`text-xs ${getQualityColor(slot.item.quality)}`}>
+                              {slot.item.quality}
+                            </Badge>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => unequipItem(slot.item!)}
+                              className="w-full mt-2 h-6 text-xs"
+                            >
+                              <Minus className="w-3 h-3" />
+                            </Button>
                           </div>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => unequipItem(item)}
-                          >
-                            <Minus className="w-3 h-3" />
-                          </Button>
-                        </div>
+                        ) : (
+                          <div className="flex items-center justify-center h-full">
+                            <Icon className="w-6 h-6 text-muted-foreground/50" />
+                          </div>
+                        )}
                       </div>
                     );
                   })}
@@ -181,22 +225,32 @@ const InventorySystem = () => {
               {/* Stats Summary */}
               <Card className="p-4 bg-muted/20">
                 <h3 className="font-semibold mb-3 text-spirit-jade">Tổng Kết Chỉ Số</h3>
-                <div className="space-y-2">
+                <div className="space-y-3">
                   <div className="flex justify-between">
                     <span>Công Kích:</span>
-                    <span className="text-cultivator-gold font-bold">15</span>
+                    <span className="text-red-400 font-bold">{totalStats.attack}</span>
                   </div>
                   <div className="flex justify-between">
                     <span>Phòng Thủ:</span>
-                    <span className="text-spirit-jade font-bold">5</span>
+                    <span className="text-blue-400 font-bold">{totalStats.defense}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span>Tốc Độ:</span>
-                    <span className="text-mystical-purple font-bold">0</span>
+                    <span>May Mắn:</span>
+                    <span className="text-yellow-400 font-bold">{totalStats.luck}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span>Linh Lực:</span>
-                    <span className="text-divine-blue font-bold">0</span>
+                    <span>Nhanh Nhẹn:</span>
+                    <span className="text-green-400 font-bold">{totalStats.agility}</span>
+                  </div>
+                </div>
+                
+                <div className="mt-4 p-3 bg-muted/30 rounded-lg">
+                  <h4 className="text-sm font-medium mb-2 text-mystical-purple">Hiệu Ứng Chỉ Số:</h4>
+                  <div className="text-xs space-y-1 text-muted-foreground">
+                    <div>• Công Kích: Làm chậm tốc độ công kích</div>
+                    <div>• Phòng Thủ: Giảm sát thương nhận, làm chậm nhanh nhẹn</div>
+                    <div>• May Mắn: Phá giáp đối thủ, làm yếu phòng thủ bản thân</div>
+                    <div>• Nhanh Nhẹn: Chống phá giáp, làm yếu may mắn đối thủ</div>
                   </div>
                 </div>
               </Card>
@@ -221,18 +275,42 @@ const InventorySystem = () => {
                       )}
                     </div>
                     
-                    <div className="flex items-center gap-2 mb-3">
+                    <div className="flex items-center gap-2 mb-2">
                       <Badge variant="outline" className={`text-xs ${getQualityColor(item.quality)}`}>
                         {item.quality}
                       </Badge>
+                      {item.setName && (
+                        <Badge variant="outline" className="text-xs border-yellow-400 text-yellow-400">
+                          {item.setName}
+                        </Badge>
+                      )}
                     </div>
+
+                    {item.stats && (
+                      <div className="text-xs mb-2 space-y-1">
+                        {item.stats.attack && (
+                          <div className="text-red-400">+{item.stats.attack} Công Kích</div>
+                        )}
+                        {item.stats.defense && (
+                          <div className="text-blue-400">+{item.stats.defense} Phòng Thủ</div>
+                        )}
+                        {item.stats.luck && (
+                          <div className="text-yellow-400">+{item.stats.luck} May Mắn</div>
+                        )}
+                        {item.stats.agility && (
+                          <div className={item.stats.agility > 0 ? "text-green-400" : "text-red-400"}>
+                            {item.stats.agility > 0 ? "+" : ""}{item.stats.agility} Nhanh Nhẹn
+                          </div>
+                        )}
+                      </div>
+                    )}
 
                     <div className="text-xs text-muted-foreground mb-3">
                       {item.description}
                     </div>
 
                     <div className="flex gap-2">
-                      {item.type === 'weapon' || item.type === 'armor' || item.type === 'accessory' ? (
+                      {['weapon', 'armor', 'pants', 'hair', 'hat', 'chest', 'treasure', 'ring', 'bracelet', 'necklace', 'set'].includes(item.type) ? (
                         <Button
                           size="sm"
                           onClick={() => equipItem(item)}
