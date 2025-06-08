@@ -7,6 +7,8 @@ import CharacterDisplay from './CharacterDisplay';
 import CultivationSystem from './CultivationSystem';
 import CombatSystem from './CombatSystem';
 import SectSystem from './SectSystem';
+import HomeSystem from './HomeSystem';
+import MarketSystem from './MarketSystem';
 import StoryDialog from './StoryDialog';
 import { 
   User, 
@@ -192,25 +194,11 @@ const GameInterface = () => {
                 </TabsContent>
 
                 <TabsContent value="home">
-                  <Card className="p-4 sm:p-6 bg-card/80 backdrop-blur-sm border-border/50">
-                    <h2 className="text-lg sm:text-xl font-semibold text-cultivator-gold mb-3 sm:mb-4">Động Phủ</h2>
-                    <div className="text-center py-8 sm:py-12 text-muted-foreground">
-                      <Home className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-4 opacity-50" />
-                      <p className="text-sm sm:text-base">Động phủ cá nhân đang được xây dựng...</p>
-                      <p className="text-xs sm:text-sm mt-2">Sẽ có trồng trọt, luyện đan, và trang trí!</p>
-                    </div>
-                  </Card>
+                  <HomeSystem />
                 </TabsContent>
 
                 <TabsContent value="market">
-                  <Card className="p-4 sm:p-6 bg-card/80 backdrop-blur-sm border-border/50">
-                    <h2 className="text-lg sm:text-xl font-semibold text-cultivator-gold mb-3 sm:mb-4">Thị Trường</h2>
-                    <div className="text-center py-8 sm:py-12 text-muted-foreground">
-                      <ShoppingCart className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-4 opacity-50" />
-                      <p className="text-sm sm:text-base">Kỳ Trân Các đang được chuẩn bị...</p>
-                      <p className="text-xs sm:text-sm mt-2">Sẽ có mua bán vật phẩm và đấu giá!</p>
-                    </div>
-                  </Card>
+                  <MarketSystem />
                 </TabsContent>
 
                 <TabsContent value="ranking">
