@@ -12,6 +12,7 @@ import SectSystem from './SectSystem';
 import HomeSystem from './HomeSystem';
 import MarketSystem from './MarketSystem';
 import InventorySystem from './InventorySystem';
+import EnhancementSystem from './EnhancementSystem';
 import RankingSystem from './RankingSystem';
 import ChatSystem from './ChatSystem';
 import SettingsSystem from './SettingsSystem';
@@ -225,6 +226,7 @@ const GameInterface = () => {
     { id: 'vip', label: 'VIP', icon: Crown },
     { id: 'events', label: 'Sự Kiện', icon: Calendar },
     { id: 'inventory', label: 'Hành Trang', icon: Backpack },
+    { id: 'enhancement', label: 'Tiệm Rèn', icon: Shield },
     { id: 'sect', label: 'Tông Môn', icon: Users },
     { id: 'home', label: 'Động Phủ', icon: Home },
     { id: 'market', label: 'Thị Trường', icon: ShoppingCart },
@@ -645,6 +647,10 @@ const GameInterface = () => {
 
                 <TabsContent value="inventory">
                   <InventorySystem playerGender={player.gender} playerClass={player.class} />
+                </TabsContent>
+
+                <TabsContent value="enhancement">
+                  <EnhancementSystem />
                 </TabsContent>
 
                 <TabsContent value="sect">
