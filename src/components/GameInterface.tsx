@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useGameState } from '@/hooks/useGameState';
 import { Card } from "@/components/ui/card";
@@ -63,6 +62,8 @@ import NotificationSystem from './NotificationSystem';
 import SettingsSystem from './SettingsSystem';
 import MusicSystem from './MusicSystem';
 import AuthSystem from './AuthSystem';
+import OfflineCultivationSystem from './OfflineCultivationSystem';
+import StorySystem from './StorySystem';
 
 const GameInterface = () => {
   const [activeTab, setActiveTab] = useState('overview');
@@ -124,8 +125,10 @@ const GameInterface = () => {
     { id: 'home', label: 'Động Phủ', icon: Home, description: 'Trang riêng cá nhân' },
     { id: 'combat', label: 'Chiến Đấu', icon: Sword },
     { id: 'cultivation', label: 'Tu Luyện', icon: Zap },
+    { id: 'offline', label: 'Tu Hành AFK', icon: Clock, description: 'Tu luyện tự động' },
     { id: 'inventory', label: 'Hành Trang', icon: Shield },
     { id: 'quest', label: 'Nhiệm Vụ', icon: BookOpen },
+    { id: 'story', label: 'Truyện Chính', icon: BookOpen, description: 'Visual Novel' },
     { id: 'shop', label: 'Cửa Hàng', icon: ShoppingCart, description: 'Bao gồm VIP' },
     { id: 'enhancement', label: 'Cường Hóa', icon: Star },
     { id: 'sect', label: 'Tông Môn', icon: Crown, description: 'Học tập rèn luyện' },
@@ -366,6 +369,14 @@ const GameInterface = () => {
 
           <TabsContent value="cultivation" className="mt-0">
             <CultivationSystem />
+          </TabsContent>
+
+          <TabsContent value="offline" className="mt-0">
+            <OfflineCultivationSystem />
+          </TabsContent>
+
+          <TabsContent value="story" className="mt-0">
+            <StorySystem />
           </TabsContent>
 
           <TabsContent value="enhancement" className="mt-0">
