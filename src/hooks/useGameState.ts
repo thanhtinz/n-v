@@ -1,4 +1,5 @@
-import { useState, useEffect, createContext, useContext } from 'react';
+
+import React, { useState, useEffect, createContext, useContext } from 'react';
 
 interface GameState {
   // Player stats
@@ -155,15 +156,17 @@ export const GameStateProvider = ({ children }: { children: React.ReactNode }) =
     }));
   };
 
-  return (
-    <GameStateContext.Provider value={{
-      gameState,
-      updateGameState,
-      claimReward,
-      completeQuest,
-      addNotification
-    }}>
-      {children}
-    </GameStateContext.Provider>
+  return React.createElement(
+    GameStateContext.Provider,
+    {
+      value: {
+        gameState,
+        updateGameState,
+        claimReward,
+        completeQuest,
+        addNotification
+      }
+    },
+    children
   );
 };
