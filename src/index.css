@@ -1,4 +1,3 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -104,6 +103,53 @@
   50% { border-color: rgba(6, 182, 212, 1); }
 }
 
+@keyframes tribulation-lightning {
+  0% { 
+    opacity: 0; 
+    transform: scale(0.5) rotate(0deg);
+    filter: hue-rotate(0deg) brightness(1);
+  }
+  25% { 
+    opacity: 1; 
+    transform: scale(1.2) rotate(90deg);
+    filter: hue-rotate(90deg) brightness(1.5);
+  }
+  50% { 
+    opacity: 0.8; 
+    transform: scale(1) rotate(180deg);
+    filter: hue-rotate(180deg) brightness(2);
+  }
+  75% { 
+    opacity: 1; 
+    transform: scale(1.3) rotate(270deg);
+    filter: hue-rotate(270deg) brightness(1.5);
+  }
+  100% { 
+    opacity: 0.9; 
+    transform: scale(1.1) rotate(360deg);
+    filter: hue-rotate(360deg) brightness(1.2);
+  }
+}
+
+@keyframes tribulation-cloud {
+  0%, 100% { 
+    transform: scale(1) translateY(0px);
+    filter: brightness(1) contrast(1);
+  }
+  50% { 
+    transform: scale(1.1) translateY(-5px);
+    filter: brightness(1.2) contrast(1.2);
+  }
+}
+
+@keyframes lightning-strike {
+  0% { opacity: 0; transform: scaleY(0) scaleX(0.1); }
+  10% { opacity: 1; transform: scaleY(1) scaleX(0.3); }
+  20% { opacity: 0.8; transform: scaleY(0.8) scaleX(0.2); }
+  30% { opacity: 1; transform: scaleY(1.2) scaleX(0.4); }
+  100% { opacity: 0; transform: scaleY(0) scaleX(0.1); }
+}
+
 .cultivate-anim {
   animation: cultivate 3s ease-in-out infinite;
 }
@@ -118,6 +164,18 @@
 
 .jade-pulse {
   animation: jade-pulse 1.5s ease-in-out infinite;
+}
+
+.tribulation-lightning {
+  animation: tribulation-lightning 1s ease-in-out infinite;
+}
+
+.tribulation-cloud {
+  animation: tribulation-cloud 3s ease-in-out infinite;
+}
+
+.lightning-strike {
+  animation: lightning-strike 0.3s ease-out;
 }
 
 /* Tu Tiên Gradients */
@@ -138,6 +196,23 @@
     rgba(255, 215, 0, 0.8) 0%, 
     rgba(6, 182, 212, 0.6) 50%, 
     rgba(168, 85, 247, 0.8) 100%);
+}
+
+/* Tribulation specific effects */
+.tribulation-bg {
+  background: radial-gradient(circle at center, 
+    rgba(139, 69, 19, 0.8) 0%,
+    rgba(0, 0, 0, 0.9) 50%,
+    rgba(25, 25, 112, 0.8) 100%);
+  backdrop-filter: blur(10px);
+}
+
+.lightning-glow {
+  box-shadow: 
+    0 0 20px rgba(255, 255, 0, 0.8),
+    0 0 40px rgba(255, 255, 0, 0.6),
+    0 0 60px rgba(255, 255, 0, 0.4),
+    inset 0 0 20px rgba(255, 255, 0, 0.2);
 }
 
 /* Realm Glow Effects */

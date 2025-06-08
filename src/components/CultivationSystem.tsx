@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -15,7 +14,10 @@ import {
   Mountain,
   Target,
   Clock,
-  Sparkles
+  Sparkles,
+  Cloud,
+  CloudLightning,
+  Skull
 } from 'lucide-react';
 
 interface Technique {
@@ -36,6 +38,15 @@ interface Realm {
   maxLevel: number;
   progress: number;
   description: string;
+  nextRealm?: string;
+}
+
+interface TribulationState {
+  isActive: boolean;
+  phase: 'preparing' | 'lightning' | 'success' | 'failure';
+  progress: number;
+  lightningCount: number;
+  maxLightning: number;
 }
 
 const CultivationSystem = () => {
@@ -43,13 +54,21 @@ const CultivationSystem = () => {
   const [cultivationProgress, setCultivationProgress] = useState(0);
   const [isCultivating, setIsCultivating] = useState(false);
   const [cultivationStart, setCultivationStart] = useState<Date | null>(null);
+  const [tribulation, setTribulation] = useState<TribulationState>({
+    isActive: false,
+    phase: 'preparing',
+    progress: 0,
+    lightningCount: 0,
+    maxLightning: 9
+  });
 
   const [currentRealm, setCurrentRealm] = useState<Realm>({
     name: 'Phàm Nhân',
     level: 1,
     maxLevel: 9,
-    progress: 25,
-    description: 'Cảnh giới khởi đầu của con đường tu tiên'
+    progress: 85, // Set high for testing tribulation
+    description: 'Cảnh giới khởi đầu của con đường tu tiên',
+    nextRealm: 'Luyện Khí'
   });
 
   const [techniques, setTechniques] = useState<Technique[]>([
@@ -90,6 +109,51 @@ const CultivationSystem = () => {
 
   useEffect(() => {
     const interval = setInterval(() => {
+      // Handle tribulation animation
+      if (tribulation.isActive) {
+        setTribulation(prev => {
+          if (prev.phase === 'preparing') {
+            return { ...prev, phase: 'lightning', progress: 0 };
+          } else if (prev.phase === 'lightning') {
+            const newProgress = prev.progress + 2;
+            if (newProgress >= 100) {
+              const newLightningCount = prev.lightningCount + 1;
+              if (newLightningCount >= prev.maxLightning) {
+                // Tribulation completed successfully
+                setTimeout(() => {
+                  setTribulation({
+                    isActive: false,
+                    phase: 'success',
+                    progress: 0,
+                    lightningCount: 0,
+                    maxLightning: 9
+                  });
+                  // Advance to next realm
+                  setCurrentRealm(prevRealm => ({
+                    name: prevRealm.nextRealm || 'Luyện Khí',
+                    level: 1,
+                    maxLevel: 9,
+                    progress: 0,
+                    description: 'Bắt đầu hành trình tu luyện chân chính',
+                    nextRealm: 'Trúc Cơ'
+                  }));
+                  alert('🎉 Độ kiếp thành công! Đột phá lên cảnh giới mới!');
+                }, 1000);
+                return { ...prev, phase: 'success', progress: 100 };
+              } else {
+                return { 
+                  ...prev, 
+                  progress: 0, 
+                  lightningCount: newLightningCount 
+                };
+              }
+            }
+            return { ...prev, progress: newProgress };
+          }
+          return prev;
+        });
+      }
+
       if (isCultivating && cultivationStart) {
         const elapsed = Date.now() - cultivationStart.getTime();
         const progress = Math.min((elapsed / (60 * 60 * 1000)) * 100, 100); // 1 hour for full cultivation
@@ -100,10 +164,10 @@ const CultivationSystem = () => {
           setCultivationStart(null);
           setCultivationProgress(0);
           // Update realm progress
-          setCurrentRealm(prev => ({
-            ...prev,
-            progress: Math.min(prev.progress + 10, 100)
-          }));
+          setCurrentRealm(prev => {
+            const newProgress = Math.min(prev.progress + 10, 100);
+            return { ...prev, progress: newProgress };
+          });
           alert('Tu luyện hoàn thành! +10 tiến độ cảnh giới');
         }
       }
@@ -126,10 +190,24 @@ const CultivationSystem = () => {
         }
         return tech;
       }));
-    }, 1000);
+    }, 100); // Faster interval for smooth tribulation animation
 
     return () => clearInterval(interval);
-  }, [isCultivating, cultivationStart]);
+  }, [isCultivating, cultivationStart, tribulation.isActive]);
+
+  const startTribulation = () => {
+    setTribulation({
+      isActive: true,
+      phase: 'preparing',
+      progress: 0,
+      lightningCount: 0,
+      maxLightning: 9
+    });
+  };
+
+  const canStartTribulation = () => {
+    return currentRealm.progress >= 100 && currentRealm.level >= currentRealm.maxLevel;
+  };
 
   const startCultivation = () => {
     setIsCultivating(true);
@@ -168,8 +246,86 @@ const CultivationSystem = () => {
     return Math.min((elapsed / (technique.cultivationTime * 60 * 1000)) * 100, 100);
   };
 
+  const renderTribulationOverlay = () => {
+    if (!tribulation.isActive) return null;
+
+    return (
+      <div className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center">
+        <div className="text-center space-y-6 max-w-md mx-auto p-6">
+          <div className="text-2xl font-bold text-cultivator-gold mb-4">
+            ⚡ ĐỘ KIẾP ⚡
+          </div>
+          
+          {tribulation.phase === 'preparing' && (
+            <div className="space-y-4">
+              <div className="text-lg text-white">Thiên kiếp đang tụ tập...</div>
+              <div className="relative">
+                <Cloud className="w-24 h-24 mx-auto text-gray-600 animate-pulse" />
+                <CloudLightning className="w-16 h-16 absolute top-4 left-1/2 transform -translate-x-1/2 text-yellow-400 animate-bounce" />
+              </div>
+            </div>
+          )}
+
+          {tribulation.phase === 'lightning' && (
+            <div className="space-y-4">
+              <div className="text-lg text-white">
+                Sấm sét thứ {tribulation.lightningCount + 1}/{tribulation.maxLightning}
+              </div>
+              <div className="relative">
+                <div className="w-24 h-24 mx-auto bg-gradient-to-b from-purple-900 to-black rounded-full flex items-center justify-center">
+                  <Zap 
+                    className="w-16 h-16 text-yellow-300 animate-ping" 
+                    style={{
+                      filter: `drop-shadow(0 0 20px #fbbf24) hue-rotate(${tribulation.progress * 3.6}deg)`,
+                      transform: `scale(${1 + tribulation.progress / 100})`
+                    }}
+                  />
+                </div>
+                {/* Lightning effects */}
+                <div className="absolute inset-0 pointer-events-none">
+                  {[...Array(5)].map((_, i) => (
+                    <div
+                      key={i}
+                      className="absolute w-1 bg-yellow-300 animate-pulse"
+                      style={{
+                        height: `${20 + Math.random() * 40}px`,
+                        left: `${20 + Math.random() * 60}%`,
+                        top: `${10 + Math.random() * 60}%`,
+                        transform: `rotate(${Math.random() * 360}deg)`,
+                        boxShadow: '0 0 10px #fbbf24',
+                        opacity: tribulation.progress / 100
+                      }}
+                    />
+                  ))}
+                </div>
+              </div>
+              <Progress value={tribulation.progress} className="h-3" />
+              <div className="text-sm text-muted-foreground">
+                Chịu đựng sức mạnh của thiên kiếp...
+              </div>
+            </div>
+          )}
+
+          {tribulation.phase === 'success' && (
+            <div className="space-y-4">
+              <div className="text-xl text-cultivator-gold animate-pulse">
+                🎉 ĐỘ KIẾP THÀNH CÔNG! 🎉
+              </div>
+              <div className="text-lg text-spirit-jade">
+                Đột phá lên cảnh giới mới!
+              </div>
+              <Sparkles className="w-24 h-24 mx-auto text-yellow-400 animate-spin" />
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="space-y-3 sm:space-y-4">
+      {renderTribulationOverlay()}
+      
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-3 sm:space-y-4">
         <Card className="p-1 sm:p-2 bg-card/50 backdrop-blur-sm border-border/50">
           <TabsList className="grid w-full grid-cols-3 bg-transparent gap-1">
@@ -205,9 +361,29 @@ const CultivationSystem = () => {
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
                   <span>Tiến độ tu luyện</span>
-                  <span>{currentRealm.progress}%</span>
+                  <span>{Math.min(currentRealm.progress, 100)}%</span>
                 </div>
-                <Progress value={currentRealm.progress} className="h-3" />
+                <Progress value={Math.min(currentRealm.progress, 100)} className="h-3" />
+                
+                {currentRealm.progress >= 100 && (
+                  <div className="mt-3 p-3 bg-gradient-to-r from-yellow-900/50 to-red-900/50 rounded-lg border border-yellow-600/50">
+                    <div className="flex items-center gap-2 text-yellow-300 mb-2">
+                      <CloudLightning className="w-5 h-5" />
+                      <span className="font-semibold">Sẵn sàng độ kiếp!</span>
+                    </div>
+                    <div className="text-xs text-yellow-200 mb-3">
+                      Cảnh giới đã đạt đỉnh, cần vượt qua thiên kiếp để đột phá
+                    </div>
+                    <Button 
+                      onClick={startTribulation}
+                      disabled={tribulation.isActive}
+                      className="w-full bg-gradient-to-r from-yellow-600 to-red-600 hover:from-yellow-700 hover:to-red-700 text-white"
+                    >
+                      <Skull className="w-4 h-4 mr-2" />
+                      Bắt Đầu Độ Kiếp
+                    </Button>
+                  </div>
+                )}
               </div>
 
               {isCultivating ? (
