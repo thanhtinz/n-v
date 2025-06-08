@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
 interface GameItem {
   id: number;
@@ -104,19 +104,10 @@ let globalShops: Shop[] = [
   }
 ];
 
-const listeners: Set<() => void> = new Set();
+const listeners: Array<() => void> = [];
 
 export const useShopData = () => {
-  const [shops, setShops] = useState<Shop[]>(globalShops);
-
-  useEffect(() => {
-    const listener = () => setShops([...globalShops]);
-    listeners.add(listener);
-    
-    return () => {
-      listeners.delete(listener);
-    };
-  }, []);
+  const [, forceUpdate] = useState({});
 
   const updateShops = (newShops: Shop[]) => {
     globalShops = newShops;
@@ -132,8 +123,18 @@ export const useShopData = () => {
     return globalShops.filter(shop => shop.status === 'active');
   };
 
+  // Subscribe to changes
+  useState(() => {
+    const listener = () => forceUpdate({});
+    listeners.push(listener);
+    return () => {
+      const index = listeners.indexOf(listener);
+      if (index > -1) listeners.splice(index, 1);
+    };
+  });
+
   return {
-    shops,
+    shops: globalShops,
     activeShops: getActiveShops(),
     updateShops,
     addShop
