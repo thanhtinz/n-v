@@ -34,10 +34,8 @@ import {
   Gift,
   Crown,
   Calendar,
-  Coins,
-  Gem,
-  Sparkles,
-  Plus
+  Plus,
+  Sparkles
 } from 'lucide-react';
 
 interface ElementalStats {
@@ -272,7 +270,7 @@ const GameInterface = () => {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      {/* Enhanced Header with Resources */}
+      {/* Simplified Header with only 2 Spirit Stone types */}
       <div className="border-b border-border/50 bg-card/30 backdrop-blur-sm">
         <div className="container mx-auto px-2 sm:px-4 py-2 sm:py-3">
           <div className="flex items-center justify-between">
@@ -285,7 +283,7 @@ const GameInterface = () => {
               </Badge>
             </div>
             
-            {/* Player Info & Resources */}
+            {/* Player Info & Only 2 Types of Spirit Stones */}
             <div className="flex items-center gap-2 sm:gap-4">
               {/* Player Name & Level */}
               <div className="hidden sm:flex items-center gap-2">
@@ -300,28 +298,8 @@ const GameInterface = () => {
                 </div>
               </div>
 
-              {/* Resources */}
+              {/* Only 2 Types of Resources - Spirit Stones */}
               <div className="flex items-center gap-2 sm:gap-3">
-                <Card className="px-2 py-1 bg-card/60">
-                  <div className="flex items-center gap-1">
-                    <Coins className="w-4 h-4 text-yellow-500" />
-                    <span className="text-xs font-medium">{gameState.player.gold.toLocaleString()}</span>
-                    <Button size="sm" variant="ghost" className="h-4 w-4 p-0" onClick={handleRecharge}>
-                      <Plus className="w-3 h-3" />
-                    </Button>
-                  </div>
-                </Card>
-
-                <Card className="px-2 py-1 bg-card/60">
-                  <div className="flex items-center gap-1">
-                    <Gem className="w-4 h-4 text-blue-500" />
-                    <span className="text-xs font-medium">{gameState.player.diamonds.toLocaleString()}</span>
-                    <Button size="sm" variant="ghost" className="h-4 w-4 p-0" onClick={handleRecharge}>
-                      <Plus className="w-3 h-3" />
-                    </Button>
-                  </div>
-                </Card>
-
                 {/* Linh Thạch Thường */}
                 <Card className="px-2 py-1 bg-card/60">
                   <div className="flex items-center gap-1">
@@ -338,14 +316,6 @@ const GameInterface = () => {
                     <Button size="sm" variant="ghost" className="h-4 w-4 p-0" onClick={handleRecharge}>
                       <Plus className="w-3 h-3" />
                     </Button>
-                  </div>
-                </Card>
-
-                {/* Combat Power */}
-                <Card className="px-2 py-1 bg-card/60">
-                  <div className="flex items-center gap-1">
-                    <Star className="w-4 h-4 text-cultivator-gold" />
-                    <span className="text-xs font-medium">{gameState.player.combatPower.toLocaleString()}</span>
                   </div>
                 </Card>
               </div>
