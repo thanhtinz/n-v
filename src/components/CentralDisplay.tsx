@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import CharacterDisplay from './CharacterDisplay';
 
@@ -25,6 +24,8 @@ interface CentralDisplayProps {
   isInCombat?: boolean;
   isInTribulation?: boolean;
   currentSect?: string;
+  currentBoss?: { name: string; icon: string } | null;
+  currentOpponent?: { name: string; avatar: string } | null;
 }
 
 const CentralDisplay = ({ 
@@ -32,7 +33,9 @@ const CentralDisplay = ({
   activeTab, 
   isInCombat = false, 
   isInTribulation = false,
-  currentSect 
+  currentSect,
+  currentBoss,
+  currentOpponent
 }: CentralDisplayProps) => {
   const [displayMode, setDisplayMode] = useState<'character' | 'combat' | 'tribulation' | 'sect' | 'cultivation'>('character');
   const [combatEffects, setCombatEffects] = useState<Array<{ id: number; type: string; x: number; y: number }>>([]);
@@ -88,12 +91,70 @@ const CentralDisplay = ({
       {/* Combat background */}
       <div className="absolute inset-0 bg-gradient-to-br from-transparent via-blood-red/10 to-orange-600/20" />
       
-      {/* Character silhouette in combat stance */}
-      <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 w-32 h-48">
-        <div className="w-full h-full bg-gradient-to-t from-blood-red/60 to-blood-red/20 rounded-full" 
-             style={{ clipPath: 'ellipse(40% 48% at 50% 100%)' }} />
-        {/* Weapon glow */}
-        <div className="absolute bottom-16 right-8 w-4 h-32 bg-cultivator-gold rounded-full transform rotate-45 equipment-glow lightning-strike" />
+      {/* Combat participants */}
+      <div className="absolute inset-0 flex items-end justify-between p-4">
+        {/* Player character */}
+        <div className="flex flex-col items-center">
+          <div className="w-16 h-16 rounded-lg bg-spirit-jade/20 border-2 border-spirit-jade/50 flex items-center justify-center mb-2">
+            <div className="w-10 h-10 bg-spirit-jade rounded-full animate-pulse" />
+          </div>
+          <div className="text-xs font-semibold text-spirit-jade">{player.name}</div>
+        </div>
+
+        {/* VS indicator */}
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="text-blood-red font-bold text-xl animate-pulse">VS</div>
+        </div>
+
+        {/* Opponent */}
+        <div className="flex flex-col items-center">
+          {currentBoss ? (
+            <>
+              <div className="w-16 h-16 rounded-lg overflow-hidden border-2 border-blood-red/50 mb-2">
+                <img
+                  src={currentBoss.icon}
+                  alt={currentBoss.name}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.style.display = 'none';
+                    target.nextElementSibling?.classList.remove('hidden');
+                  }}
+                />
+                <div className="hidden w-full h-full flex items-center justify-center bg-blood-red/20">
+                  <div className="w-10 h-10 bg-blood-red rounded-full animate-pulse" />
+                </div>
+              </div>
+              <div className="text-xs font-semibold text-blood-red">{currentBoss.name}</div>
+            </>
+          ) : currentOpponent ? (
+            <>
+              <div className="w-16 h-16 rounded-lg overflow-hidden border-2 border-mystical-purple/50 mb-2">
+                <img
+                  src={currentOpponent.avatar}
+                  alt={currentOpponent.name}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.style.display = 'none';
+                    target.nextElementSibling?.classList.remove('hidden');
+                  }}
+                />
+                <div className="hidden w-full h-full flex items-center justify-center bg-mystical-purple/20">
+                  <div className="w-10 h-10 bg-mystical-purple rounded-full animate-pulse" />
+                </div>
+              </div>
+              <div className="text-xs font-semibold text-mystical-purple">{currentOpponent.name}</div>
+            </>
+          ) : (
+            <>
+              <div className="w-16 h-16 rounded-lg bg-blood-red/20 border-2 border-blood-red/50 flex items-center justify-center mb-2">
+                <div className="w-10 h-10 bg-blood-red rounded-full animate-pulse" />
+              </div>
+              <div className="text-xs font-semibold text-blood-red">Đối Thủ</div>
+            </>
+          )}
+        </div>
       </div>
 
       {/* Combat effects */}
@@ -112,7 +173,6 @@ const CentralDisplay = ({
       {/* Combat info */}
       <div className="absolute bottom-2 left-2 right-2 text-center">
         <div className="text-sm font-semibold text-blood-red animate-pulse">⚔️ Đang Chiến Đấu</div>
-        <div className="text-xs text-muted-foreground">{player.name}</div>
       </div>
     </div>
   );

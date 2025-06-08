@@ -20,6 +20,7 @@ interface Boss {
     items: string[];
   };
   difficulty: 'easy' | 'medium' | 'hard' | 'nightmare';
+  icon: string;
 }
 
 interface PlayerStats {
@@ -46,7 +47,8 @@ const BossArena = ({ playerStats }: BossArenaProps) => {
       attack: 20,
       defense: 10,
       reward: { exp: 50, spiritStones: 10, items: ['Răng Sói', 'Da Thú'] },
-      difficulty: 'easy'
+      difficulty: 'easy',
+      icon: 'https://images.unsplash.com/photo-1485833077593-4278bba3f11f?w=100&h=100&fit=crop&crop=center'
     },
     {
       id: 'thunder-eagle',
@@ -57,7 +59,8 @@ const BossArena = ({ playerStats }: BossArenaProps) => {
       attack: 35,
       defense: 20,
       reward: { exp: 150, spiritStones: 30, items: ['Lông Vũ Lôi', 'Tinh Thạch Gió'] },
-      difficulty: 'medium'
+      difficulty: 'medium',
+      icon: 'https://images.unsplash.com/photo-1441057206919-63d19fac2369?w=100&h=100&fit=crop&crop=center'
     },
     {
       id: 'flame-dragon',
@@ -68,7 +71,8 @@ const BossArena = ({ playerStats }: BossArenaProps) => {
       attack: 60,
       defense: 40,
       reward: { exp: 500, spiritStones: 100, items: ['Long Lân', 'Hỏa Hồn Châu'] },
-      difficulty: 'hard'
+      difficulty: 'hard',
+      icon: 'https://images.unsplash.com/photo-1493962853295-0fd70327578a?w=100&h=100&fit=crop&crop=center'
     }
   ]);
 
@@ -139,21 +143,37 @@ const BossArena = ({ playerStats }: BossArenaProps) => {
           {bosses.map((boss) => (
             <Card key={boss.id} className="p-3 sm:p-4 bg-card/80 backdrop-blur-sm border-border/50 hover:border-cultivator-gold/50 transition-colors">
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Skull className="w-4 h-4 sm:w-5 sm:h-5 text-blood-red" />
-                    <h3 className="font-semibold text-sm sm:text-base">{boss.name}</h3>
-                    <Badge variant="outline" className={`text-xs ${getDifficultyColor(boss.difficulty)}`}>
-                      Lv.{boss.level}
-                    </Badge>
+                <div className="flex items-start gap-3 flex-1">
+                  <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-lg overflow-hidden border-2 border-blood-red/50 bg-card/50 flex-shrink-0">
+                    <img
+                      src={boss.icon}
+                      alt={boss.name}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.style.display = 'none';
+                        target.nextElementSibling?.classList.remove('hidden');
+                      }}
+                    />
+                    <div className="hidden w-full h-full flex items-center justify-center bg-blood-red/20">
+                      <Skull className="w-6 h-6 text-blood-red" />
+                    </div>
                   </div>
-                  <div className="flex items-center gap-4 text-xs sm:text-sm text-muted-foreground">
-                    <span>HP: {boss.hp}</span>
-                    <span>ATK: {boss.attack}</span>
-                    <span>DEF: {boss.defense}</span>
-                  </div>
-                  <div className="mt-2 text-xs text-cultivator-gold">
-                    Thưởng: {boss.reward.exp} EXP, {boss.reward.spiritStones} Linh Thạch
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-2">
+                      <h3 className="font-semibold text-sm sm:text-base">{boss.name}</h3>
+                      <Badge variant="outline" className={`text-xs ${getDifficultyColor(boss.difficulty)}`}>
+                        Lv.{boss.level}
+                      </Badge>
+                    </div>
+                    <div className="flex items-center gap-4 text-xs sm:text-sm text-muted-foreground">
+                      <span>HP: {boss.hp}</span>
+                      <span>ATK: {boss.attack}</span>
+                      <span>DEF: {boss.defense}</span>
+                    </div>
+                    <div className="mt-2 text-xs text-cultivator-gold">
+                      Thưởng: {boss.reward.exp} EXP, {boss.reward.spiritStones} Linh Thạch
+                    </div>
                   </div>
                 </div>
                 <Button
@@ -170,6 +190,48 @@ const BossArena = ({ playerStats }: BossArenaProps) => {
       ) : (
         // Battle Interface
         <div className="space-y-3 sm:space-y-4">
+          {/* Battle Visual */}
+          <Card className="p-3 sm:p-4 bg-card/80 backdrop-blur-sm border-blood-red/50">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-lg bg-spirit-jade/20 border-2 border-spirit-jade/50 flex items-center justify-center">
+                  <div className="w-8 h-8 bg-spirit-jade rounded-full animate-pulse" />
+                </div>
+                <div>
+                  <div className="font-medium text-sm sm:text-base">Bạn</div>
+                  <div className="text-xs text-muted-foreground">Lv.{Math.floor(Math.random() * 10) + 5}</div>
+                </div>
+              </div>
+              
+              <div className="text-center">
+                <Sword className="w-6 h-6 sm:w-8 sm:h-8 text-blood-red animate-pulse mx-auto" />
+                <div className="text-xs text-blood-red font-semibold mt-1">VS</div>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <div>
+                  <div className="font-medium text-sm sm:text-base text-right">{selectedBoss?.name}</div>
+                  <div className="text-xs text-muted-foreground text-right">Lv.{selectedBoss?.level}</div>
+                </div>
+                <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-lg overflow-hidden border-2 border-blood-red/50">
+                  <img
+                    src={selectedBoss?.icon}
+                    alt={selectedBoss?.name}
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.style.display = 'none';
+                      target.nextElementSibling?.classList.remove('hidden');
+                    }}
+                  />
+                  <div className="hidden w-full h-full flex items-center justify-center bg-blood-red/20">
+                    <Skull className="w-6 h-6 text-blood-red" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Card>
+
           {/* Battle Status */}
           <div className="grid gap-3 sm:gap-4">
             {/* Player Status */}
