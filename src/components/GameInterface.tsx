@@ -32,7 +32,8 @@ import {
   ShoppingCart,
   RotateCcw,
   Target,
-  Clock
+  Clock,
+  Heart
 } from 'lucide-react';
 import EventSystem from './EventSystem';
 import HomeSystem from './HomeSystem';
@@ -50,6 +51,7 @@ import ShopSystem from './ShopSystem';
 import DailyActivitiesSystem from './DailyActivitiesSystem';
 import GuildSystem from './GuildSystem';
 import SocialSystem from './SocialSystem';
+import PetSystem from './PetSystem';
 
 const GameInterface = () => {
   const [activeTab, setActiveTab] = useState('overview');
@@ -199,7 +201,7 @@ const GameInterface = () => {
               </div>
             </div>
 
-            {/* Menu Items - Updated to remove giftcode and luckywheel */}
+            {/* Menu Items - Updated to include Pet */}
             <div className="space-y-2">
               <Button
                 variant="ghost"
@@ -216,6 +218,14 @@ const GameInterface = () => {
               >
                 <Home className="w-4 h-4 mr-2" />
                 Động Phủ
+              </Button>
+              <Button
+                variant="ghost"
+                className="w-full justify-start"
+                onClick={() => handleMenuClick('pet', 'Pet & Nông Trại')}
+              >
+                <Heart className="w-4 h-4 mr-2" />
+                Pet & Nông Trại
               </Button>
               <Button
                 variant="ghost"
@@ -345,6 +355,10 @@ const GameInterface = () => {
 
           <TabsContent value="home" className="mt-0">
             <HomeSystem />
+          </TabsContent>
+
+          <TabsContent value="pet" className="mt-0">
+            <PetSystem />
           </TabsContent>
 
           <TabsContent value="activities" className="mt-0">

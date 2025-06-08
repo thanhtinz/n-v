@@ -18,7 +18,12 @@ import {
   Zap,
   Shield,
   Plus,
-  Check
+  Check,
+  Heart,
+  Crown,
+  Users,
+  Sparkles,
+  Gift
 } from 'lucide-react';
 
 interface Plant {
@@ -70,12 +75,48 @@ interface CraftingJob {
   isCompleted: boolean;
 }
 
+interface ButterflyEgg {
+  id: string;
+  level: number;
+  isAwakened: boolean;
+  awakenedBy: string | null;
+  awakenedTime: Date | null;
+}
+
+interface ButterflyBoss {
+  id: string;
+  level: number;
+  satiety: number;
+  maxSatiety: number;
+  lastFed: Date | null;
+  isReadyToBattle: boolean;
+}
+
+interface SacredTree {
+  id: string;
+  level: number;
+  exp: number;
+  maxExp: number;
+  canSummon: boolean;
+}
+
+interface CoupleActivity {
+  hasPartner: boolean;
+  partnerName: string;
+  lovePoints: number;
+  sharedActivities: {
+    butterflyEggs: ButterflyEgg[];
+    butterflyBoss: ButterflyBoss | null;
+    sacredTree: SacredTree;
+  };
+}
+
 interface HomeSystemProps {
-  onActivityUpdate?: (activity: 'gardening' | 'crafting' | 'decorating' | null, data?: any) => void;
+  onActivityUpdate?: (activity: 'gardening' | 'crafting' | 'decorating' | 'farming' | null, data?: any) => void;
 }
 
 const HomeSystem = ({ onActivityUpdate }: HomeSystemProps) => {
-  const [activeSection, setActiveSection] = useState<'overview' | 'garden' | 'rooms' | 'craft'>('overview');
+  const [activeSection, setActiveSection] = useState<'overview' | 'garden' | 'rooms' | 'craft' | 'farm' | 'couple'>('overview');
   
   const [garden, setGarden] = useState<Plant[]>([
     {
@@ -200,6 +241,23 @@ const HomeSystem = ({ onActivityUpdate }: HomeSystemProps) => {
   const [craftingJobs, setCraftingJobs] = useState<CraftingJob[]>([]);
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
 
+  const [coupleActivity, setCoupleActivity] = useState<CoupleActivity>({
+    hasPartner: true, // Assuming player is married
+    partnerName: 'Tiên Nữ Mai',
+    lovePoints: 45,
+    sharedActivities: {
+      butterflyEggs: [],
+      butterflyBoss: null,
+      sacredTree: {
+        id: 'tree1',
+        level: 5,
+        exp: 30,
+        maxExp: 100,
+        canSummon: true
+      }
+    }
+  });
+
   useEffect(() => {
     const interval = setInterval(() => {
       setGarden(prev => prev.map(plant => {
@@ -233,8 +291,9 @@ const HomeSystem = ({ onActivityUpdate }: HomeSystemProps) => {
   useEffect(() => {
     const plantsGrowing = garden.filter(plant => plant.planted && !plant.isReady).length;
     const activeCraftingJobs = craftingJobs.filter(job => !job.isCompleted).length;
+    const butterflyActivities = coupleActivity.sharedActivities.butterflyEggs.length;
     
-    let currentActivity: 'gardening' | 'crafting' | 'decorating' | null = null;
+    let currentActivity: 'gardening' | 'crafting' | 'decorating' | 'farming' | null = null;
     
     if (activeSection === 'garden' && plantsGrowing > 0) {
       currentActivity = 'gardening';
@@ -242,13 +301,16 @@ const HomeSystem = ({ onActivityUpdate }: HomeSystemProps) => {
       currentActivity = 'crafting';
     } else if (activeSection === 'rooms') {
       currentActivity = 'decorating';
+    } else if ((activeSection === 'farm' || activeSection === 'couple') && butterflyActivities > 0) {
+      currentActivity = 'farming';
     }
     
     onActivityUpdate?.(currentActivity, { 
       plantsGrowing, 
-      craftingJobs: activeCraftingJobs 
+      craftingJobs: activeCraftingJobs,
+      butterflyActivities
     });
-  }, [activeSection, garden, craftingJobs, onActivityUpdate]);
+  }, [activeSection, garden, craftingJobs, coupleActivity, onActivityUpdate]);
 
   const getPlantIcon = (type: string) => {
     switch (type) {
@@ -365,11 +427,176 @@ const HomeSystem = ({ onActivityUpdate }: HomeSystemProps) => {
     return Math.min((elapsed / total) * 100, 100);
   };
 
+  const summonButterflyEgg = () => {
+    if (!coupleActivity.hasPartner) {
+      alert('Cần có vợ/chồng để triệu hồi Trứng Bướm Ma!');
+      return;
+    }
+
+    if (!coupleActivity.sharedActivities.sacredTree.canSummon) {
+      alert('Cây Thần chưa đủ điều kiện triệu hồi!');
+      return;
+    }
+
+    const newEgg: ButterflyEgg = {
+      id: Date.now().toString(),
+      level: Math.min(coupleActivity.sharedActivities.sacredTree.level, 5),
+      isAwakened: false,
+      awakenedBy: null,
+      awakenedTime: null
+    };
+
+    setCoupleActivity(prev => ({
+      ...prev,
+      sharedActivities: {
+        ...prev.sharedActivities,
+        butterflyEggs: [...prev.sharedActivities.butterflyEggs, newEgg],
+        sacredTree: {
+          ...prev.sharedActivities.sacredTree,
+          canSummon: false
+        }
+      }
+    }));
+
+    alert(`Triệu hồi thành công Trứng Bướm Ma Cấp ${newEgg.level}!`);
+  };
+
+  const awakenButterflyEgg = (eggId: string) => {
+    setCoupleActivity(prev => ({
+      ...prev,
+      sharedActivities: {
+        ...prev.sharedActivities,
+        butterflyEggs: prev.sharedActivities.butterflyEggs.map(egg =>
+          egg.id === eggId 
+            ? { 
+                ...egg, 
+                isAwakened: true, 
+                awakenedBy: prev.partnerName,
+                awakenedTime: new Date()
+              }
+            : egg
+        )
+      }
+    }));
+
+    // Convert awakened egg to butterfly boss
+    const egg = coupleActivity.sharedActivities.butterflyEggs.find(e => e.id === eggId);
+    if (egg) {
+      const newBoss: ButterflyBoss = {
+        id: Date.now().toString(),
+        level: egg.level,
+        satiety: 0,
+        maxSatiety: 10,
+        lastFed: null,
+        isReadyToBattle: false
+      };
+
+      setCoupleActivity(prev => ({
+        ...prev,
+        sharedActivities: {
+          ...prev.sharedActivities,
+          butterflyBoss: newBoss,
+          butterflyEggs: prev.sharedActivities.butterflyEggs.filter(e => e.id !== eggId)
+        }
+      }));
+
+      alert('Trứng đã nở thành Bướm Ma! Hãy cho ăn để chuẩn bị chiến đấu.');
+    }
+  };
+
+  const feedButterfly = () => {
+    if (!coupleActivity.sharedActivities.butterflyBoss) return;
+
+    const now = new Date();
+    const lastFed = coupleActivity.sharedActivities.butterflyBoss.lastFed;
+    
+    if (lastFed && (now.getTime() - lastFed.getTime()) < 60 * 60 * 1000) {
+      alert('Phải chờ 60 phút mới có thể cho ăn tiếp!');
+      return;
+    }
+
+    setCoupleActivity(prev => ({
+      ...prev,
+      lovePoints: prev.lovePoints + 2,
+      sharedActivities: {
+        ...prev.sharedActivities,
+        butterflyBoss: prev.sharedActivities.butterflyBoss ? {
+          ...prev.sharedActivities.butterflyBoss,
+          satiety: Math.min(prev.sharedActivities.butterflyBoss.satiety + 1, prev.sharedActivities.butterflyBoss.maxSatiety),
+          lastFed: now,
+          isReadyToBattle: prev.sharedActivities.butterflyBoss.satiety + 1 >= prev.sharedActivities.butterflyBoss.maxSatiety
+        } : null
+      }
+    }));
+
+    alert('Cho Bướm Ma ăn thành công! +2 Điểm Yêu Thương');
+  };
+
+  const battleButterfly = () => {
+    if (!coupleActivity.sharedActivities.butterflyBoss?.isReadyToBattle) {
+      alert('Bướm Ma chưa đủ no để chiến đấu!');
+      return;
+    }
+
+    if (!coupleActivity.hasPartner) {
+      alert('Cần cả hai vợ chồng mới có thể đánh Bướm Ma!');
+      return;
+    }
+
+    // Simulate battle
+    const victory = Math.random() > 0.3; // 70% success rate
+
+    if (victory) {
+      setCoupleActivity(prev => ({
+        ...prev,
+        sharedActivities: {
+          ...prev.sharedActivities,
+          butterflyBoss: null
+        }
+      }));
+      alert('Chiến thắng Bướm Ma! Nhận được Túi Quà Bướm Ma với nhiều phần thưởng quý giá!');
+    } else {
+      alert('Thua cuộc! Bướm Ma đã bỏ trốn.');
+    }
+  };
+
+  const upgradeSacredTree = () => {
+    const requiredPoints = 10;
+    if (coupleActivity.lovePoints >= requiredPoints) {
+      setCoupleActivity(prev => ({
+        ...prev,
+        lovePoints: prev.lovePoints - requiredPoints,
+        sharedActivities: {
+          ...prev.sharedActivities,
+          sacredTree: {
+            ...prev.sharedActivities.sacredTree,
+            exp: prev.sharedActivities.sacredTree.exp + 10,
+            level: prev.sharedActivities.sacredTree.exp + 10 >= prev.sharedActivities.sacredTree.maxExp 
+              ? prev.sharedActivities.sacredTree.level + 1 
+              : prev.sharedActivities.sacredTree.level,
+            exp: prev.sharedActivities.sacredTree.exp + 10 >= prev.sharedActivities.sacredTree.maxExp 
+              ? 0 
+              : prev.sharedActivities.sacredTree.exp + 10,
+            maxExp: prev.sharedActivities.sacredTree.exp + 10 >= prev.sharedActivities.sacredTree.maxExp 
+              ? prev.sharedActivities.sacredTree.maxExp + 20 
+              : prev.sharedActivities.sacredTree.maxExp,
+            canSummon: true
+          }
+        }
+      }));
+      alert('Cây Thần đã được tưới! +10 EXP');
+    } else {
+      alert(`Cần ${requiredPoints} Điểm Yêu Thương để tưới cây!`);
+    }
+  };
+
   const sections = [
     { id: 'overview', label: 'Tổng Quan', icon: Home },
     { id: 'garden', label: 'Vườn Thuốc', icon: Sprout },
     { id: 'rooms', label: 'Phòng Ốc', icon: Package },
-    { id: 'craft', label: 'Chế Tạo', icon: Hammer }
+    { id: 'craft', label: 'Chế Tạo', icon: Hammer },
+    { id: 'farm', label: 'Nông Trại', icon: TreePine },
+    { id: 'couple', label: 'Boss Vợ Chồng', icon: Heart }
   ];
 
   return (
@@ -623,6 +850,186 @@ const HomeSystem = ({ onActivityUpdate }: HomeSystemProps) => {
               ))}
             </div>
           </Card>
+        </div>
+      )}
+
+      {/* Farm Section */}
+      {activeSection === 'farm' && (
+        <div className="space-y-3">
+          <Card className="p-3 sm:p-4 bg-card/80 backdrop-blur-sm border-border/50">
+            <h3 className="font-semibold text-sm sm:text-base mb-3 text-cultivator-gold">Nông Trại Pet</h3>
+            <div className="text-center p-6">
+              <TreePine className="w-12 h-12 text-green-400 mx-auto mb-3" />
+              <div className="text-sm mb-2">Nông trại sản xuất thức ăn cho Pet</div>
+              <div className="text-xs text-muted-foreground mb-4">
+                Trồng cây để thu hoạch thức ăn cho Pet của bạn
+              </div>
+              <Button className="w-full">
+                <Sprout className="w-3 h-3 mr-2" />
+                Vào Nông Trại Pet
+              </Button>
+            </div>
+          </Card>
+        </div>
+      )}
+
+      {/* Couple Boss Section */}
+      {activeSection === 'couple' && (
+        <div className="space-y-3">
+          {/* Marriage Status */}
+          <Card className="p-3 bg-card/80 backdrop-blur-sm border-border/50">
+            <h3 className="font-semibold text-sm mb-3 text-cultivator-gold">Tình Trạng Hôn Nhân</h3>
+            {coupleActivity.hasPartner ? (
+              <div className="p-3 bg-pink-500/10 rounded-lg border border-pink-500/20">
+                <div className="flex items-center gap-2 mb-2">
+                  <Heart className="w-4 h-4 text-pink-400" />
+                  <span className="font-medium">Đã kết hôn với {coupleActivity.partnerName}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Sparkles className="w-3 h-3 text-yellow-400" />
+                  <span className="text-sm">Điểm Yêu Thương: {coupleActivity.lovePoints}</span>
+                </div>
+              </div>
+            ) : (
+              <div className="text-center p-4 text-muted-foreground">
+                Cần kết hôn để mở khóa tính năng Boss Vợ Chồng
+              </div>
+            )}
+          </Card>
+
+          {coupleActivity.hasPartner && (
+            <>
+              {/* Sacred Tree */}
+              <Card className="p-3 bg-card/80 backdrop-blur-sm border-border/50">
+                <h3 className="font-semibold text-sm mb-3 text-cultivator-gold">Cây Thần</h3>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="flex items-center gap-2 mb-1">
+                        <TreePine className="w-4 h-4 text-green-400" />
+                        <span className="font-medium">Cấp {coupleActivity.sharedActivities.sacredTree.level}</span>
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        EXP: {coupleActivity.sharedActivities.sacredTree.exp}/{coupleActivity.sharedActivities.sacredTree.maxExp}
+                      </div>
+                    </div>
+                    <Button 
+                      size="sm" 
+                      onClick={upgradeSacredTree}
+                      disabled={coupleActivity.lovePoints < 10}
+                    >
+                      <Sparkles className="w-3 h-3 mr-1" />
+                      Tưới Cây
+                    </Button>
+                  </div>
+                  
+                  <Progress 
+                    value={(coupleActivity.sharedActivities.sacredTree.exp / coupleActivity.sharedActivities.sacredTree.maxExp) * 100} 
+                    className="h-2" 
+                  />
+                  
+                  <Button 
+                    className="w-full bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600"
+                    onClick={summonButterflyEgg}
+                    disabled={!coupleActivity.sharedActivities.sacredTree.canSummon}
+                  >
+                    <Plus className="w-3 h-3 mr-2" />
+                    Triệu Hồi Trứng Bướm Ma
+                  </Button>
+                </div>
+              </Card>
+
+              {/* Butterfly Eggs */}
+              {coupleActivity.sharedActivities.butterflyEggs.length > 0 && (
+                <Card className="p-3 bg-card/80 backdrop-blur-sm border-border/50">
+                  <h3 className="font-semibold text-sm mb-3 text-cultivator-gold">Trứng Bướm Ma</h3>
+                  <div className="space-y-2">
+                    {coupleActivity.sharedActivities.butterflyEggs.map((egg) => (
+                      <div key={egg.id} className="p-3 bg-muted/20 rounded-lg border border-border/30">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <div className="flex items-center gap-2 mb-1">
+                              <Gift className="w-4 h-4 text-purple-400" />
+                              <span className="font-medium">Trứng Bướm Ma Cấp {egg.level}</span>
+                            </div>
+                            <div className="text-xs text-muted-foreground">
+                              {egg.isAwakened ? `Đã thức tỉnh bởi ${egg.awakenedBy}` : 'Cần vợ/chồng thức tỉnh'}
+                            </div>
+                          </div>
+                          {!egg.isAwakened && (
+                            <Button size="sm" onClick={() => awakenButterflyEgg(egg.id)}>
+                              <Star className="w-3 h-3 mr-1" />
+                              Thức Tỉnh
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </Card>
+              )}
+
+              {/* Butterfly Boss */}
+              {coupleActivity.sharedActivities.butterflyBoss && (
+                <Card className="p-3 bg-card/80 backdrop-blur-sm border-border/50">
+                  <h3 className="font-semibold text-sm mb-3 text-cultivator-gold">Bướm Ma Cấp {coupleActivity.sharedActivities.butterflyBoss.level}</h3>
+                  <div className="space-y-3">
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span>Độ no:</span>
+                        <span>{coupleActivity.sharedActivities.butterflyBoss.satiety}/{coupleActivity.sharedActivities.butterflyBoss.maxSatiety}</span>
+                      </div>
+                      <Progress 
+                        value={(coupleActivity.sharedActivities.butterflyBoss.satiety / coupleActivity.sharedActivities.butterflyBoss.maxSatiety) * 100} 
+                        className="h-2" 
+                      />
+                    </div>
+
+                    <div className="flex gap-2">
+                      <Button 
+                        size="sm" 
+                        onClick={feedButterfly}
+                        disabled={coupleActivity.sharedActivities.butterflyBoss.satiety >= coupleActivity.sharedActivities.butterflyBoss.maxSatiety}
+                        className="flex-1"
+                      >
+                        <Heart className="w-3 h-3 mr-1" />
+                        Cho Ăn
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        onClick={battleButterfly}
+                        disabled={!coupleActivity.sharedActivities.butterflyBoss.isReadyToBattle}
+                        className="flex-1 bg-red-500 hover:bg-red-600"
+                      >
+                        <Zap className="w-3 h-3 mr-1" />
+                        Chiến Đấu
+                      </Button>
+                    </div>
+
+                    <div className="text-xs text-muted-foreground p-2 bg-muted/10 rounded">
+                      {coupleActivity.sharedActivities.butterflyBoss.isReadyToBattle 
+                        ? 'Bướm Ma đã sẵn sàng chiến đấu! Cần cả hai vợ chồng cùng tham gia.'
+                        : 'Hãy cho Bướm Ma ăn đến khi no mới có thể chiến đấu. Mỗi lần cho ăn cách nhau 60 phút và nhận 2 Điểm Yêu Thương.'
+                      }
+                    </div>
+                  </div>
+                </Card>
+              )}
+
+              {/* Love Points Info */}
+              <Card className="p-3 bg-card/80 backdrop-blur-sm border-border/50">
+                <h3 className="font-semibold text-sm mb-3 text-cultivator-gold">Hướng Dẫn</h3>
+                <div className="space-y-2 text-xs text-muted-foreground">
+                  <div>• Cây Thần cấp 0 có thể triệu hồi Trứng Bướm Ma cấp 1</div>
+                  <div>• Cần vợ/chồng thức tỉnh trứng để nở thành Bướm Ma</div>
+                  <div>• Cho Bướm Ma ăn mỗi 60 phút để tăng độ no</div>
+                  <div>• Khi Bướm Ma no, cả hai vợ chồng có thể cùng đánh để nhận thưởng</div>
+                  <div>• Dùng Điểm Yêu Thương để nâng cấp Cây Thần</div>
+                  <div>• Cây Thần cấp 10, 20, 30, 40, 50 cần thêm Mặt Trời (300xu)</div>
+                </div>
+              </Card>
+            </>
+          )}
         </div>
       )}
     </div>
