@@ -1,49 +1,100 @@
-
 import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Gift, Calendar, Star, Zap, Users, Trophy } from 'lucide-react';
+import { useGameState } from '@/hooks/useGameState';
+import { Gift, Calendar, Star, Zap, Users, Trophy, Sparkles } from 'lucide-react';
 
 const WelfareSystem = () => {
-  const [loginDays, setLoginDays] = useState(3);
+  const { gameState, claimReward, addNotification } = useGameState();
+  const [codeRedemption, setCodeRedemption] = useState('');
+  
   const [dailyRewards, setDailyRewards] = useState([
-    { day: 1, reward: '50 Vàng', claimed: true, type: 'gold' },
-    { day: 2, reward: '100 EXP', claimed: true, type: 'exp' },
-    { day: 3, reward: '10 Linh Thạch', claimed: true, type: 'spirit' },
-    { day: 4, reward: '1 Trang Bị', claimed: false, type: 'equipment' },
-    { day: 5, reward: '200 Vàng', claimed: false, type: 'gold' },
-    { day: 6, reward: '1 Đan Dược', claimed: false, type: 'pill' },
-    { day: 7, reward: '500 Kim Cương', claimed: false, type: 'diamond' }
+    { day: 1, reward: '50 Vàng', claimed: true, type: 'gold', amount: 50 },
+    { day: 2, reward: '100 EXP', claimed: true, type: 'exp', amount: 100 },
+    { day: 3, reward: '10 Linh Thạch', claimed: true, type: 'spiritStones', amount: 10 },
+    { day: 4, reward: '1 Trang Bị', claimed: false, type: 'equipment', amount: 1 },
+    { day: 5, reward: '200 Vàng', claimed: false, type: 'gold', amount: 200 },
+    { day: 6, reward: '5 Linh Thạch Nạp', claimed: false, type: 'rechargeSpiritStones', amount: 5 },
+    { day: 7, reward: '500 Kim Cương', claimed: false, type: 'diamonds', amount: 500 }
   ]);
 
-  const [codeRedemption, setCodeRedemption] = useState('');
   const [levelRewards, setLevelRewards] = useState([
-    { level: 5, reward: 'Kiếm Thép', claimed: false },
-    { level: 10, reward: 'Áo Giáp Đồng', claimed: false },
-    { level: 15, reward: '1000 Vàng', claimed: false },
-    { level: 20, reward: 'Thú Cưng Cơ Bản', claimed: false }
+    { level: 5, reward: 'Kiếm Thép + 50 Linh Thạch', claimed: false, type: 'equipment' },
+    { level: 10, reward: 'Áo Giáp Đồng + 10 Linh Thạch Nạp', claimed: false, type: 'equipment' },
+    { level: 15, reward: '1000 Vàng + 100 Linh Thạch', claimed: false, type: 'gold', amount: 1000 },
+    { level: 20, reward: 'Thú Cưng + 20 Linh Thạch Nạp', claimed: false, type: 'pet' }
   ]);
+
+  useEffect(() => {
+    setDailyRewards(prev => prev.map(reward => ({
+      ...reward,
+      claimed: reward.day <= gameState.dailyActivities.loginDays ? reward.claimed : false
+    })));
+  }, [gameState.dailyActivities.loginDays]);
+
+  useEffect(() => {
+    setLevelRewards(prev => prev.map(reward => ({
+      ...reward,
+      claimed: gameState.player.level >= reward.level ? reward.claimed : false
+    })));
+  }, [gameState.player.level]);
 
   const claimDailyReward = (day: number) => {
-    if (day <= loginDays) {
-      setDailyRewards(prev => prev.map(reward => 
-        reward.day === day ? { ...reward, claimed: true } : reward
+    const reward = dailyRewards.find(r => r.day === day);
+    if (day <= gameState.dailyActivities.loginDays && reward && !reward.claimed) {
+      setDailyRewards(prev => prev.map(r => 
+        r.day === day ? { ...r, claimed: true } : r
       ));
+      
+      if (reward.type === 'gold' || reward.type === 'exp' || reward.type === 'diamonds' || reward.type === 'spiritStones' || reward.type === 'rechargeSpiritStones') {
+        claimReward(reward.type, reward.amount);
+      } else {
+        addNotification(`Nhận được ${reward.reward}`, 'success');
+      }
     }
   };
 
   const claimLevelReward = (level: number) => {
-    setLevelRewards(prev => prev.map(reward => 
-      reward.level === level ? { ...reward, claimed: true } : reward
-    ));
+    const reward = levelRewards.find(r => r.level === level);
+    if (gameState.player.level >= level && reward && !reward.claimed) {
+      setLevelRewards(prev => prev.map(r => 
+        r.level === level ? { ...r, claimed: true } : r
+      ));
+      
+      // Claim bonus spirit stones along with equipment
+      if (level === 5) {
+        claimReward('spiritStones', 50);
+      } else if (level === 10) {
+        claimReward('rechargeSpiritStones', 10);
+      } else if (level === 15 && reward.amount) {
+        claimReward('gold', reward.amount);
+        claimReward('spiritStones', 100);
+      } else if (level === 20) {
+        claimReward('rechargeSpiritStones', 20);
+      }
+      
+      addNotification(`Nhận được ${reward.reward}`, 'success');
+    }
   };
 
   const redeemCode = () => {
     if (codeRedemption.trim()) {
-      // Simulate code redemption
-      alert(`Đã sử dụng code: ${codeRedemption}`);
+      const validCodes: { [key: string]: { gold?: number; diamonds?: number; exp?: number; spiritStones?: number; rechargeSpiritStones?: number } } = {
+        'TUTIEN2024': { diamonds: 500, exp: 1000, rechargeSpiritStones: 20 },
+        'NEWPLAYER': { gold: 2000, spiritStones: 50, rechargeSpiritStones: 10 }
+      };
+      
+      const rewards = validCodes[codeRedemption.toUpperCase()];
+      if (rewards) {
+        Object.entries(rewards).forEach(([type, amount]) => {
+          claimReward(type, amount);
+        });
+        addNotification(`Code ${codeRedemption} đã được sử dụng thành công!`, 'success');
+      } else {
+        addNotification('Code không hợp lệ hoặc đã hết hạn', 'warning');
+      }
       setCodeRedemption('');
     }
   };
@@ -52,10 +103,11 @@ const WelfareSystem = () => {
     switch (type) {
       case 'gold': return '💰';
       case 'exp': return '⭐';
-      case 'spirit': return '💎';
+      case 'spiritStones': return '💎';
+      case 'rechargeSpiritStones': return '✨';
       case 'equipment': return '⚔️';
       case 'pill': return '🧪';
-      case 'diamond': return '💠';
+      case 'diamonds': return '💠';
       default: return '🎁';
     }
   };
@@ -70,6 +122,24 @@ const WelfareSystem = () => {
         <p className="text-sm text-muted-foreground">
           Nhận các phần thưởng miễn phí và ưu đãi đặc biệt.
         </p>
+        <div className="mt-2 flex items-center gap-4 text-xs">
+          <span className="text-cultivator-gold">
+            Đăng nhập: {gameState.dailyActivities.loginDays}/7 ngày
+          </span>
+          <span className="text-spirit-jade">
+            VIP{gameState.player.vipLevel}: Nhận thêm phần thưởng
+          </span>
+        </div>
+        <div className="mt-2 flex items-center gap-4 text-xs">
+          <div className="flex items-center gap-1">
+            <Zap className="w-3 h-3 text-spirit-jade" />
+            <span>Linh Thạch Thường: {gameState.player.spiritStones}</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <Sparkles className="w-3 h-3 text-mystical-purple" />
+            <span>Linh Thạch Nạp: {gameState.player.rechargeSpiritStones}</span>
+          </div>
+        </div>
       </Card>
 
       <Tabs defaultValue="daily" className="space-y-4">
@@ -85,13 +155,13 @@ const WelfareSystem = () => {
             <div className="flex items-center justify-between mb-4">
               <h4 className="font-medium">Điểm Danh 7 Ngày</h4>
               <Badge variant="outline" className="border-cultivator-gold text-cultivator-gold">
-                Ngày {loginDays}/7
+                Ngày {gameState.dailyActivities.loginDays}/7
               </Badge>
             </div>
             <div className="grid grid-cols-7 gap-2">
               {dailyRewards.map(reward => {
-                const canClaim = reward.day <= loginDays && !reward.claimed;
-                const isAvailable = reward.day <= loginDays;
+                const canClaim = reward.day <= gameState.dailyActivities.loginDays && !reward.claimed;
+                const isAvailable = reward.day <= gameState.dailyActivities.loginDays;
                 
                 return (
                   <div 
@@ -121,28 +191,39 @@ const WelfareSystem = () => {
         </TabsContent>
 
         <TabsContent value="level" className="space-y-3">
-          {levelRewards.map(reward => (
-            <Card key={reward.level} className="p-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-mystical-purple/20 flex items-center justify-center">
-                    <Star className="w-5 h-5 text-mystical-purple" />
+          {levelRewards.map(reward => {
+            const canClaim = gameState.player.level >= reward.level && !reward.claimed;
+            
+            return (
+              <Card key={reward.level} className="p-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-lg bg-mystical-purple/20 flex items-center justify-center">
+                      <Star className="w-5 h-5 text-mystical-purple" />
+                    </div>
+                    <div>
+                      <div className="font-medium">Đạt Cấp {reward.level}</div>
+                      <div className="text-sm text-muted-foreground">{reward.reward}</div>
+                    </div>
                   </div>
-                  <div>
-                    <div className="font-medium">Đạt Cấp {reward.level}</div>
-                    <div className="text-sm text-muted-foreground">{reward.reward}</div>
+                  <div className="text-right">
+                    {gameState.player.level < reward.level && (
+                      <div className="text-xs text-muted-foreground mb-1">
+                        Còn {reward.level - gameState.player.level} cấp
+                      </div>
+                    )}
+                    <Button 
+                      size="sm"
+                      disabled={!canClaim}
+                      onClick={() => claimLevelReward(reward.level)}
+                    >
+                      {reward.claimed ? 'Đã Nhận' : canClaim ? 'Nhận Thưởng' : 'Chưa Đạt'}
+                    </Button>
                   </div>
                 </div>
-                <Button 
-                  size="sm"
-                  disabled={reward.claimed}
-                  onClick={() => claimLevelReward(reward.level)}
-                >
-                  {reward.claimed ? 'Đã Nhận' : 'Nhận Thưởng'}
-                </Button>
-              </div>
-            </Card>
-          ))}
+              </Card>
+            );
+          })}
         </TabsContent>
 
         <TabsContent value="code" className="space-y-4">
@@ -167,7 +248,7 @@ const WelfareSystem = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     <div className="font-medium text-sm">TUTIEN2024</div>
-                    <div className="text-xs text-muted-foreground">500 Kim cương + 1000 EXP</div>
+                    <div className="text-xs text-muted-foreground">500 Kim cương + 1000 EXP + 20 Linh Thạch Nạp</div>
                   </div>
                   <Badge variant="outline" className="text-xs">Còn hạn</Badge>
                 </div>
@@ -176,7 +257,7 @@ const WelfareSystem = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     <div className="font-medium text-sm">NEWPLAYER</div>
-                    <div className="text-xs text-muted-foreground">Trang bị khởi đầu + 2000 Vàng</div>
+                    <div className="text-xs text-muted-foreground">2000 Vàng + 50 Linh Thạch + 10 Linh Thạch Nạp</div>
                   </div>
                   <Badge variant="outline" className="text-xs">Còn hạn</Badge>
                 </div>
