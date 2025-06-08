@@ -10,6 +10,7 @@ import { useGameState } from '@/hooks/useGameState';
 import AdminItemManager from './AdminItemManager';
 import AdminNPCManager from './AdminNPCManager';
 import AdminQuestManager from './AdminQuestManager';
+import AdminStoryManager from './AdminStoryManager';
 import { 
   Settings, 
   ShoppingCart, 
@@ -31,7 +32,8 @@ import {
   Crown,
   Sword,
   Shield,
-  Zap
+  Zap,
+  Scroll
 } from 'lucide-react';
 
 const AdminSystem = () => {
@@ -112,8 +114,9 @@ const AdminSystem = () => {
         </h2>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-4 lg:grid-cols-9">
+          <TabsList className="grid w-full grid-cols-4 lg:grid-cols-10">
             <TabsTrigger value="overview">Tổng Quan</TabsTrigger>
+            <TabsTrigger value="story">Cốt Truyện</TabsTrigger>
             <TabsTrigger value="items">Vật Phẩm</TabsTrigger>
             <TabsTrigger value="npcs">NPC</TabsTrigger>
             <TabsTrigger value="quests">Nhiệm Vụ</TabsTrigger>
@@ -210,6 +213,10 @@ const AdminSystem = () => {
                 </div>
               </div>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="story" className="space-y-4">
+            <AdminStoryManager />
           </TabsContent>
 
           <TabsContent value="items" className="space-y-4">

@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useGameState } from '@/hooks/useGameState';
 import { Card } from "@/components/ui/card";
@@ -35,7 +36,8 @@ import {
   Clock,
   Heart,
   PawPrint,
-  Settings as SettingsIcon
+  Settings as SettingsIcon,
+  MessageSquare
 } from 'lucide-react';
 import EventSystem from './EventSystem';
 import HomeSystem from './HomeSystem';
