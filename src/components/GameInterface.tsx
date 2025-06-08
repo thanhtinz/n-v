@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { GameStateProvider, useGameState } from '@/hooks/useGameState';
 import { Card } from "@/components/ui/card";
@@ -26,7 +27,8 @@ import {
   Trophy,
   Gift,
   Package,
-  Dumbbell
+  Dumbbell,
+  Sparkles
 } from 'lucide-react';
 import DailyQuestSystem from './DailyQuestSystem';
 import EventSystem from './EventSystem';
@@ -169,14 +171,21 @@ const GameInterface = () => {
                   <Progress value={expPercentage} className="h-2" />
                 </div>
 
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-3 gap-2">
                   <div className="text-center p-2 bg-card rounded">
-                    <Coins className="w-4 h-4 text-yellow-500 mx-auto mb-1" />
-                    <span className="text-xs font-medium">{formatNumber(gameState.player.gold)}</span>
+                    <Coins className="w-4 h-4 text-gray-400 mx-auto mb-1" />
+                    <span className="text-xs font-medium">{formatNumber(gameState.player.silver)}</span>
+                    <div className="text-xs text-muted-foreground">Bạc</div>
                   </div>
                   <div className="text-center p-2 bg-card rounded">
-                    <Gem className="w-4 h-4 text-blue-500 mx-auto mb-1" />
-                    <span className="text-xs font-medium">{formatNumber(gameState.player.diamonds)}</span>
+                    <Gem className="w-4 h-4 text-yellow-500 mx-auto mb-1" />
+                    <span className="text-xs font-medium">{formatNumber(gameState.player.goldIngots)}</span>
+                    <div className="text-xs text-muted-foreground">KNYB</div>
+                  </div>
+                  <div className="text-center p-2 bg-card rounded">
+                    <Sparkles className="w-4 h-4 text-mystical-purple mx-auto mb-1" />
+                    <span className="text-xs font-medium">{formatNumber(gameState.player.rechargeSpiritStones)}</span>
+                    <div className="text-xs text-muted-foreground">LT Nạp</div>
                   </div>
                 </div>
               </div>

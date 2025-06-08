@@ -1,4 +1,3 @@
-
 import { useGameState } from '@/hooks/useGameState';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -20,7 +19,8 @@ import {
   Trophy,
   Gift,
   Flame,
-  BookOpen
+  BookOpen,
+  Sparkles
 } from 'lucide-react';
 
 const PlayerOverview = () => {
@@ -73,9 +73,9 @@ const PlayerOverview = () => {
   ];
 
   const dailyProgress = [
-    { label: 'Đăng nhập', current: gameState.dailyActivities.loginDays, max: 7, reward: '100 Kim', icon: Gift },
+    { label: 'Đăng nhập', current: gameState.dailyActivities.loginDays, max: 7, reward: '1000 Bạc', icon: Gift },
     { label: 'Nhiệm vụ', current: gameState.dailyActivities.questsCompleted, max: 5, reward: '50 KN', icon: Target },
-    { label: 'Boss', current: gameState.dailyActivities.bossesDefeated, max: 3, reward: '200 Kim', icon: Trophy },
+    { label: 'Boss', current: gameState.dailyActivities.bossesDefeated, max: 3, reward: '5 KNYB', icon: Trophy },
     { label: 'Tu luyện', current: Math.floor(gameState.dailyActivities.cultivationTime / 60), max: 2, reward: '30 KN', icon: Clock }
   ];
 
@@ -132,31 +132,24 @@ const PlayerOverview = () => {
         <h3 className="font-semibold mb-3 text-cultivator-gold">Tài Nguyên</h3>
         <div className="grid grid-cols-2 gap-3">
           <div className="flex items-center gap-3 p-3 bg-muted/20 rounded-lg">
-            <Coins className="w-6 h-6 text-yellow-500" />
+            <Coins className="w-6 h-6 text-gray-400" />
             <div>
-              <div className="font-medium">{formatNumber(gameState.player.gold)}</div>
-              <div className="text-xs text-muted-foreground">Vàng</div>
+              <div className="font-medium">{formatNumber(gameState.player.silver)}</div>
+              <div className="text-xs text-muted-foreground">Bạc</div>
             </div>
           </div>
           <div className="flex items-center gap-3 p-3 bg-muted/20 rounded-lg">
-            <Gem className="w-6 h-6 text-blue-500" />
+            <Gem className="w-6 h-6 text-yellow-500" />
             <div>
-              <div className="font-medium">{formatNumber(gameState.player.diamonds)}</div>
-              <div className="text-xs text-muted-foreground">Kim Cương</div>
+              <div className="font-medium">{formatNumber(gameState.player.goldIngots)}</div>
+              <div className="text-xs text-muted-foreground">Kim Nguyên Bảo</div>
             </div>
           </div>
-          <div className="flex items-center gap-3 p-3 bg-muted/20 rounded-lg">
-            <Zap className="w-6 h-6 text-purple-500" />
-            <div>
-              <div className="font-medium">{formatNumber(gameState.player.spiritStones)}</div>
-              <div className="text-xs text-muted-foreground">Linh Thạch</div>
-            </div>
-          </div>
-          <div className="flex items-center gap-3 p-3 bg-muted/20 rounded-lg">
-            <Star className="w-6 h-6 text-pink-500" />
+          <div className="flex items-center gap-3 p-3 bg-muted/20 rounded-lg col-span-2">
+            <Sparkles className="w-6 h-6 text-mystical-purple" />
             <div>
               <div className="font-medium">{formatNumber(gameState.player.rechargeSpiritStones)}</div>
-              <div className="text-xs text-muted-foreground">Linh Thạch Nạp</div>
+              <div className="text-xs text-muted-foreground">Linh Thạch (Nạp)</div>
             </div>
           </div>
         </div>

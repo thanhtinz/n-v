@@ -10,9 +10,8 @@ interface GameState {
     maxExp: number;
     vipLevel: number;
     totalRecharge: number;
-    gold: number;
-    diamonds: number;
-    spiritStones: number;
+    silver: number; // Bạc
+    goldIngots: number; // Kim Nguyên Bảo
     rechargeSpiritStones: number; // Linh thạch nạp
     combatPower: number;
   };
@@ -42,9 +41,8 @@ const initialGameState: GameState = {
     maxExp: 100,
     vipLevel: 2,
     totalRecharge: 150000,
-    gold: 1000,
-    diamonds: 500,
-    spiritStones: 100, // Linh thạch thường
+    silver: 50000, // Bạc
+    goldIngots: 1200, // Kim Nguyên Bảo
     rechargeSpiritStones: 50, // Linh thạch nạp
     combatPower: 180
   },
@@ -100,12 +98,10 @@ export const GameStateProvider = ({ children }: { children: React.ReactNode }) =
     setGameState(prev => {
       const newState = { ...prev };
       
-      if (type === 'gold') {
-        newState.player.gold += amount;
-      } else if (type === 'diamonds') {
-        newState.player.diamonds += amount;
-      } else if (type === 'spiritStones') {
-        newState.player.spiritStones += amount;
+      if (type === 'silver') {
+        newState.player.silver += amount;
+      } else if (type === 'goldIngots') {
+        newState.player.goldIngots += amount;
       } else if (type === 'rechargeSpiritStones') {
         newState.player.rechargeSpiritStones += amount;
       } else if (type === 'exp') {
