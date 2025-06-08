@@ -70,6 +70,22 @@ const GameInterface = () => {
 
   const playerInfo = getPlayerInfo();
 
+  // Create player object for CentralDisplay
+  const playerForDisplay = {
+    name: gameState.player.name,
+    realm: 'Phàm Nhân', // Default realm
+    level: gameState.player.level,
+    gender: playerInfo.gender as 'male' | 'female',
+    class: playerInfo.class as 'sword' | 'magic' | 'defense',
+    equipment: {
+      clothing: 'basic_robe',
+      weapon: playerInfo.class === 'sword' ? 'iron_sword' : playerInfo.class === 'magic' ? 'wooden_staff' : 'iron_shield',
+      wings: '',
+      pet: '',
+      aura: ''
+    }
+  };
+
   const handleMenuClick = (tab: string, actionName: string) => {
     setActiveTab(tab);
     setSelectedAction(actionName);
@@ -257,7 +273,10 @@ const GameInterface = () => {
           {/* Central Display for animations */}
           {selectedAction && (
             <div className="mb-4">
-              <CentralDisplay selectedAction={selectedAction} />
+              <CentralDisplay 
+                player={playerForDisplay}
+                activeTab={activeTab}
+              />
             </div>
           )}
 
