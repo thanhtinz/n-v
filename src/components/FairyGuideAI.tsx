@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -72,6 +71,7 @@ const FairyGuideAI = () => {
 
   // Di chuyển ngẫu nhiên
   const moveRandomly = () => {
+    if (!isVisible) return; // Không di chuyển khi đang ẩn
     const newX = Math.random() * 80 + 10; // 10-90% width
     const newY = Math.random() * 80 + 10; // 10-90% height
     setIsAnimating(true);
@@ -80,15 +80,44 @@ const FairyGuideAI = () => {
     setTimeout(() => setIsAnimating(false), 1000);
   };
 
+  // Di chuyển về góc khi ẩn
+  const moveToCorner = () => {
+    setIsAnimating(true);
+    setPosition({ x: 95, y: 95 }); // Góc dưới phải
+    setTimeout(() => setIsAnimating(false), 500);
+  };
+
   // Xuất hiện tin nhắn ngẫu nhiên
   const showRandomMessage = () => {
+    if (!isVisible) return; // Không hiện tin nhắn khi đang ẩn
     const randomMessage = fairyMessages[Math.floor(Math.random() * fairyMessages.length)];
     setCurrentMessage(randomMessage);
     setShowChat(true);
   };
 
-  // Auto behaviors
+  // Xử lý ẩn/hiện
+  const toggleVisibility = () => {
+    if (isVisible) {
+      // Khi ẩn: di chuyển về góc và thu nhỏ
+      moveToCorner();
+      setTimeout(() => {
+        setIsVisible(false);
+        setShowChat(false);
+        setCurrentMessage(null);
+      }, 500);
+    } else {
+      // Khi hiện: hiện lại và di chuyển đến vị trí ngẫu nhiên
+      setIsVisible(true);
+      setTimeout(() => {
+        moveRandomly();
+      }, 100);
+    }
+  };
+
+  // Auto behaviors - chỉ hoạt động khi visible
   useEffect(() => {
+    if (!isVisible) return;
+    
     const moveInterval = setInterval(moveRandomly, 8000); // Di chuyển mỗi 8 giây
     const messageInterval = setInterval(showRandomMessage, 15000); // Tin nhắn mỗi 15 giây
 
@@ -96,7 +125,7 @@ const FairyGuideAI = () => {
       clearInterval(moveInterval);
       clearInterval(messageInterval);
     };
-  }, []);
+  }, [isVisible]);
 
   // Đóng chat sau 8 giây
   useEffect(() => {
@@ -113,61 +142,79 @@ const FairyGuideAI = () => {
 
   return (
     <>
-      {/* Tiểu Tiên */}
+      {/* Tiểu Tiên - luôn render nhưng thay đổi kích thước và opacity */}
       <div 
         className="fixed z-50 pointer-events-none"
         style={{
           left: `${position.x}%`,
           top: `${position.y}%`,
           transform: 'translate(-50%, -50%)',
-          transition: isAnimating ? 'all 1s ease-in-out' : 'none'
+          transition: isAnimating ? 'all 0.5s ease-in-out' : 'none'
         }}
       >
         <div 
-          className="relative pointer-events-auto cursor-pointer hover:scale-110 transition-transform"
-          onClick={() => showRandomMessage()}
+          className={`relative pointer-events-auto cursor-pointer hover:scale-110 transition-all duration-300 ${
+            isVisible ? 'scale-100 opacity-100' : 'scale-50 opacity-60'
+          }`}
+          onClick={() => {
+            if (isVisible) {
+              showRandomMessage();
+            } else {
+              toggleVisibility();
+            }
+          }}
         >
           {/* Hiệu ứng ánh sáng */}
-          <div className="absolute inset-0 animate-pulse">
-            <div className="w-16 h-16 bg-gradient-to-r from-pink-400 to-purple-400 rounded-full opacity-30 blur-md"></div>
+          <div className={`absolute inset-0 ${isVisible ? 'animate-pulse' : ''}`}>
+            <div className={`w-16 h-16 bg-gradient-to-r from-pink-400 to-purple-400 rounded-full opacity-30 blur-md ${
+              !isVisible ? 'scale-50' : ''
+            }`}></div>
           </div>
           
           {/* Thân Tiểu Tiên */}
           <div className="relative w-12 h-12 bg-gradient-to-br from-pink-300 to-purple-300 rounded-full flex items-center justify-center shadow-lg border-2 border-white/50">
-            <Sparkles className="w-6 h-6 text-white animate-pulse" />
+            <Sparkles className={`w-6 h-6 text-white ${isVisible ? 'animate-pulse' : ''}`} />
           </div>
           
-          {/* Cánh */}
-          <div className="absolute -top-1 -left-1 w-3 h-6 bg-gradient-to-r from-blue-200 to-purple-200 rounded-full opacity-70 transform -rotate-12 animate-bounce"></div>
-          <div className="absolute -top-1 -right-1 w-3 h-6 bg-gradient-to-r from-blue-200 to-purple-200 rounded-full opacity-70 transform rotate-12 animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+          {/* Cánh - chỉ hiện khi visible */}
+          {isVisible && (
+            <>
+              <div className="absolute -top-1 -left-1 w-3 h-6 bg-gradient-to-r from-blue-200 to-purple-200 rounded-full opacity-70 transform -rotate-12 animate-bounce"></div>
+              <div className="absolute -top-1 -right-1 w-3 h-6 bg-gradient-to-r from-blue-200 to-purple-200 rounded-full opacity-70 transform rotate-12 animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+            </>
+          )}
           
-          {/* Chấm sáng bay xung quanh */}
-          <div className="absolute animate-ping">
-            <Star className="w-2 h-2 text-yellow-300 absolute -top-3 -left-2" />
-            <Star className="w-2 h-2 text-pink-300 absolute -bottom-2 right-1" style={{ animationDelay: '0.5s' }} />
-            <Zap className="w-2 h-2 text-purple-300 absolute top-1 -right-3" style={{ animationDelay: '1s' }} />
-          </div>
+          {/* Chấm sáng bay xung quanh - chỉ hiện khi visible */}
+          {isVisible && (
+            <div className="absolute animate-ping">
+              <Star className="w-2 h-2 text-yellow-300 absolute -top-3 -left-2" />
+              <Star className="w-2 h-2 text-pink-300 absolute -bottom-2 right-1" style={{ animationDelay: '0.5s' }} />
+              <Zap className="w-2 h-2 text-purple-300 absolute top-1 -right-3" style={{ animationDelay: '1s' }} />
+            </div>
+          )}
         </div>
 
-        {/* Nút tương tác nhanh */}
-        <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 pointer-events-auto">
-          <Button 
-            size="sm" 
-            variant="ghost" 
-            className="h-6 px-2 bg-white/80 hover:bg-white/90 text-xs rounded-full shadow-md"
-            onClick={(e) => {
-              e.stopPropagation();
-              showRandomMessage();
-            }}
-          >
-            <MessageCircle className="w-3 h-3 mr-1" />
-            Chat
-          </Button>
-        </div>
+        {/* Nút tương tác nhanh - chỉ hiện khi visible */}
+        {isVisible && (
+          <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 pointer-events-auto">
+            <Button 
+              size="sm" 
+              variant="ghost" 
+              className="h-6 px-2 bg-white/80 hover:bg-white/90 text-xs rounded-full shadow-md"
+              onClick={(e) => {
+                e.stopPropagation();
+                showRandomMessage();
+              }}
+            >
+              <MessageCircle className="w-3 h-3 mr-1" />
+              Chat
+            </Button>
+          </div>
+        )}
       </div>
 
-      {/* Chat bubble */}
-      {showChat && currentMessage && (
+      {/* Chat bubble - chỉ hiện khi visible và có tin nhắn */}
+      {isVisible && showChat && currentMessage && (
         <div 
           className="fixed z-50"
           style={{
@@ -238,15 +285,19 @@ const FairyGuideAI = () => {
         </div>
       )}
 
-      {/* Toggle visibility button */}
+      {/* Toggle visibility button - thay đổi text tùy vào trạng thái */}
       <div className="fixed bottom-20 right-4 z-40">
         <Button
           variant="ghost"
           size="sm"
           className="h-8 w-8 p-0 bg-white/80 hover:bg-white/90 rounded-full shadow-md"
-          onClick={() => setIsVisible(!isVisible)}
+          onClick={toggleVisibility}
         >
-          {isVisible ? <X className="w-4 h-4" /> : <Sparkles className="w-4 h-4 text-purple-500" />}
+          {isVisible ? (
+            <X className="w-4 h-4" />
+          ) : (
+            <Sparkles className="w-4 h-4 text-purple-500" />
+          )}
         </Button>
       </div>
     </>
