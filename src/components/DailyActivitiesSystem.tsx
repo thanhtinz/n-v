@@ -1,329 +1,422 @@
-
 import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
+import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useGameState } from '@/hooks/useGameState';
+import LuckyWheelSystem from './LuckyWheelSystem';
 import { 
-  Sword, 
+  Clock, 
+  Flame, 
   Users, 
   Trophy, 
-  Clock, 
-  Star, 
+  Coins, 
+  MapPin, 
+  Swords, 
+  Crown,
   Zap,
-  Shield,
   Target,
-  Fish,
-  Gem,
-  Crown
+  Calendar,
+  Star,
+  RotateCcw
 } from 'lucide-react';
 
 const DailyActivitiesSystem = () => {
-  const { gameState, addNotification } = useGameState();
+  const { addNotification } = useGameState();
   const [currentTime, setCurrentTime] = useState(new Date());
 
   useEffect(() => {
-    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
     return () => clearInterval(timer);
   }, []);
 
-  const dailyActivities = [
+  const worldBossEvents = [
     {
-      id: 'worldboss',
-      name: 'Boss Thế Giới',
-      description: 'Tiêu diệt boss để nhận trang bị hiếm',
-      times: ['12:00', '18:00', '21:00'],
-      progress: 2,
-      maxProgress: 3,
-      rewards: ['Trang bị Epic', '5000 EXP', '2000 Bạc'],
-      icon: Sword,
-      status: 'available'
+      id: 1,
+      name: 'Long Vương Ao Thâm',
+      time: '12:00',
+      status: 'upcoming',
+      level: '50+',
+      rewards: ['Rồng Lân', 'Đá Cường Hóa', 'Kim Cương'],
+      participants: 142,
+      timeLeft: '2h 15m'
     },
     {
-      id: 'fishing',
-      name: 'Câu Cá',
-      description: 'Thu thập nguyên liệu quý hiếm',
-      progress: 15,
-      maxProgress: 50,
-      rewards: ['Nguyên liệu', '1000 EXP'],
-      icon: Fish,
-      status: 'inProgress'
-    },
-    {
-      id: 'cultivation',
-      name: 'Treo Máy Tu Luyện',
-      description: 'Tự động luyện công khi offline',
-      progress: 480,
-      maxProgress: 600,
-      rewards: ['EXP tự động', 'Linh khí'],
-      icon: Zap,
-      status: 'inProgress'
-    },
-    {
-      id: 'escort',
-      name: 'Vận Tiêu',
-      description: 'Hộ tống NPC an toàn đến đích',
-      progress: 1,
-      maxProgress: 3,
-      rewards: ['3000 Bạc', '1500 EXP'],
-      icon: Shield,
-      status: 'available'
-    },
-    {
-      id: 'bounty',
-      name: 'Truy Nã',
-      description: 'Săn thưởng các mục tiêu nguy hiểm',
-      progress: 0,
-      maxProgress: 5,
-      rewards: ['Điểm danh vọng', '2000 EXP'],
-      icon: Target,
-      status: 'available'
-    }
-  ];
-
-  const timeBasedActivities = [
-    {
-      id: 'battlefield',
-      name: 'Chiến Trường Liên Server',
-      description: 'PvP quy mô lớn',
-      time: '20:00',
-      duration: '1 giờ',
-      rewards: ['Điểm PvP', 'Trang bị PvP'],
-      participants: 156,
-      icon: Users
-    },
-    {
-      id: 'powerRace',
-      name: 'Đua Top Lực Chiến',
-      description: 'Thi đấu lực chiến thời gian thực',
-      time: '19:00',
-      duration: '2 giờ',
-      rewards: ['Danh hiệu', '10000 EXP'],
+      id: 2,
+      name: 'Hỏa Phượng Thiêu Nguyên',
+      time: '18:00',
+      status: 'active',
+      level: '60+',
+      rewards: ['Thiên Hỏa Ngọc', 'Linh Thạch', 'Trang Bị Epic'],
       participants: 89,
-      icon: Trophy
-    }
-  ];
-
-  const weeklyActivities = [
-    {
-      id: 'crossServer',
-      name: 'Liên Đấu Liên Server',
-      description: 'Thi đấu với các server khác',
-      day: 'Thứ 7',
-      time: '20:00',
-      rewards: ['Trang bị Legendary', 'Danh hiệu độc quyền'],
-      season: 'Mùa 3',
-      icon: Crown
+      timeLeft: '45m'
     },
     {
-      id: 'guildWar',
-      name: 'Bang Chiến',
-      description: 'Các bang hội tranh đấu lãnh địa',
-      day: 'Chủ nhật',
-      time: '19:00',
-      rewards: ['Điểm bang hội', 'Tài nguyên lãnh địa'],
-      season: 'Tuần 12',
-      icon: Shield
+      id: 3,
+      name: 'Băng Ma Hoàng',
+      time: '21:00',
+      status: 'upcoming',
+      level: '70+',
+      rewards: ['Băng Tinh', 'Đá Tăng Cấp', 'Pet Hiếm'],
+      participants: 67,
+      timeLeft: '6h 30m'
     }
   ];
 
-  const handleJoinActivity = (activity: any) => {
-    addNotification(`Đã tham gia ${activity.name}!`, 'success');
-  };
-
-  const getTimeLeft = (time: string) => {
-    const now = currentTime;
-    const [hours, minutes] = time.split(':').map(Number);
-    const targetTime = new Date(now);
-    targetTime.setHours(hours, minutes, 0, 0);
-    
-    if (targetTime.getTime() < now.getTime()) {
-      targetTime.setDate(targetTime.getDate() + 1);
+  const limitedTimeEvents = [
+    {
+      id: 1,
+      name: 'Chiến Trường Liên Server',
+      description: 'PvP quy mô lớn 5v5',
+      time: '19:00 - 20:00',
+      status: 'upcoming',
+      rewards: ['Danh Hiệu', 'Trang Bị PvP', 'Điểm Danh Vọng'],
+      timeLeft: '4h 30m'
+    },
+    {
+      id: 2,
+      name: 'Đua Top Lực Chiến',
+      description: 'Thời gian thực - Top 100',
+      time: '20:00 - 22:00',
+      status: 'active',
+      rewards: ['Kim Cương', 'Buff Toàn Server', 'Title'],
+      timeLeft: '1h 15m'
+    },
+    {
+      id: 3,
+      name: 'Tổ Đội Tranh Tài Nguyên',
+      description: 'Thu thập vàng, ngọc, linh khí',
+      time: '14:00 - 16:00',
+      status: 'ended',
+      rewards: ['Vàng', 'Ngọc', 'Linh Khí'],
+      timeLeft: 'Đã kết thúc'
     }
-    
-    const timeDiff = targetTime.getTime() - now.getTime();
-    const hoursLeft = Math.floor(timeDiff / (1000 * 60 * 60));
-    const minutesLeft = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
-    
-    return `${hoursLeft}h ${minutesLeft}m`;
+  ];
+
+  const weeklyEvents = [
+    {
+      id: 1,
+      name: 'Liên Đấu Liên Server',
+      description: 'PvP 1v1, 3v3 đỉnh cao',
+      day: 'Thứ 7',
+      rewards: ['Title Mùa', 'Trang Bị Legendary', 'Pet Độc Quyền'],
+      status: 'upcoming'
+    },
+    {
+      id: 2,
+      name: 'Vương Giả Chiến',
+      description: 'Boss liên server cực mạnh',
+      day: 'Chủ Nhật',
+      rewards: ['Vũ Khí Thần Thoại', 'Kim Cương x1000', 'Skin Độc Quyền'],
+      status: 'upcoming'
+    },
+    {
+      id: 3,
+      name: 'Bang Chiến Lãnh Địa',
+      description: 'Tranh đoạt lãnh thổ',
+      day: 'Thứ 6',
+      rewards: ['Buff Bang Hội', 'Tài Nguyên Lãnh Địa', 'Danh Hiệu'],
+      status: 'active'
+    }
+  ];
+
+  const guildActivities = [
+    {
+      id: 1,
+      name: 'Đạo Lữ Chiến',
+      description: 'PvP cặp đôi romantic',
+      requirements: 'Có bạn đời',
+      rewards: ['Trang Phục Couple', 'Pet Đôi', 'Title Tình Nhân'],
+      status: 'available'
+    },
+    {
+      id: 2,
+      name: 'Truyền Công Sư Đồ',
+      description: 'Hệ thống mentor-student',
+      requirements: 'Cấp 30+',
+      rewards: ['EXP Bonus', 'Kỹ Năng Đặc Biệt', 'Điểm Sư Môn'],
+      status: 'available'
+    },
+    {
+      id: 3,
+      name: 'Thành Chiến Quy Mô',
+      description: 'Công thành liên bang hội',
+      requirements: 'Bang Hội Cấp 3+',
+      rewards: ['Quyền Cai Trị', 'Thuế Thành Phố', 'Buff Toàn Bang'],
+      status: 'locked'
+    }
+  ];
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'active': return 'text-green-400 border-green-400';
+      case 'upcoming': return 'text-blue-400 border-blue-400';
+      case 'ended': return 'text-gray-400 border-gray-400';
+      case 'locked': return 'text-red-400 border-red-400';
+      default: return 'text-yellow-400 border-yellow-400';
+    }
   };
 
-  const getActivityStatus = (activity: any) => {
-    if (activity.progress >= activity.maxProgress) return 'completed';
-    if (activity.progress > 0) return 'inProgress';
-    return 'available';
+  const getStatusText = (status: string) => {
+    switch (status) {
+      case 'active': return 'Đang Diễn Ra';
+      case 'upcoming': return 'Sắp Diễn Ra';
+      case 'ended': return 'Đã Kết Thúc';
+      case 'locked': return 'Chưa Mở';
+      default: return 'Có Thể Tham Gia';
+    }
+  };
+
+  const handleJoinActivity = (activityName: string) => {
+    addNotification(`Đã tham gia ${activityName}!`, 'success');
+  };
+
+  const formatTime = (time: Date) => {
+    return time.toLocaleTimeString('vi-VN', { 
+      hour: '2-digit', 
+      minute: '2-digit', 
+      second: '2-digit' 
+    });
   };
 
   return (
     <div className="space-y-4">
       <Card className="p-4 bg-gradient-to-r from-cultivator-gold/10 to-spirit-jade/10 border-cultivator-gold/30">
-        <h2 className="text-xl font-semibold text-cultivator-gold mb-4 flex items-center gap-2">
-          <Clock className="w-5 h-5" />
-          Hoạt Động Hàng Ngày
-        </h2>
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <Clock className="w-5 h-5 text-cultivator-gold" />
+            <h2 className="text-xl font-semibold text-cultivator-gold">Hoạt Động Hàng Ngày</h2>
+          </div>
+          <div className="text-sm text-spirit-jade font-mono">
+            {formatTime(currentTime)}
+          </div>
+        </div>
         <p className="text-sm text-muted-foreground">
-          Tham gia các hoạt động để nhận phần thưởng và nâng cao sức mạnh.
+          Tham gia các hoạt động để nhận phần thưởng hấp dẫn và nâng cao trình độ tu luyện.
         </p>
       </Card>
 
-      <Tabs defaultValue="daily" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="daily">Hàng Ngày</TabsTrigger>
-          <TabsTrigger value="timed">Theo Giờ</TabsTrigger>
-          <TabsTrigger value="weekly">Hàng Tuần</TabsTrigger>
+      <Tabs defaultValue="world-boss" className="space-y-4">
+        <TabsList className="grid w-full grid-cols-4">
+          <TabsTrigger value="world-boss" className="text-xs">Boss TG</TabsTrigger>
+          <TabsTrigger value="limited" className="text-xs">Giới Hạn</TabsTrigger>
+          <TabsTrigger value="weekly" className="text-xs">Hàng Tuần</TabsTrigger>
+          <TabsTrigger value="lucky-wheel" className="text-xs">Vòng Quay</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="daily" className="space-y-3">
-          {dailyActivities.map((activity) => {
-            const ActivityIcon = activity.icon;
-            const status = getActivityStatus(activity);
+        {/* World Boss Events */}
+        <TabsContent value="world-boss" className="space-y-4">
+          <Card className="p-4 bg-muted/20">
+            <div className="flex items-center gap-2 mb-3">
+              <Flame className="w-4 h-4 text-blood-red" />
+              <h3 className="font-semibold text-blood-red">Boss Thế Giới</h3>
+            </div>
+            <p className="text-xs text-muted-foreground mb-4">
+              Boss xuất hiện theo khung giờ cố định. Cả server cùng tham gia!
+            </p>
             
-            return (
-              <Card key={activity.id} className="p-4">
-                <div className="flex items-start gap-3">
-                  <div className="w-12 h-12 rounded-lg bg-gradient-to-r from-cultivator-gold/20 to-spirit-jade/20 flex items-center justify-center">
-                    <ActivityIcon className="w-6 h-6 text-cultivator-gold" />
+            <div className="space-y-3">
+              {worldBossEvents.map((boss) => (
+                <Card key={boss.id} className="p-4 bg-card/50 border border-border/30">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <Crown className="w-5 h-5 text-cultivator-gold" />
+                      <h4 className="font-medium">{boss.name}</h4>
+                    </div>
+                    <Badge variant="outline" className={getStatusColor(boss.status)}>
+                      {getStatusText(boss.status)}
+                    </Badge>
                   </div>
                   
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <h3 className="font-medium">{activity.name}</h3>
-                      <Badge variant="outline" className={
-                        status === 'completed' ? 'border-green-500 text-green-500' :
-                        status === 'inProgress' ? 'border-yellow-500 text-yellow-500' :
-                        'border-blue-500 text-blue-500'
-                      }>
-                        {status === 'completed' ? 'Hoàn thành' :
-                         status === 'inProgress' ? 'Đang thực hiện' : 'Có thể tham gia'}
+                  <div className="grid grid-cols-2 gap-4 mb-3">
+                    <div className="text-sm">
+                      <span className="text-muted-foreground">Thời gian: </span>
+                      <span className="font-medium">{boss.time}</span>
+                    </div>
+                    <div className="text-sm">
+                      <span className="text-muted-foreground">Yêu cầu: </span>
+                      <span className="font-medium">Lv.{boss.level}</span>
+                    </div>
+                    <div className="text-sm">
+                      <span className="text-muted-foreground">Tham gia: </span>
+                      <span className="font-medium">{boss.participants} người</span>
+                    </div>
+                    <div className="text-sm">
+                      <span className="text-muted-foreground">Còn lại: </span>
+                      <span className="font-medium text-cultivator-gold">{boss.timeLeft}</span>
+                    </div>
+                  </div>
+
+                  <div className="mb-3">
+                    <p className="text-xs text-muted-foreground mb-1">Phần thưởng:</p>
+                    <div className="flex flex-wrap gap-1">
+                      {boss.rewards.map((reward, index) => (
+                        <Badge key={index} variant="outline" className="text-xs border-cultivator-gold text-cultivator-gold">
+                          {reward}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+
+                  <Button 
+                    size="sm" 
+                    className="w-full"
+                    onClick={() => handleJoinActivity(boss.name)}
+                    disabled={boss.status === 'ended'}
+                  >
+                    {boss.status === 'active' ? 'Tham Gia Ngay' : 
+                     boss.status === 'upcoming' ? 'Đặt Lịch Nhắc' : 'Đã Kết Thúc'}
+                  </Button>
+                </Card>
+              ))}
+            </div>
+          </Card>
+        </TabsContent>
+
+        {/* Limited Time Events */}
+        <TabsContent value="limited" className="space-y-4">
+          <Card className="p-4 bg-muted/20">
+            <div className="flex items-center gap-2 mb-3">
+              <Zap className="w-4 h-4 text-divine-blue" />
+              <h3 className="font-semibold text-divine-blue">Hoạt Động Giới Hạn</h3>
+            </div>
+            <p className="text-xs text-muted-foreground mb-4">
+              Các hoạt động theo khung giờ với phần thưởng đặc biệt.
+            </p>
+            
+            <div className="space-y-3">
+              {limitedTimeEvents.map((event) => (
+                <Card key={event.id} className="p-4 bg-card/50 border border-border/30">
+                  <div className="flex items-center justify-between mb-3">
+                    <div>
+                      <h4 className="font-medium">{event.name}</h4>
+                      <p className="text-xs text-muted-foreground">{event.description}</p>
+                    </div>
+                    <Badge variant="outline" className={getStatusColor(event.status)}>
+                      {getStatusText(event.status)}
+                    </Badge>
+                  </div>
+                  
+                  <div className="flex items-center justify-between mb-3 text-sm">
+                    <span>⏰ {event.time}</span>
+                    <span className="text-cultivator-gold font-medium">{event.timeLeft}</span>
+                  </div>
+
+                  <div className="mb-3">
+                    <p className="text-xs text-muted-foreground mb-1">Phần thưởng:</p>
+                    <div className="flex flex-wrap gap-1">
+                      {event.rewards.map((reward, index) => (
+                        <Badge key={index} variant="outline" className="text-xs border-spirit-jade text-spirit-jade">
+                          {reward}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+
+                  <Button 
+                    size="sm" 
+                    className="w-full"
+                    onClick={() => handleJoinActivity(event.name)}
+                    disabled={event.status === 'ended'}
+                  >
+                    {event.status === 'active' ? 'Tham Gia' : 
+                     event.status === 'upcoming' ? 'Đăng Ký' : 'Đã Hết Hạn'}
+                  </Button>
+                </Card>
+              ))}
+            </div>
+          </Card>
+        </TabsContent>
+
+        {/* Weekly Events */}
+        <TabsContent value="weekly" className="space-y-4">
+          <Card className="p-4 bg-muted/20">
+            <div className="flex items-center gap-2 mb-3">
+              <Calendar className="w-4 h-4 text-mystical-purple" />
+              <h3 className="font-semibold text-mystical-purple">Sự Kiện Hàng Tuần</h3>
+            </div>
+            <p className="text-xs text-muted-foreground mb-4">
+              Các hoạt động lớn diễn ra theo tuần với phần thưởng cực khủng.
+            </p>
+            
+            <div className="space-y-3">
+              {weeklyEvents.map((event) => (
+                <Card key={event.id} className="p-4 bg-card/50 border border-border/30">
+                  <div className="flex items-center justify-between mb-3">
+                    <div>
+                      <h4 className="font-medium">{event.name}</h4>
+                      <p className="text-xs text-muted-foreground">{event.description}</p>
+                    </div>
+                    <Badge variant="outline" className={getStatusColor(event.status)}>
+                      {event.day}
+                    </Badge>
+                  </div>
+
+                  <div className="mb-3">
+                    <p className="text-xs text-muted-foreground mb-1">Phần thưởng siêu khủng:</p>
+                    <div className="flex flex-wrap gap-1">
+                      {event.rewards.map((reward, index) => (
+                        <Badge key={index} variant="outline" className="text-xs border-mystical-purple text-mystical-purple">
+                          {reward}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+
+                  <Button 
+                    size="sm" 
+                    className="w-full"
+                    onClick={() => handleJoinActivity(event.name)}
+                  >
+                    Xem Chi Tiết
+                  </Button>
+                </Card>
+              ))}
+            </div>
+
+            {/* Guild Activities */}
+            <Card className="p-4 bg-card/50 mt-4">
+              <div className="flex items-center gap-2 mb-3">
+                <Users className="w-4 h-4 text-spirit-jade" />
+                <h4 className="font-medium text-spirit-jade">Hoạt Động Xã Hội</h4>
+              </div>
+              
+              <div className="space-y-3">
+                {guildActivities.map((activity) => (
+                  <div key={activity.id} className="p-3 bg-muted/30 rounded-lg">
+                    <div className="flex items-center justify-between mb-2">
+                      <h5 className="font-medium text-sm">{activity.name}</h5>
+                      <Badge variant="outline" className={getStatusColor(activity.status)}>
+                        {getStatusText(activity.status)}
                       </Badge>
                     </div>
                     
-                    <p className="text-sm text-muted-foreground mb-2">{activity.description}</p>
+                    <p className="text-xs text-muted-foreground mb-2">{activity.description}</p>
+                    <p className="text-xs mb-2">
+                      <span className="text-muted-foreground">Yêu cầu: </span>
+                      <span className="font-medium">{activity.requirements}</span>
+                    </p>
                     
-                    {activity.times && (
-                      <div className="flex items-center gap-1 mb-2 text-xs text-muted-foreground">
-                        <Clock className="w-3 h-3" />
-                        <span>Thời gian: {activity.times.join(', ')}</span>
-                      </div>
-                    )}
-                    
-                    <div className="mb-3">
-                      <div className="flex justify-between text-xs mb-1">
-                        <span>Tiến độ</span>
-                        <span>{activity.progress}/{activity.maxProgress}</span>
-                      </div>
-                      <Progress value={(activity.progress / activity.maxProgress) * 100} className="h-2" />
-                    </div>
-                    
-                    <div className="flex items-center justify-between">
-                      <div className="flex flex-wrap gap-1">
-                        {activity.rewards.map((reward, index) => (
-                          <Badge key={index} variant="outline" className="text-xs border-spirit-jade text-spirit-jade">
-                            {reward}
-                          </Badge>
-                        ))}
-                      </div>
-                      <Button 
-                        size="sm" 
-                        onClick={() => handleJoinActivity(activity)}
-                        disabled={status === 'completed'}
-                      >
-                        {status === 'completed' ? 'Đã hoàn thành' : 'Tham gia'}
-                      </Button>
+                    <div className="flex flex-wrap gap-1">
+                      {activity.rewards.map((reward, index) => (
+                        <Badge key={index} variant="outline" className="text-xs border-spirit-jade text-spirit-jade">
+                          {reward}
+                        </Badge>
+                      ))}
                     </div>
                   </div>
-                </div>
-              </Card>
-            );
-          })}
+                ))}
+              </div>
+            </Card>
+          </Card>
         </TabsContent>
 
-        <TabsContent value="timed" className="space-y-3">
-          {timeBasedActivities.map((activity) => {
-            const ActivityIcon = activity.icon;
-            
-            return (
-              <Card key={activity.id} className="p-4">
-                <div className="flex items-start gap-3">
-                  <div className="w-12 h-12 rounded-lg bg-gradient-to-r from-divine-blue/20 to-mystical-purple/20 flex items-center justify-center">
-                    <ActivityIcon className="w-6 h-6 text-divine-blue" />
-                  </div>
-                  
-                  <div className="flex-1">
-                    <div className="flex items-center justify-between mb-2">
-                      <h3 className="font-medium">{activity.name}</h3>
-                      <div className="text-right text-sm">
-                        <div className="font-medium">{activity.time}</div>
-                        <div className="text-muted-foreground">{getTimeLeft(activity.time)}</div>
-                      </div>
-                    </div>
-                    
-                    <p className="text-sm text-muted-foreground mb-3">{activity.description}</p>
-                    
-                    <div className="flex items-center justify-between">
-                      <div className="flex flex-wrap gap-1">
-                        {activity.rewards.map((reward, index) => (
-                          <Badge key={index} variant="outline" className="text-xs border-divine-blue text-divine-blue">
-                            {reward}
-                          </Badge>
-                        ))}
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Users className="w-4 h-4 text-muted-foreground" />
-                        <span className="text-sm text-muted-foreground">{activity.participants}</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </Card>
-            );
-          })}
-        </TabsContent>
-
-        <TabsContent value="weekly" className="space-y-3">
-          {weeklyActivities.map((activity) => {
-            const ActivityIcon = activity.icon;
-            
-            return (
-              <Card key={activity.id} className="p-4 bg-gradient-to-r from-mystical-purple/10 to-cultivator-gold/10 border-mystical-purple/30">
-                <div className="flex items-start gap-3">
-                  <div className="w-12 h-12 rounded-lg bg-gradient-to-r from-mystical-purple/20 to-cultivator-gold/20 flex items-center justify-center">
-                    <ActivityIcon className="w-6 h-6 text-mystical-purple" />
-                  </div>
-                  
-                  <div className="flex-1">
-                    <div className="flex items-center justify-between mb-2">
-                      <div>
-                        <h3 className="font-medium">{activity.name}</h3>
-                        <div className="text-xs text-mystical-purple">{activity.season}</div>
-                      </div>
-                      <div className="text-right text-sm">
-                        <div className="font-medium">{activity.day}</div>
-                        <div className="text-muted-foreground">{activity.time}</div>
-                      </div>
-                    </div>
-                    
-                    <p className="text-sm text-muted-foreground mb-3">{activity.description}</p>
-                    
-                    <div className="flex items-center justify-between">
-                      <div className="flex flex-wrap gap-1">
-                        {activity.rewards.map((reward, index) => (
-                          <Badge key={index} variant="outline" className="text-xs border-mystical-purple text-mystical-purple">
-                            {reward}
-                          </Badge>
-                        ))}
-                      </div>
-                      <Button size="sm" className="bg-mystical-purple hover:bg-mystical-purple/80">
-                        Đăng Ký
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              </Card>
-            );
-          })}
+        {/* Lucky Wheel Tab */}
+        <TabsContent value="lucky-wheel" className="space-y-4">
+          <LuckyWheelSystem />
         </TabsContent>
       </Tabs>
     </div>

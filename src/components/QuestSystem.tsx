@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -105,12 +104,32 @@ const QuestSystem = () => {
       rewards: ['150 EXP', '80 Vàng', 'Điểm Danh Vọng'],
       completed: false,
       type: 'daily'
+    },
+    {
+      id: 8,
+      title: 'Đánh Bại Boss',
+      description: 'Đánh bại 3 boss bất kỳ',
+      progress: 1,
+      maxProgress: 3,
+      rewards: ['100 EXP', '1 Trang Bị', '20 Vàng'],
+      completed: false,
+      type: 'daily'
+    },
+    {
+      id: 9,
+      title: 'Tương Tác Tông Môn',
+      description: 'Tham gia hoạt động tông môn',
+      progress: 0,
+      maxProgress: 1,
+      rewards: ['75 EXP', '15 Linh Thạch', 'Điểm Cống Hiến'],
+      completed: false,
+      type: 'daily'
     }
   ]);
 
   const [eventQuests, setEventQuests] = useState<Quest[]>([
     {
-      id: 8,
+      id: 10,
       title: 'Lễ Hội Mùa Xuân',
       description: 'Tham gia hoạt động lễ hội',
       progress: 3,
@@ -122,7 +141,7 @@ const QuestSystem = () => {
       difficulty: 'hard'
     },
     {
-      id: 9,
+      id: 11,
       title: 'Săn Boss Sự Kiện',
       description: 'Đánh bại Boss sự kiện 3 lần',
       progress: 1,
@@ -280,7 +299,7 @@ const QuestSystem = () => {
                 <h4 className="font-medium text-cultivator-gold">Nhiệm Vụ Chủ Tuyến</h4>
               </div>
               <p className="text-xs text-muted-foreground mb-4">
-                Nhiệm vụ "cốt lõi" để tăng cấp nhanh chóng và nhận vật phẩm cần thiết.
+                Nhiệm vụ cốt lõi để tăng cấp nhanh chóng và nhận vật phẩm cần thiết.
               </p>
               {mainQuests.map(quest => (
                 <QuestCard key={quest.id} quest={quest} onClaim={claimQuestReward} />
@@ -314,7 +333,7 @@ const QuestSystem = () => {
                 <h4 className="font-medium text-divine-blue">Nhiệm Vụ Hàng Ngày</h4>
               </div>
               <p className="text-xs text-muted-foreground mb-4">
-                Nhiệm vụ lặp lại mỗi ngày với nhiều điểm kinh nghiệm. Reset tự động sau 24h.
+                Nhiệm vụ lặp lại mỗi ngày. Reset tự động sau 24h.
               </p>
               {dailyQuests.map(quest => (
                 <QuestCard key={quest.id} quest={quest} onClaim={claimQuestReward} />

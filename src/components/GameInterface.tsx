@@ -50,8 +50,6 @@ import PlayerOverview from './PlayerOverview';
 import ShopSystem from './ShopSystem';
 import DailyActivitiesSystem from './DailyActivitiesSystem';
 import GuildSystem from './GuildSystem';
-import GiftCodeSystem from './GiftCodeSystem';
-import LuckyWheelSystem from './LuckyWheelSystem';
 
 const GameInterface = () => {
   const [activeTab, setActiveTab] = useState('overview');
@@ -201,7 +199,7 @@ const GameInterface = () => {
               </div>
             </div>
 
-            {/* Menu Items */}
+            {/* Menu Items - Updated to remove giftcode and luckywheel */}
             <div className="space-y-2">
               <Button
                 variant="ghost"
@@ -242,22 +240,6 @@ const GameInterface = () => {
               >
                 <ShoppingCart className="w-4 h-4 mr-2" />
                 Cửa Hàng
-              </Button>
-              <Button
-                variant="ghost"
-                className="w-full justify-start"
-                onClick={() => handleMenuClick('luckywheel', 'Vòng Quay')}
-              >
-                <RotateCcw className="w-4 h-4 mr-2" />
-                Vòng Quay
-              </Button>
-              <Button
-                variant="ghost"
-                className="w-full justify-start"
-                onClick={() => handleMenuClick('giftcode', 'Code Quà')}
-              >
-                <Gift className="w-4 h-4 mr-2" />
-                Code Quà
               </Button>
               <Button
                 variant="ghost"
@@ -369,6 +351,21 @@ const GameInterface = () => {
             <DailyActivitiesSystem />
           </TabsContent>
 
+          <TabsContent value="guild" className="mt-0">
+            <GuildSystem />
+          </TabsContent>
+
+          <TabsContent value="shop" className="mt-0">
+            <ShopSystem />
+          </TabsContent>
+
+          <TabsContent value="inventory" className="mt-0">
+            <InventorySystem 
+              playerGender={playerInfo.gender as 'male' | 'female'}
+              playerClass={playerInfo.class as 'sword' | 'magic' | 'defense'}
+            />
+          </TabsContent>
+
           <TabsContent value="combat" className="mt-0">
             <CombatSystem />
           </TabsContent>
@@ -382,20 +379,7 @@ const GameInterface = () => {
           </TabsContent>
 
           <TabsContent value="quests" className="mt-0">
-            <div className="space-y-4">
-              <Tabs defaultValue="daily" className="w-full">
-                <TabsList className="grid w-full grid-cols-2">
-                  <TabsTrigger value="daily">Hàng Ngày</TabsTrigger>
-                  <TabsTrigger value="main">Chính Tuyến</TabsTrigger>
-                </TabsList>
-                <TabsContent value="daily">
-                  <DailyQuestSystem />
-                </TabsContent>
-                <TabsContent value="main">
-                  <QuestSystem />
-                </TabsContent>
-              </Tabs>
-            </div>
+            <QuestSystem />
           </TabsContent>
 
           <TabsContent value="events" className="mt-0">

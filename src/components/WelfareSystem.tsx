@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
 import { useGameState } from '@/hooks/useGameState';
 import { 
   Gift, 
@@ -16,12 +17,47 @@ import {
   Trophy,
   Coins,
   Gem,
-  Sparkles
+  Sparkles,
+  Check
 } from 'lucide-react';
 
 const WelfareSystem = () => {
   const { gameState, claimReward, addNotification } = useGameState();
   const [activeTab, setActiveTab] = useState('daily');
+  const [giftCode, setGiftCode] = useState('');
+  const [usedCodes, setUsedCodes] = useState<string[]>(['NEWBIE2024', 'WELCOME100']);
+
+  // Gift code data từ GiftCodeSystem
+  const availableGiftCodes = [
+    {
+      code: 'NEWBIE2024',
+      description: 'Quà tặng tân thủ',
+      rewards: ['5000 Bạc', '100 Kim Nguyên Bảo', '10 Linh Thạch'],
+      expiry: '2024-12-31',
+      used: true
+    },
+    {
+      code: 'WELCOME100',
+      description: 'Chào mừng 100K người chơi',
+      rewards: ['10000 Bạc', '200 Kim Nguyên Bảo', 'Trang bị Epic'],
+      expiry: '2024-06-30',
+      used: true
+    },
+    {
+      code: 'SUMMER2024',
+      description: 'Sự kiện mùa hè',
+      rewards: ['15000 Bạc', '300 Kim Nguyên Bảo', '20 Linh Thạch', 'Skin mùa hè'],
+      expiry: '2024-08-31',
+      used: false
+    },
+    {
+      code: 'BIRTHDAY2024',
+      description: 'Sinh nhật server 1 năm',
+      rewards: ['20000 Bạc', '500 Kim Nguyên Bảo', '50 Linh Thạch', 'Pet sinh nhật'],
+      expiry: '2024-07-15',
+      used: false
+    }
+  ];
 
   const dailyRewards = [
     { day: 1, reward: '1000 Bạc', claimed: true },
@@ -95,6 +131,51 @@ const WelfareSystem = () => {
     { level: 50, reward: '100000 Bạc + Trang bị Legendary', claimed: false }
   ];
 
+  const handleSubmitCode = () => {
+    if (!giftCode.trim()) {
+      addNotification('Vui lòng nhập mã quà tặng!', 'warning');
+      return;
+    }
+
+    const code = availableGiftCodes.find(c => c.code === giftCode.toUpperCase());
+    
+    if (!code) {
+      addNotification('Mã quà tặng không hợp lệ!', 'warning');
+      return;
+    }
+
+    if (usedCodes.includes(code.code)) {
+      addNotification('Mã quà tặng đã được sử dụng!', 'warning');
+      return;
+    }
+
+    // Check expiry
+    const now = new Date();
+    const expiry = new Date(code.expiry);
+    if (now > expiry) {
+      addNotification('Mã quà tặng đã hết hạn!', 'warning');
+      return;
+    }
+
+    setUsedCodes([...usedCodes, code.code]);
+    
+    code.rewards.forEach(reward => {
+      if (reward.includes('Bạc')) {
+        const amount = parseInt(reward.replace(/\D/g, ''));
+        claimReward('silver', amount);
+      } else if (reward.includes('Kim Nguyên Bảo')) {
+        const amount = parseInt(reward.replace(/\D/g, ''));
+        claimReward('goldIngots', amount);
+      } else if (reward.includes('Linh Thạch')) {
+        const amount = parseInt(reward.replace(/\D/g, ''));
+        claimReward('rechargeSpiritStones', amount);
+      }
+    });
+
+    addNotification(`Đã nhận quà từ mã: ${code.code}!`, 'success');
+    setGiftCode('');
+  };
+
   const handleClaimDaily = (day: number) => {
     claimReward('silver', 1000);
     addNotification(`Đã nhận quà ngày ${day}!`, 'success');
@@ -152,23 +233,12 @@ const WelfareSystem = () => {
         </Card>
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="daily" className="flex items-center gap-2">
-              <Calendar className="w-4 h-4" />
-              Hàng Ngày
-            </TabsTrigger>
-            <TabsTrigger value="weekly" className="flex items-center gap-2">
-              <Target className="w-4 h-4" />
-              Hàng Tuần
-            </TabsTrigger>
-            <TabsTrigger value="vip" className="flex items-center gap-2">
-              <Crown className="w-4 h-4" />
-              VIP
-            </TabsTrigger>
-            <TabsTrigger value="level" className="flex items-center gap-2">
-              <Trophy className="w-4 h-4" />
-              Cấp Độ
-            </TabsTrigger>
+          <TabsList className="grid w-full grid-cols-5">
+            <TabsTrigger value="daily" className="text-xs">Hàng Ngày</TabsTrigger>
+            <TabsTrigger value="weekly" className="text-xs">Hàng Tuần</TabsTrigger>
+            <TabsTrigger value="vip" className="text-xs">VIP</TabsTrigger>
+            <TabsTrigger value="level" className="text-xs">Cấp Độ</TabsTrigger>
+            <TabsTrigger value="giftcode" className="text-xs">Code Quà</TabsTrigger>
           </TabsList>
 
           {/* Daily Rewards */}
@@ -286,6 +356,69 @@ const WelfareSystem = () => {
                       <Badge variant="secondary" className="w-full">Đã Nhận</Badge>
                     )}
                   </div>
+                ))}
+              </div>
+            </Card>
+          </TabsContent>
+
+          {/* Gift Code Tab */}
+          <TabsContent value="giftcode" className="space-y-4">
+            <Card className="p-4 bg-muted/20">
+              <h3 className="font-semibold mb-3 text-spirit-jade">Nhập Mã Quà Tặng</h3>
+              <div className="flex gap-2 mb-4">
+                <Input
+                  placeholder="Nhập mã code tại đây..."
+                  value={giftCode}
+                  onChange={(e) => setGiftCode(e.target.value)}
+                  className="flex-1"
+                />
+                <Button onClick={handleSubmitCode} className="bg-spirit-jade hover:bg-spirit-jade/80">
+                  Nhận Quà
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                * Mỗi mã chỉ có thể sử dụng 1 lần duy nhất
+              </p>
+            </Card>
+
+            <Card className="p-4 bg-muted/20">
+              <h3 className="font-semibold mb-3 text-spirit-jade">Danh Sách Mã Quà Tặng</h3>
+              <div className="space-y-3">
+                {availableGiftCodes.map((code, index) => (
+                  <Card key={index} className={`p-4 ${usedCodes.includes(code.code) ? 'bg-muted/30 opacity-60' : 'bg-muted/20'}`}>
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <h4 className="font-medium">{code.code}</h4>
+                          {usedCodes.includes(code.code) ? (
+                            <Badge variant="outline" className="border-green-500 text-green-500">
+                              <Check className="w-3 h-3 mr-1" />
+                              Đã sử dụng
+                            </Badge>
+                          ) : (
+                            <Badge variant="outline" className="border-spirit-jade text-spirit-jade">
+                              Có thể sử dụng
+                            </Badge>
+                          )}
+                        </div>
+                        
+                        <p className="text-sm text-muted-foreground mb-2">{code.description}</p>
+                        
+                        <div className="flex flex-wrap gap-1 mb-2">
+                          {code.rewards.map((reward, idx) => (
+                            <Badge key={idx} variant="outline" className="text-xs border-cultivator-gold text-cultivator-gold">
+                              {reward}
+                            </Badge>
+                          ))}
+                        </div>
+                        
+                        <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                          <Clock className="w-3 h-3" />
+                          <span>Hết hạn: {code.expiry}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </Card>
                 ))}
               </div>
             </Card>
