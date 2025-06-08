@@ -36,7 +36,8 @@ import {
   Heart,
   PawPrint,
   Settings as SettingsIcon,
-  MessageSquare
+  MessageSquare,
+  Music
 } from 'lucide-react';
 import EventSystem from './EventSystem';
 import HomeSystem from './HomeSystem';
@@ -59,11 +60,14 @@ import AdminSystem from './AdminSystem';
 import ChatSystem from './ChatSystem';
 import NotificationSystem from './NotificationSystem';
 import SettingsSystem from './SettingsSystem';
+import MusicSystem from './MusicSystem';
+import AuthSystem from './AuthSystem';
 
 const GameInterface = () => {
   const [activeTab, setActiveTab] = useState('overview');
   const [showMenu, setShowMenu] = useState(false);
   const [selectedAction, setSelectedAction] = useState<string | null>(null);
+  const [showNotifications, setShowNotifications] = useState(false);
   const { gameState } = useGameState();
 
   const formatNumber = (num: number | undefined) => {
@@ -133,8 +137,8 @@ const GameInterface = () => {
     { id: 'market', label: 'Chợ', icon: Coins },
     { id: 'social', label: 'Bạn Bè', icon: Heart },
     { id: 'ranking', label: 'Xếp Hạng', icon: Trophy },
-    { id: 'chat', label: 'Trò Chuyện', icon: MessageSquare },
-    { id: 'notifications', label: 'Thông Báo', icon: Bell },
+    { id: 'music', label: 'Âm Nhạc', icon: Music },
+    { id: 'auth', label: 'Đăng Nhập', icon: User },
     { id: 'settings', label: 'Cài Đặt', icon: SettingsIcon },
     { id: 'admin', label: 'Quản Trị', icon: Settings }
   ];
@@ -145,7 +149,7 @@ const GameInterface = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted">
-      {/* Simple Header */}
+      {/* Enhanced Header with Notifications */}
       <div className="sticky top-0 z-50 bg-card/95 backdrop-blur-sm border-b border-border">
         <div className="flex items-center justify-between p-4">
           <Button
@@ -157,9 +161,61 @@ const GameInterface = () => {
           </Button>
           
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="sm">
-              <Bell className="w-4 h-4" />
-            </Button>
+            {/* Notifications */}
+            <div className="relative">
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={() => setShowNotifications(!showNotifications)}
+              >
+                <Bell className="w-4 h-4" />
+                {gameState.notifications.unreadCount > 0 && (
+                  <Badge className="absolute -top-1 -right-1 h-4 w-4 p-0 text-xs bg-red-500">
+                    {gameState.notifications.unreadCount}
+                  </Badge>
+                )}
+              </Button>
+
+              {showNotifications && (
+                <Card className="absolute right-0 top-full mt-2 w-80 max-h-64 overflow-y-auto z-50 bg-background/95 backdrop-blur-sm">
+                  <div className="p-3">
+                    <div className="flex items-center justify-between mb-3">
+                      <h4 className="font-medium">Thông Báo</h4>
+                      <Button 
+                        size="sm" 
+                        variant="ghost" 
+                        onClick={() => setShowNotifications(false)}
+                      >
+                        <X className="w-4 h-4" />
+                      </Button>
+                    </div>
+                    
+                    {gameState.notifications.messages.length === 0 ? (
+                      <p className="text-sm text-muted-foreground text-center py-4">
+                        Không có thông báo mới
+                      </p>
+                    ) : (
+                      <div className="space-y-2">
+                        {gameState.notifications.messages.map((notification: any) => (
+                          <div key={notification.id} className="p-2 bg-muted/20 rounded text-sm">
+                            <div className="flex items-start gap-2">
+                              <Gift className="w-4 h-4 text-spirit-jade mt-0.5" />
+                              <div>
+                                <p>{notification.message}</p>
+                                <p className="text-xs text-muted-foreground">
+                                  {new Date(notification.timestamp).toLocaleTimeString()}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </Card>
+              )}
+            </div>
+            
             <Button variant="ghost" size="sm">
               <Settings className="w-4 h-4" />
             </Button>
@@ -233,7 +289,7 @@ const GameInterface = () => {
               </div>
             </div>
 
-            {/* Menu Items - Updated with descriptions */}
+            {/* Menu Items */}
             <div className="space-y-2">
               {menuItems.map(item => (
                 <Button
@@ -350,6 +406,14 @@ const GameInterface = () => {
 
           <TabsContent value="settings" className="mt-0">
             <SettingsSystem />
+          </TabsContent>
+
+          <TabsContent value="music" className="mt-0">
+            <MusicSystem />
+          </TabsContent>
+
+          <TabsContent value="auth" className="mt-0">
+            <AuthSystem />
           </TabsContent>
         </Tabs>
       </div>
