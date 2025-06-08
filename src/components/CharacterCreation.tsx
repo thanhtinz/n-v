@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -37,7 +36,14 @@ const CharacterCreation = ({ onComplete }: CharacterCreationProps) => {
   });
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
-    onComplete(values);
+    // Ensure all required properties are present
+    if (values.name && values.gender && values.class) {
+      onComplete({
+        name: values.name,
+        gender: values.gender,
+        class: values.class
+      });
+    }
   };
 
   const classes = [

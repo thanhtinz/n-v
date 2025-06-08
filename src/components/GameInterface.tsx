@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -61,6 +62,7 @@ const GameInterface = () => {
     }
   });
 
+  // ALL HOOKS MUST BE CALLED BEFORE ANY CONDITIONAL RETURNS
   // Check if character was already created
   useEffect(() => {
     const savedCharacter = localStorage.getItem('playerCharacter');
@@ -69,35 +71,6 @@ const GameInterface = () => {
       setIsCharacterCreated(true);
     }
   }, []);
-
-  const handleCharacterCreation = (character: {
-    name: string;
-    gender: 'male' | 'female';
-    class: 'sword' | 'magic' | 'defense';
-  }) => {
-    const newPlayer: PlayerCharacter = {
-      ...character,
-      realm: 'Phàm Nhân',
-      level: 1,
-      equipment: {
-        clothing: character.gender === 'male' ? 'Áo Vải Thô Nam' : 'Áo Vải Thô Nữ',
-        weapon: character.class === 'sword' ? 'Kiếm Sắt' : 
-                character.class === 'magic' ? 'Trượng Pháp Cơ Bản' : 'Khiên Sắt',
-        wings: '',
-        pet: '',
-        aura: ''
-      }
-    };
-    
-    setPlayer(newPlayer);
-    setIsCharacterCreated(true);
-    localStorage.setItem('playerCharacter', JSON.stringify(newPlayer));
-  };
-
-  // If character hasn't been created, show character creation
-  if (!isCharacterCreated) {
-    return <CharacterCreation onComplete={handleCharacterCreation} />;
-  }
 
   // Calculate combat power from equipped items
   const calculateCombatPower = () => {
@@ -133,6 +106,30 @@ const GameInterface = () => {
     };
   }, []);
 
+  const handleCharacterCreation = (character: {
+    name: string;
+    gender: 'male' | 'female';
+    class: 'sword' | 'magic' | 'defense';
+  }) => {
+    const newPlayer: PlayerCharacter = {
+      ...character,
+      realm: 'Phàm Nhân',
+      level: 1,
+      equipment: {
+        clothing: character.gender === 'male' ? 'Áo Vải Thô Nam' : 'Áo Vải Thô Nữ',
+        weapon: character.class === 'sword' ? 'Kiếm Sắt' : 
+                character.class === 'magic' ? 'Trượng Pháp Cơ Bản' : 'Khiên Sắt',
+        wings: '',
+        pet: '',
+        aura: ''
+      }
+    };
+    
+    setPlayer(newPlayer);
+    setIsCharacterCreated(true);
+    localStorage.setItem('playerCharacter', JSON.stringify(newPlayer));
+  };
+
   const menuItems = [
     { id: 'character', label: 'Nhân Vật', icon: User },
     { id: 'cultivation', label: 'Tu Luyện', icon: Zap },
@@ -145,6 +142,11 @@ const GameInterface = () => {
     { id: 'chat', label: 'Chat', icon: MessageCircle },
     { id: 'settings', label: 'Cài Đặt', icon: Settings }
   ];
+
+  // If character hasn't been created, show character creation
+  if (!isCharacterCreated) {
+    return <CharacterCreation onComplete={handleCharacterCreation} />;
+  }
 
   return (
     <div className="min-h-screen bg-background text-foreground">
