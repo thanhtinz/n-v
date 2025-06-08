@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -12,7 +11,15 @@ import {
   Plus,
   Edit,
   Trash2,
-  Upload
+  Upload,
+  Save,
+  X,
+  Sword,
+  Shield,
+  Heart,
+  Zap,
+  TrendingUp,
+  Star
 } from 'lucide-react';
 
 interface GameItem {
@@ -33,6 +40,8 @@ interface GameItem {
     luck?: number;
   };
   effects?: string[];
+  price?: number;
+  sellPrice?: number;
 }
 
 const AdminItemManager = () => {
@@ -48,7 +57,9 @@ const AdminItemManager = () => {
       iconType: 'image',
       level: 50,
       stats: { attack: 500, speed: 20 },
-      effects: ['Hỏa Long Kiếm', 'Tăng 10% sát thương chí mạng']
+      effects: ['Hỏa Long Kiếm', 'Tăng 10% sát thương chí mạng'],
+      price: 50000,
+      sellPrice: 25000
     },
     {
       id: 2,
@@ -60,7 +71,9 @@ const AdminItemManager = () => {
       iconType: 'image',
       level: 45,
       stats: { defense: 300, hp: 1000 },
-      effects: ['Phản đòn 5%', 'Giảm sát thương 15%']
+      effects: ['Phản đòn 5%', 'Giảm sát thương 15%'],
+      price: 30000,
+      sellPrice: 15000
     },
     {
       id: 3,
@@ -72,55 +85,9 @@ const AdminItemManager = () => {
       iconType: 'image',
       level: 25,
       stats: { luck: 50, speed: 30 },
-      effects: ['Tăng may mắn', 'Tự động thu thập vật phẩm']
-    },
-    {
-      id: 4,
-      name: 'Cây Linh Chi Thiên Niên',
-      description: 'Cây linh chi quý hiếm mọc trong thiên niên',
-      type: 'plant',
-      rarity: 'legendary',
-      icon: '/images/items/plant_lingzhi.png',
-      iconType: 'image',
-      level: 60,
-      stats: { hp: 2000, mp: 1000 },
-      effects: ['Hồi phục HP/MP theo thời gian', 'Tăng tốc độ tu luyện']
-    },
-    {
-      id: 5,
-      name: 'Quả Táo Thần Kỳ',
-      description: 'Quả táo từ vườn thiên đường, có thể hồi phục toàn bộ HP',
-      type: 'food',
-      rarity: 'epic',
-      icon: '/images/items/food_apple.png',
-      iconType: 'image',
-      level: 10,
-      stats: { hp: 500 },
-      effects: ['Hồi phục 100% HP', 'Tăng tạm thời phòng thủ']
-    },
-    {
-      id: 6,
-      name: 'Hoa Sen Bạch Ngọc',
-      description: 'Hoa sen quý hiếm từ ao thiêng, dùng để luyện đan',
-      type: 'material',
-      rarity: 'rare',
-      icon: '/images/items/material_lotus.png',
-      iconType: 'image',
-      level: 30,
-      stats: {},
-      effects: ['Nguyên liệu luyện đan cấp cao', 'Tăng thành công luyện đan']
-    },
-    {
-      id: 7,
-      name: 'Rồng Mini Sự Kiện',
-      description: 'Thú cưng đặc biệt từ sự kiện Tết Nguyên Đán',
-      type: 'event',
-      rarity: 'legendary',
-      icon: '/images/items/event_dragon.png',
-      iconType: 'image',
-      level: 1,
-      stats: { luck: 100, attack: 50 },
-      effects: ['Chỉ có trong sự kiện', 'Tăng EXP thu được']
+      effects: ['Tăng may mắn', 'Tự động thu thập vật phẩm'],
+      price: 10000,
+      sellPrice: 5000
     }
   ]);
 
@@ -135,7 +102,9 @@ const AdminItemManager = () => {
     iconType: 'image',
     level: 1,
     stats: {},
-    effects: []
+    effects: [],
+    price: 0,
+    sellPrice: 0
   });
 
   const itemTypes = [
@@ -158,6 +127,15 @@ const AdminItemManager = () => {
     legendary: 'bg-yellow-500'
   };
 
+  const statIcons = {
+    attack: Sword,
+    defense: Shield,
+    hp: Heart,
+    mp: Zap,
+    speed: TrendingUp,
+    luck: Star
+  };
+
   const getItemIcon = (item: GameItem) => {
     return (
       <img 
@@ -173,6 +151,11 @@ const AdminItemManager = () => {
   };
 
   const handleSubmit = () => {
+    if (!formData.name || !formData.description) {
+      addNotification('Vui lòng điền đầy đủ thông tin!', 'warning');
+      return;
+    }
+
     if (editingItem) {
       setItems(prev => prev.map(item => 
         item.id === editingItem.id ? { ...formData, id: editingItem.id } as GameItem : item
@@ -187,6 +170,10 @@ const AdminItemManager = () => {
       addNotification('Đã thêm vật phẩm mới thành công!', 'success');
     }
     
+    resetForm();
+  };
+
+  const resetForm = () => {
     setShowAddModal(false);
     setEditingItem(null);
     setFormData({
@@ -198,7 +185,9 @@ const AdminItemManager = () => {
       iconType: 'image',
       level: 1,
       stats: {},
-      effects: []
+      effects: [],
+      price: 0,
+      sellPrice: 0
     });
   };
 
@@ -213,18 +202,31 @@ const AdminItemManager = () => {
     addNotification('Đã xóa vật phẩm thành công!', 'success');
   };
 
-  const handleIconUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setFormData(prev => ({ 
-          ...prev, 
-          icon: e.target?.result as string
-        }));
-      };
-      reader.readAsDataURL(file);
+  const updateStat = (statName: string, value: number) => {
+    setFormData(prev => ({
+      ...prev,
+      stats: {
+        ...prev.stats,
+        [statName]: value || undefined
+      }
+    }));
+  };
+
+  const updateEffect = (index: number, value: string) => {
+    const newEffects = [...(formData.effects || [])];
+    if (value.trim()) {
+      newEffects[index] = value;
+    } else {
+      newEffects.splice(index, 1);
     }
+    setFormData(prev => ({ ...prev, effects: newEffects }));
+  };
+
+  const addEffect = () => {
+    setFormData(prev => ({
+      ...prev,
+      effects: [...(prev.effects || []), '']
+    }));
   };
 
   return (
@@ -249,6 +251,7 @@ const AdminItemManager = () => {
               <TableHead>Loại</TableHead>
               <TableHead>Độ Hiếm</TableHead>
               <TableHead>Level</TableHead>
+              <TableHead>Giá</TableHead>
               <TableHead>Thao Tác</TableHead>
             </TableRow>
           </TableHeader>
@@ -274,6 +277,9 @@ const AdminItemManager = () => {
                   </TableCell>
                   <TableCell>Lv.{item.level}</TableCell>
                   <TableCell>
+                    {item.price ? `${item.price.toLocaleString()} Bạc` : 'N/A'}
+                  </TableCell>
+                  <TableCell>
                     <div className="flex gap-1">
                       <Button size="sm" variant="outline" onClick={() => handleEdit(item)}>
                         <Edit className="w-3 h-3" />
@@ -292,97 +298,173 @@ const AdminItemManager = () => {
 
       {showAddModal && (
         <Card className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-background p-6 rounded-lg w-96 max-h-[80vh] overflow-y-auto">
-            <h3 className="text-lg font-semibold mb-4">
-              {editingItem ? 'Chỉnh Sửa' : 'Thêm'} Vật Phẩm
-            </h3>
+          <div className="bg-background p-6 rounded-lg w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-semibold">
+                {editingItem ? 'Chỉnh Sửa' : 'Thêm'} Vật Phẩm
+              </h3>
+              <Button variant="ghost" size="sm" onClick={resetForm}>
+                <X className="w-4 h-4" />
+              </Button>
+            </div>
             
-            <div className="space-y-4">
-              <div>
-                <label className="text-sm font-medium">Tên Vật Phẩm</label>
-                <Input
-                  value={formData.name}
-                  onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                  placeholder="Nhập tên vật phẩm..."
-                />
-              </div>
-
-              <div>
-                <label className="text-sm font-medium">Mô Tả</label>
-                <Textarea
-                  value={formData.description}
-                  onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                  placeholder="Nhập mô tả..."
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Left Column - Basic Info */}
+              <div className="space-y-4">
                 <div>
-                  <label className="text-sm font-medium">Loại</label>
-                  <select
-                    value={formData.type}
-                    onChange={(e) => setFormData(prev => ({ ...prev, type: e.target.value as any }))}
-                    className="w-full p-2 border rounded"
-                  >
-                    {itemTypes.map(type => (
-                      <option key={type.value} value={type.value}>{type.label}</option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="text-sm font-medium">Độ Hiếm</label>
-                  <select
-                    value={formData.rarity}
-                    onChange={(e) => setFormData(prev => ({ ...prev, rarity: e.target.value as any }))}
-                    className="w-full p-2 border rounded"
-                  >
-                    <option value="common">Common</option>
-                    <option value="uncommon">Uncommon</option>
-                    <option value="rare">Rare</option>
-                    <option value="epic">Epic</option>
-                    <option value="legendary">Legendary</option>
-                  </select>
-                </div>
-              </div>
-
-              <div>
-                <label className="text-sm font-medium">Icon Hình Ảnh</label>
-                <div className="flex items-center gap-2">
+                  <label className="text-sm font-medium">Tên Vật Phẩm</label>
                   <Input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleIconUpload}
-                    className="flex-1"
+                    value={formData.name}
+                    onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                    placeholder="Nhập tên vật phẩm..."
                   />
-                  <Button size="sm" variant="outline">
-                    <Upload className="w-3 h-3" />
-                  </Button>
                 </div>
-                {formData.icon && (
-                  <div className="mt-2">
-                    <img src={formData.icon} alt="Preview" className="w-16 h-16 rounded border" />
+
+                <div>
+                  <label className="text-sm font-medium">Mô Tả</label>
+                  <Textarea
+                    value={formData.description}
+                    onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                    placeholder="Nhập mô tả..."
+                    rows={3}
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-sm font-medium">Loại</label>
+                    <select
+                      value={formData.type}
+                      onChange={(e) => setFormData(prev => ({ ...prev, type: e.target.value as any }))}
+                      className="w-full p-2 border rounded"
+                    >
+                      {itemTypes.map(type => (
+                        <option key={type.value} value={type.value}>{type.label}</option>
+                      ))}
+                    </select>
                   </div>
-                )}
+
+                  <div>
+                    <label className="text-sm font-medium">Độ Hiếm</label>
+                    <select
+                      value={formData.rarity}
+                      onChange={(e) => setFormData(prev => ({ ...prev, rarity: e.target.value as any }))}
+                      className="w-full p-2 border rounded"
+                    >
+                      <option value="common">Common</option>
+                      <option value="uncommon">Uncommon</option>
+                      <option value="rare">Rare</option>
+                      <option value="epic">Epic</option>
+                      <option value="legendary">Legendary</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-3 gap-4">
+                  <div>
+                    <label className="text-sm font-medium">Level</label>
+                    <Input
+                      type="number"
+                      value={formData.level}
+                      onChange={(e) => setFormData(prev => ({ ...prev, level: parseInt(e.target.value) }))}
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium">Giá Mua</label>
+                    <Input
+                      type="number"
+                      value={formData.price}
+                      onChange={(e) => setFormData(prev => ({ ...prev, price: parseInt(e.target.value) }))}
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium">Giá Bán</label>
+                    <Input
+                      type="number"
+                      value={formData.sellPrice}
+                      onChange={(e) => setFormData(prev => ({ ...prev, sellPrice: parseInt(e.target.value) }))}
+                    />
+                  </div>
+                </div>
               </div>
 
-              <div>
-                <label className="text-sm font-medium">Level Yêu Cầu</label>
-                <Input
-                  type="number"
-                  value={formData.level}
-                  onChange={(e) => setFormData(prev => ({ ...prev, level: parseInt(e.target.value) }))}
-                />
-              </div>
+              {/* Right Column - Stats & Effects */}
+              <div className="space-y-4">
+                <div>
+                  <label className="text-sm font-medium mb-2 block">Chỉ Số (Stats)</label>
+                  <div className="grid grid-cols-2 gap-3">
+                    {Object.entries(statIcons).map(([statName, IconComponent]) => (
+                      <div key={statName} className="flex items-center gap-2">
+                        <IconComponent className="w-4 h-4" />
+                        <span className="text-sm min-w-12 capitalize">{statName}:</span>
+                        <Input
+                          type="number"
+                          value={formData.stats?.[statName as keyof typeof formData.stats] || ''}
+                          onChange={(e) => updateStat(statName, parseInt(e.target.value))}
+                          placeholder="0"
+                          className="h-8"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
 
-              <div className="flex justify-end gap-2">
-                <Button variant="outline" onClick={() => setShowAddModal(false)}>
-                  Hủy
-                </Button>
-                <Button onClick={handleSubmit}>
-                  {editingItem ? 'Cập Nhật' : 'Thêm'}
-                </Button>
+                <div>
+                  <label className="text-sm font-medium mb-2 block">Hiệu Ứng Đặc Biệt</label>
+                  <div className="space-y-2">
+                    {(formData.effects || []).map((effect, index) => (
+                      <div key={index} className="flex gap-2">
+                        <Input
+                          value={effect}
+                          onChange={(e) => updateEffect(index, e.target.value)}
+                          placeholder={`Hiệu ứng ${index + 1}...`}
+                          className="flex-1"
+                        />
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => updateEffect(index, '')}
+                        >
+                          <X className="w-3 h-3" />
+                        </Button>
+                      </div>
+                    ))}
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={addEffect}
+                      className="w-full"
+                    >
+                      <Plus className="w-3 h-3 mr-1" />
+                      Thêm Hiệu Ứng
+                    </Button>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium">Icon URL</label>
+                  <Input
+                    value={formData.icon}
+                    onChange={(e) => setFormData(prev => ({ ...prev, icon: e.target.value }))}
+                    placeholder="URL hình ảnh icon..."
+                  />
+                  {formData.icon && (
+                    <div className="mt-2">
+                      <img src={formData.icon} alt="Preview" className="w-16 h-16 rounded border" />
+                    </div>
+                  )}
+                </div>
               </div>
+            </div>
+
+            <div className="flex justify-end gap-2 mt-6">
+              <Button variant="outline" onClick={resetForm}>
+                Hủy
+              </Button>
+              <Button onClick={handleSubmit}>
+                <Save className="w-4 h-4 mr-1" />
+                {editingItem ? 'Cập Nhật' : 'Thêm'}
+              </Button>
             </div>
           </div>
         </Card>

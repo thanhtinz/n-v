@@ -13,6 +13,8 @@ import AdminEventManager from './AdminEventManager';
 import AdminPlayerManager from './AdminPlayerManager';
 import AdminGiftCodeManager from './AdminGiftCodeManager';
 import AdminPackageManager from './AdminPackageManager';
+import AdminGameRatesManager from './AdminGameRatesManager';
+import AdminQuizManager from './AdminQuizManager';
 import { 
   Settings, 
   BarChart3,
@@ -24,7 +26,9 @@ import {
   BookOpen,
   Sword,
   Crown,
-  Scroll
+  Scroll,
+  Gamepad2,
+  Brain
 } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -43,7 +47,9 @@ const AdminSystem = () => {
     { id: 'events', label: 'Sự Kiện', icon: Calendar, component: AdminEventManager },
     { id: 'giftcodes', label: 'Gift Code', icon: Gift, component: AdminGiftCodeManager },
     { id: 'packages', label: 'Gói Nạp', icon: Package, component: AdminPackageManager },
-    { id: 'players', label: 'Người Chơi', icon: Users, component: AdminPlayerManager }
+    { id: 'players', label: 'Người Chơi', icon: Users, component: AdminPlayerManager },
+    { id: 'gamerates', label: 'Tỷ Lệ Game', icon: Gamepad2, component: AdminGameRatesManager },
+    { id: 'quiz', label: 'Câu Hỏi', icon: Brain, component: AdminQuizManager }
   ];
 
   const handleTabChange = (tabId: string) => {
@@ -72,7 +78,7 @@ const AdminSystem = () => {
           <TabsList className={`grid w-full ${
             isMobile 
               ? 'grid-cols-3 h-auto' 
-              : 'grid-cols-5 lg:grid-cols-10'
+              : 'grid-cols-4 lg:grid-cols-6'
           }`}>
             {adminTabs.map((tab) => (
               <TabsTrigger 
