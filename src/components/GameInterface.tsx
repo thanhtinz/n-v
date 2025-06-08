@@ -32,6 +32,8 @@ import EventSystem from './EventSystem';
 import HomeSystem from './HomeSystem';
 import SectSystem from './SectSystem';
 import QuestSystem from './QuestSystem';
+import RankingSystem from './RankingSystem';
+import WelfareSystem from './WelfareSystem';
 
 const GameInterface = () => {
   const [activeTab, setActiveTab] = useState('home');
@@ -49,7 +51,7 @@ const GameInterface = () => {
   return (
     <GameStateProvider>
       <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted">
-        {/* Enhanced Mobile Header */}
+        {/* Mobile Header */}
         <div className="sticky top-0 z-50 bg-card/95 backdrop-blur-sm border-b border-border">
           <div className="flex items-center justify-between p-4">
             <div className="flex items-center gap-3">
@@ -87,7 +89,7 @@ const GameInterface = () => {
             </div>
           </div>
 
-          {/* Enhanced Player Info Bar */}
+          {/* Player Info Bar */}
           <div className="px-4 pb-3">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-3">
@@ -113,7 +115,6 @@ const GameInterface = () => {
                 </div>
               </div>
               
-              {/* Quick Stats */}
               <div className="text-right">
                 <p className="text-xs text-muted-foreground">Cảnh Giới</p>
                 <p className="text-sm font-bold text-spirit-jade">Luyện Khí</p>
@@ -129,7 +130,7 @@ const GameInterface = () => {
               <Progress value={expPercentage} className="h-2" />
             </div>
 
-            {/* Enhanced Resources Grid */}
+            {/* Resources Grid */}
             <div className="grid grid-cols-4 gap-2">
               <Card className="p-2 bg-card/60">
                 <div className="text-center">
@@ -161,27 +162,7 @@ const GameInterface = () => {
 
         {/* Main Content */}
         <div className="container mx-auto px-4 py-4 max-w-md pb-4">
-          {/* Character Display Card */}
-          <Card className="mb-6 p-6 bg-gradient-to-br from-card to-muted/50 border-cultivator-gold/20">
-            <div className="text-center">
-              <div className="w-32 h-40 mx-auto mb-4 bg-gradient-to-b from-cultivator-gold/20 to-spirit-jade/20 rounded-lg border-2 border-cultivator-gold/30 flex items-center justify-center">
-                <div className="text-6xl">👤</div>
-              </div>
-              <h3 className="text-lg font-semibold text-cultivator-gold mb-2">{gameState.player.name}</h3>
-              <div className="flex justify-center gap-4 text-sm">
-                <div className="text-center">
-                  <p className="text-muted-foreground">Cảnh Giới</p>
-                  <p className="font-medium text-spirit-jade">Luyện Khí</p>
-                </div>
-                <div className="text-center">
-                  <p className="text-muted-foreground">Tông Môn</p>
-                  <p className="font-medium text-mystical-purple">Thiên Đạo</p>
-                </div>
-              </div>
-            </div>
-          </Card>
-
-          {/* Enhanced Navigation */}
+          {/* Navigation */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="grid w-full grid-cols-4 mb-4">
               <TabsTrigger value="home" className="text-xs flex flex-col py-2">
@@ -233,11 +214,11 @@ const GameInterface = () => {
                   <Shield className="w-8 h-8 mx-auto mb-2 text-mystical-purple" />
                   <p className="text-sm font-medium">Tông Môn</p>
                 </Card>
-                <Card className="p-4 text-center cursor-pointer hover:bg-muted/50 transition-colors">
+                <Card className="p-4 text-center cursor-pointer hover:bg-muted/50 transition-colors" onClick={() => setActiveTab('ranking')}>
                   <Trophy className="w-8 h-8 mx-auto mb-2 text-cultivator-gold" />
                   <p className="text-sm font-medium">Bảng Xếp Hạng</p>
                 </Card>
-                <Card className="p-4 text-center cursor-pointer hover:bg-muted/50 transition-colors">
+                <Card className="p-4 text-center cursor-pointer hover:bg-muted/50 transition-colors" onClick={() => setActiveTab('welfare')}>
                   <Gift className="w-8 h-8 mx-auto mb-2 text-blood-red" />
                   <p className="text-sm font-medium">Phúc Lợi</p>
                 </Card>
@@ -265,7 +246,7 @@ const GameInterface = () => {
               </div>
             </TabsContent>
 
-            {/* Hidden tabs for navigation */}
+            {/* All Feature Tabs */}
             <TabsContent value="events" className="mt-0">
               <div className="mb-4">
                 <Button variant="ghost" size="sm" onClick={() => setActiveTab('more')}>
@@ -282,6 +263,24 @@ const GameInterface = () => {
                 </Button>
               </div>
               <SectSystem />
+            </TabsContent>
+
+            <TabsContent value="ranking" className="mt-0">
+              <div className="mb-4">
+                <Button variant="ghost" size="sm" onClick={() => setActiveTab('social')}>
+                  ← Quay lại
+                </Button>
+              </div>
+              <RankingSystem />
+            </TabsContent>
+
+            <TabsContent value="welfare" className="mt-0">
+              <div className="mb-4">
+                <Button variant="ghost" size="sm" onClick={() => setActiveTab('social')}>
+                  ← Quay lại
+                </Button>
+              </div>
+              <WelfareSystem />
             </TabsContent>
           </Tabs>
         </div>
