@@ -42,6 +42,33 @@ const GameInterface = () => {
     }
   });
 
+  // Calculate combat power from equipped items
+  const calculateCombatPower = () => {
+    // Base power from realm and level
+    let basePower = 100 + (player.level * 10);
+    
+    // Equipment power (these would normally come from the actual equipped items)
+    const equipmentPower = {
+      weapon: 50, // Kiếm Sắt
+      armor: 30,  // Áo Vải Thô
+      pants: 0,
+      hair: 0,
+      hat: 0,
+      chest: 0,
+      treasure: 0,
+      ring: 0,
+      bracelet: 0,
+      necklace: 0,
+      set: 0
+    };
+    
+    const totalEquipmentPower = Object.values(equipmentPower).reduce((sum, power) => sum + power, 0);
+    
+    return basePower + totalEquipmentPower;
+  };
+
+  const combatPower = calculateCombatPower();
+
   useEffect(() => {
     // Set last played time when component unmounts
     return () => {
@@ -105,6 +132,11 @@ const GameInterface = () => {
                   <Badge variant="outline" className="w-full border-spirit-jade text-spirit-jade text-xs sm:text-sm">
                     {player.realm} • Tầng {player.level}
                   </Badge>
+                  {/* Combat Power Display */}
+                  <Badge variant="outline" className="w-full border-cultivator-gold text-cultivator-gold text-xs sm:text-sm">
+                    <Zap className="w-3 h-3 mr-1" />
+                    Lực Chiến: {combatPower.toLocaleString()}
+                  </Badge>
                   <div className="text-xs text-muted-foreground px-2">
                     "Con đường tu tiên nghịch thiên, mỗi bước đều đầy gian khó."
                   </div>
@@ -153,6 +185,13 @@ const GameInterface = () => {
                           <div className="text-base sm:text-lg font-medium text-spirit-jade">{player.realm}</div>
                         </div>
                         <div>
+                          <label className="text-sm text-muted-foreground">Lực Chiến</label>
+                          <div className="text-base sm:text-lg font-medium text-cultivator-gold flex items-center gap-2">
+                            <Zap className="w-5 h-5" />
+                            {combatPower.toLocaleString()}
+                          </div>
+                        </div>
+                        <div>
                           <label className="text-sm text-muted-foreground">Trang Bị</label>
                           <div className="space-y-1">
                             <div className="text-sm">🥋 {player.equipment.clothing}</div>
@@ -180,6 +219,7 @@ const GameInterface = () => {
                             <div>Thời gian tu luyện: 1 ngày</div>
                             <div>Boss đã đánh bại: 0</div>
                             <div>Cảnh giới đạt được: 1</div>
+                            <div className="text-cultivator-gold">Lực chiến hiện tại: {combatPower.toLocaleString()}</div>
                           </div>
                         </div>
                       </div>
