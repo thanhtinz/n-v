@@ -9,23 +9,7 @@ import {
   Package,
   Search,
   Plus,
-  Check,
-  Sword,
-  Shield,
-  Gem,
-  Gift,
-  TreeDeciduous,
-  TreePalm,
-  Flower,
-  Flower2,
-  Shrub,
-  Carrot,
-  Banana,
-  Apple,
-  Egg,
-  Fish,
-  Cat,
-  Dog
+  Check
 } from 'lucide-react';
 
 interface GameItem {
@@ -35,8 +19,7 @@ interface GameItem {
   type: 'weapon' | 'armor' | 'accessory' | 'consumable' | 'material' | 'pet' | 'plant' | 'event' | 'food';
   rarity: 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary';
   icon: string;
-  iconType: 'lucide' | 'image';
-  price: number;
+  iconType: 'image';
   level: number;
 }
 
@@ -59,7 +42,7 @@ const ItemSelector = ({
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState<string>('all');
 
-  // Sample items from the inventory system
+  // Sample items with image icons
   const availableItems: GameItem[] = [
     {
       id: 1,
@@ -67,9 +50,8 @@ const ItemSelector = ({
       description: 'Thanh kiếm huyền thoại với sức mạnh của rồng thần',
       type: 'weapon',
       rarity: 'legendary',
-      icon: 'Sword',
-      iconType: 'lucide',
-      price: 50000,
+      icon: '/images/items/sword_dragon.png',
+      iconType: 'image',
       level: 50
     },
     {
@@ -78,9 +60,8 @@ const ItemSelector = ({
       description: 'Bộ giáp được rèn từ vảy rồng thiêng',
       type: 'armor',
       rarity: 'epic',
-      icon: 'Shield',
-      iconType: 'lucide',
-      price: 30000,
+      icon: '/images/items/armor_dragon.png',
+      iconType: 'image',
       level: 45
     },
     {
@@ -89,9 +70,8 @@ const ItemSelector = ({
       description: 'Chú mèo linh thiêng có thể hỗ trợ chiến đấu',
       type: 'pet',
       rarity: 'rare',
-      icon: 'Cat',
-      iconType: 'lucide',
-      price: 15000,
+      icon: '/images/items/pet_cat.png',
+      iconType: 'image',
       level: 25
     },
     {
@@ -100,9 +80,8 @@ const ItemSelector = ({
       description: 'Cây linh chi quý hiếm mọc trong thiên niên',
       type: 'plant',
       rarity: 'legendary',
-      icon: 'TreeDeciduous',
-      iconType: 'lucide',
-      price: 100000,
+      icon: '/images/items/plant_lingzhi.png',
+      iconType: 'image',
       level: 60
     },
     {
@@ -111,9 +90,8 @@ const ItemSelector = ({
       description: 'Quả táo từ vườn thiên đường, có thể hồi phục toàn bộ HP',
       type: 'food',
       rarity: 'epic',
-      icon: 'Apple',
-      iconType: 'lucide',
-      price: 5000,
+      icon: '/images/items/food_apple.png',
+      iconType: 'image',
       level: 10
     },
     {
@@ -122,9 +100,8 @@ const ItemSelector = ({
       description: 'Hoa sen quý hiếm từ ao thiêng, dùng để luyện đan',
       type: 'material',
       rarity: 'rare',
-      icon: 'Flower',
-      iconType: 'lucide',
-      price: 8000,
+      icon: '/images/items/material_lotus.png',
+      iconType: 'image',
       level: 30
     },
     {
@@ -133,9 +110,8 @@ const ItemSelector = ({
       description: 'Thú cưng đặc biệt từ sự kiện Tết Nguyên Đán',
       type: 'event',
       rarity: 'legendary',
-      icon: 'Gift',
-      iconType: 'lucide',
-      price: 0,
+      icon: '/images/items/event_dragon.png',
+      iconType: 'image',
       level: 1
     },
     {
@@ -144,9 +120,8 @@ const ItemSelector = ({
       description: 'Chuối từ thiên đường tăng EXP',
       type: 'food',
       rarity: 'rare',
-      icon: 'Banana',
-      iconType: 'lucide',
-      price: 3000,
+      icon: '/images/items/food_banana.png',
+      iconType: 'image',
       level: 5
     },
     {
@@ -155,9 +130,8 @@ const ItemSelector = ({
       description: 'Chú chó thần bảo vệ chủ nhân',
       type: 'pet',
       rarity: 'epic',
-      icon: 'Dog',
-      iconType: 'lucide',
-      price: 25000,
+      icon: '/images/items/pet_dog.png',
+      iconType: 'image',
       level: 35
     },
     {
@@ -166,17 +140,11 @@ const ItemSelector = ({
       description: 'Cây dừa từ đảo thiêng',
       type: 'plant',
       rarity: 'epic',
-      icon: 'TreePalm',
-      iconType: 'lucide',
-      price: 40000,
+      icon: '/images/items/plant_coconut.png',
+      iconType: 'image',
       level: 40
     }
   ];
-
-  const lucideIcons = {
-    Sword, Shield, Gem, Gift, Package, Cat, Dog, TreeDeciduous, TreePalm, 
-    Flower, Flower2, Shrub, Apple, Banana, Carrot, Egg, Fish
-  };
 
   const rarityColors = {
     common: 'bg-gray-500',
@@ -198,22 +166,17 @@ const ItemSelector = ({
   ];
 
   const getItemIcon = (item: GameItem) => {
-    if (item.iconType === 'lucide') {
-      const IconComponent = lucideIcons[item.icon as keyof typeof lucideIcons] || Package;
-      return <IconComponent className="w-4 h-4" />;
-    } else {
-      return (
-        <img 
-          src={item.icon} 
-          alt={item.name}
-          className="w-4 h-4 rounded object-cover"
-          onError={(e) => {
-            const target = e.target as HTMLImageElement;
-            target.style.display = 'none';
-          }}
-        />
-      );
-    }
+    return (
+      <img 
+        src={item.icon} 
+        alt={item.name}
+        className="w-4 h-4 rounded object-cover"
+        onError={(e) => {
+          const target = e.target as HTMLImageElement;
+          target.src = '/images/placeholder-item.png';
+        }}
+      />
+    );
   };
 
   const filteredItems = availableItems.filter(item => {
@@ -321,12 +284,8 @@ const ItemSelector = ({
                   </Badge>
                 </div>
 
-                <div className="text-xs text-muted-foreground mb-2">
+                <div className="text-xs text-muted-foreground">
                   {item.description}
-                </div>
-
-                <div className="text-xs font-medium">
-                  {item.price.toLocaleString()} Bạc
                 </div>
               </Card>
             ))}

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -112,7 +111,11 @@ const AdminShopManager = () => {
     } else {
       setFormData(prev => ({
         ...prev,
-        items: [...prev.items, { item, quantity: 1 }]
+        items: [...prev.items, { 
+          item, 
+          quantity: 1,
+          discountPrice: 0 // Default price that needs to be set
+        }]
       }));
     }
     addNotification(`Đã thêm ${item.name} vào shop`, 'success');
@@ -203,6 +206,7 @@ const AdminShopManager = () => {
           <p className="text-sm text-muted-foreground">Quản lý tất cả các cửa hàng trong game</p>
         </div>
         
+        {/* Create Shop Dialog */}
         <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
           <DialogTrigger asChild>
             <Button className="bg-green-600 hover:bg-green-700 w-full md:w-auto">
@@ -267,12 +271,20 @@ const AdminShopManager = () => {
                           <div className="flex items-center justify-between mb-2">
                             <div className="flex items-center gap-2">
                               <div className="w-6 h-6 bg-muted rounded flex items-center justify-center">
-                                <Package className="w-3 h-3" />
+                                <img 
+                                  src={item.icon} 
+                                  alt={item.name}
+                                  className="w-4 h-4 rounded object-cover"
+                                  onError={(e) => {
+                                    const target = e.target as HTMLImageElement;
+                                    target.src = '/images/placeholder-item.png';
+                                  }}
+                                />
                               </div>
                               <div>
                                 <span className="text-sm font-medium">{item.name}</span>
                                 <div className="text-xs text-muted-foreground">
-                                  Giá gốc: {item.price.toLocaleString()} Bạc
+                                  Level: {item.level}
                                 </div>
                               </div>
                             </div>
@@ -297,13 +309,14 @@ const AdminShopManager = () => {
                               />
                             </div>
                             <div>
-                              <label className="text-xs text-muted-foreground">Giá Bán (để trống = giá gốc)</label>
+                              <label className="text-xs text-muted-foreground">Giá Bán (Bạc) *</label>
                               <Input
                                 type="number"
                                 value={discountPrice || ''}
                                 onChange={(e) => handleItemPriceChange(item.id, parseInt(e.target.value) || 0)}
                                 className="h-8 text-xs"
-                                placeholder={item.price.toString()}
+                                placeholder="Nhập giá bán..."
+                                required
                               />
                             </div>
                           </div>
