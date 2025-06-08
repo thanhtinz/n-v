@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { GameStateProvider, useGameState } from '@/hooks/useGameState';
 import { Card } from "@/components/ui/card";
@@ -353,8 +352,16 @@ const GameInterface = () => {
                   <p className="text-sm font-medium">Bạn Bè</p>
                 </Card>
                 <Card className="p-4 text-center cursor-pointer hover:bg-muted/50 transition-colors">
-                  <Sword className="w-8 h-8 mx-auto mb-2 text-divine-blue" />
-                  <p className="text-sm font-medium">PvP</p>
+                  <Crown className="w-8 h-8 mx-auto mb-2 text-mystical-purple" />
+                  <p className="text-sm font-medium">Kết Hôn</p>
+                </Card>
+                <Card className="p-4 text-center cursor-pointer hover:bg-muted/50 transition-colors">
+                  <BookOpen className="w-8 h-8 mx-auto mb-2 text-cultivator-gold" />
+                  <p className="text-sm font-medium">Sư Đồ</p>
+                </Card>
+                <Card className="p-4 text-center cursor-pointer hover:bg-muted/50 transition-colors">
+                  <Gift className="w-8 h-8 mx-auto mb-2 text-divine-blue" />
+                  <p className="text-sm font-medium">Tặng Quà</p>
                 </Card>
               </div>
             </TabsContent>
