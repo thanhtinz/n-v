@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -7,7 +6,6 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { 
   ShoppingCart, 
-  Coins, 
   TrendingUp, 
   Clock, 
   Star,
@@ -280,12 +278,6 @@ const MarketSystem = () => {
             <ShoppingCart className="w-6 h-6 text-cultivator-gold" />
             <h2 className="text-xl font-bold text-cultivator-gold">Chợ Tu Tiên</h2>
           </div>
-          <div className="flex items-center gap-2 text-sm">
-            <Coins className="w-4 h-4 text-cultivator-gold" />
-            <span className="font-bold text-cultivator-gold">
-              {gameState.player.silver.toLocaleString()} Bạc
-            </span>
-          </div>
         </div>
         <p className="text-sm text-muted-foreground">
           Nơi giao dịch vật phẩm tu tiên giữa các đạo hữu
@@ -440,9 +432,8 @@ const MarketSystem = () => {
                         
                         <div className="flex items-center gap-3">
                           <div className="text-right">
-                            <div className="flex items-center gap-1 text-cultivator-gold font-bold text-lg">
-                              <Coins className="w-5 h-5" />
-                              {item.price.toLocaleString()}
+                            <div className="text-cultivator-gold font-bold text-lg">
+                              {item.price.toLocaleString()} Bạc
                             </div>
                           </div>
                           <Button
