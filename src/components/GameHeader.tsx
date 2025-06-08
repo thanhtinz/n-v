@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -69,7 +70,7 @@ const GameHeader = () => {
               <Card className="px-2 py-1 bg-card/60">
                 <div className="flex items-center gap-1">
                   <Coins className="w-4 h-4 text-yellow-500" />
-                  <span className="text-xs font-medium">{gameState.player.gold.toLocaleString()}</span>
+                  <span className="text-xs font-medium">{gameState.player.silver.toLocaleString()}</span>
                   <Button size="sm" variant="ghost" className="h-4 w-4 p-0" onClick={handleRecharge}>
                     <Plus className="w-3 h-3" />
                   </Button>
@@ -79,18 +80,10 @@ const GameHeader = () => {
               <Card className="px-2 py-1 bg-card/60">
                 <div className="flex items-center gap-1">
                   <Gem className="w-4 h-4 text-blue-500" />
-                  <span className="text-xs font-medium">{gameState.player.diamonds.toLocaleString()}</span>
+                  <span className="text-xs font-medium">{gameState.player.goldIngots.toLocaleString()}</span>
                   <Button size="sm" variant="ghost" className="h-4 w-4 p-0" onClick={handleRecharge}>
                     <Plus className="w-3 h-3" />
                   </Button>
-                </div>
-              </Card>
-
-              {/* Linh Thạch Thường */}
-              <Card className="px-2 py-1 bg-card/60">
-                <div className="flex items-center gap-1">
-                  <Zap className="w-4 h-4 text-spirit-jade" />
-                  <span className="text-xs font-medium">{gameState.player.spiritStones}</span>
                 </div>
               </Card>
 

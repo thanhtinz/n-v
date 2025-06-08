@@ -23,6 +23,7 @@ import {
   BookOpen,
   Sparkles
 } from 'lucide-react';
+import CharacterDisplay from './CharacterDisplay';
 
 const PlayerOverview = () => {
   const { gameState } = useGameState();
@@ -86,23 +87,45 @@ const PlayerOverview = () => {
     return <div>Loading...</div>;
   }
 
+  // Equipment based on player level and class
+  const getPlayerEquipment = () => {
+    const level = gameState.player.level;
+    const playerClass = playerInfo.class;
+    
+    return {
+      clothing: level >= 10 ? 'advanced_robe' : 'basic_robe',
+      weapon: playerClass === 'sword' ? (level >= 20 ? 'legendary_sword' : 'iron_sword') :
+              playerClass === 'magic' ? (level >= 20 ? 'magic_staff' : 'wooden_staff') :
+              level >= 20 ? 'shield_advanced' : 'iron_shield',
+      wings: level >= 30 ? 'spirit_wings' : '',
+      pet: level >= 25 ? 'spirit_beast' : '',
+      aura: level >= 15 ? 'cultivation_aura' : ''
+    };
+  };
+
   return (
     <div className="space-y-4">
-      {/* Player Main Info */}
+      {/* Character Display with Animation */}
       <Card className="p-4 bg-gradient-to-r from-cultivator-gold/10 via-spirit-jade/10 to-divine-blue/10 border border-cultivator-gold/30">
-        <div className="flex items-center gap-4 mb-4">
-          <div className="w-16 h-16 rounded-full bg-gradient-to-r from-cultivator-gold to-spirit-jade flex items-center justify-center">
-            <User className="w-8 h-8 text-white" />
+        <div className="flex flex-col items-center gap-4 mb-4">
+          <div className="w-48 h-64">
+            <CharacterDisplay
+              realm="Phàm Nhân"
+              equipment={getPlayerEquipment()}
+              name={gameState.player.name}
+              isActive={true}
+            />
           </div>
-          <div className="flex-1">
-            <div className="flex items-center gap-2 mb-1">
+          
+          <div className="text-center">
+            <div className="flex items-center justify-center gap-2 mb-2">
               <h2 className="text-xl font-bold text-cultivator-gold">{gameState.player.name}</h2>
               <Badge variant="outline" className="border-mystical-purple text-mystical-purple">
                 <Crown className="w-3 h-3 mr-1" />
                 VIP {gameState.player.vipLevel}
               </Badge>
             </div>
-            <div className="flex items-center gap-4 text-sm">
+            <div className="flex items-center justify-center gap-4 text-sm">
               <div className="flex items-center gap-1">
                 <ClassIcon className={`w-4 h-4 ${classInfo.color}`} />
                 <span className={classInfo.color}>{classInfo.name}</span>
