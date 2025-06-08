@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useGameState } from '@/hooks/useGameState';
 import { Card } from '@/components/ui/card';
@@ -9,7 +10,6 @@ import {
   UserPlus, 
   Heart, 
   Search, 
-  MessageCircle, 
   Crown,
   Shield,
   Coins,
@@ -49,13 +49,6 @@ interface Disciple {
   level: number;
 }
 
-interface ChatMessage {
-  id: string;
-  player: string;
-  message: string;
-  time: string;
-}
-
 const initialPlayers: Player[] = [
   { id: '1', name: 'Gunner A', level: 15, vipLevel: 2, combatPower: 1500, gender: 'male', online: true },
   { id: '2', name: 'Tiên Nữ Mai', level: 18, vipLevel: 5, combatPower: 2200, gender: 'female', online: false },
@@ -66,7 +59,7 @@ const initialPlayers: Player[] = [
 
 const SocialSystem = () => {
   const { gameState, addNotification } = useGameState();
-  const [activeSection, setActiveSection] = useState<'friends' | 'marriage' | 'mentorship' | 'chat'>('friends');
+  const [activeSection, setActiveSection] = useState<'friends' | 'marriage' | 'mentorship'>('friends');
   const [searchQuery, setSearchQuery] = useState('');
   const [players, setPlayers] = useState<Player[]>(initialPlayers);
   const [marriageStatus, setMarriageStatus] = useState<MarriageStatus>({
@@ -83,11 +76,6 @@ const SocialSystem = () => {
     { id: '1', name: 'Đệ Tử A', level: 10 },
     { id: '2', name: 'Đệ Tử B', level: 15 }
   ]);
-  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
-    { id: '1', player: 'Gunner A', message: 'Chào mọi người!', time: '10:00' },
-    { id: '2', player: 'Tiên Nữ Mai', message: 'Chào Gunner A!', time: '10:01' }
-  ]);
-  const [newMessage, setNewMessage] = useState('');
 
   const filteredPlayers = players.filter(player =>
     player.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -96,8 +84,7 @@ const SocialSystem = () => {
   const sections = [
     { id: 'friends', label: 'Kết Bạn', icon: UserPlus },
     { id: 'marriage', label: 'Hôn Nhân', icon: Heart },
-    { id: 'mentorship', label: 'Sư Đồ', icon: GraduationCap },
-    { id: 'chat', label: 'Trò Chuyện', icon: MessageCircle }
+    { id: 'mentorship', label: 'Sư Đồ', icon: GraduationCap }
   ];
 
   const addFriend = (player: Player) => {
@@ -128,19 +115,6 @@ const SocialSystem = () => {
       addNotification(`Bạn đã cầu hôn ${player.name} thành công!`, 'success');
     } else {
       addNotification('Đã hủy cầu hôn.', 'info');
-    }
-  };
-
-  const sendMessage = () => {
-    if (newMessage.trim() !== '') {
-      const newChatMessage: ChatMessage = {
-        id: Date.now().toString(),
-        player: gameState.player.name,
-        message: newMessage,
-        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-      };
-      setChatMessages(prev => [...prev, newChatMessage]);
-      setNewMessage('');
     }
   };
 
@@ -392,39 +366,6 @@ const SocialSystem = () => {
             </Card>
           )}
         </div>
-      )}
-
-      {/* Chat Section */}
-      {activeSection === 'chat' && (
-        <Card className="p-3 bg-card/80 backdrop-blur-sm border-border/50">
-          <h3 className="font-semibold text-sm mb-3 text-cultivator-gold">Trò Chuyện</h3>
-          <div className="space-y-3">
-            <div className="h-48 bg-muted/20 rounded-lg border border-border/30 p-3 overflow-y-auto">
-              <div className="space-y-2">
-                {chatMessages.map((message) => (
-                  <div key={message.id} className="text-sm">
-                    <span className="text-cultivator-gold font-medium">{message.player}:</span>
-                    <span className="ml-2">{message.message}</span>
-                    <span className="text-xs text-muted-foreground ml-2">{message.time}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                placeholder="Nhập tin nhắn..."
-                value={newMessage}
-                onChange={(e) => setNewMessage(e.target.value)}
-                className="flex-1 px-3 py-2 bg-muted/30 border border-border/30 rounded text-sm"
-                onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
-              />
-              <Button size="sm" onClick={sendMessage}>
-                <MessageCircle className="w-3 h-3" />
-              </Button>
-            </div>
-          </div>
-        </Card>
       )}
     </div>
   );

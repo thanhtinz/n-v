@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useGameState } from '@/hooks/useGameState';
 import { Card } from "@/components/ui/card";
@@ -119,24 +120,23 @@ const GameInterface = () => {
   };
 
   const menuItems = [
-    { id: 'home', label: 'Trang Chủ', icon: Home },
-    { id: 'character', label: 'Nhân Vật', icon: User },
+    { id: 'overview', label: 'Thông Tin', icon: User, description: 'Trang chủ nhân vật' },
+    { id: 'home', label: 'Động Phủ', icon: Home, description: 'Trang riêng cá nhân' },
     { id: 'combat', label: 'Chiến Đấu', icon: Sword },
     { id: 'cultivation', label: 'Tu Luyện', icon: Zap },
     { id: 'inventory', label: 'Hành Trang', icon: Shield },
     { id: 'quest', label: 'Nhiệm Vụ', icon: BookOpen },
-    { id: 'shop', label: 'Cửa Hàng', icon: ShoppingCart },
+    { id: 'shop', label: 'Cửa Hàng', icon: ShoppingCart, description: 'Bao gồm VIP' },
     { id: 'enhancement', label: 'Cường Hóa', icon: Star },
-    { id: 'arena', label: 'Đấu Trường', icon: Trophy },
     { id: 'sect', label: 'Tông Môn', icon: Crown, description: 'Học tập rèn luyện' },
     { id: 'guild', label: 'Bang Hội', icon: Users, description: 'Tu tiên giả lập' },
     { id: 'pet', label: 'Thú Cưng', icon: PawPrint },
     { id: 'event', label: 'Sự Kiện', icon: Calendar },
     { id: 'welfare', label: 'Phúc Lợi', icon: Gift },
-    { id: 'vip', label: 'VIP', icon: Crown },
     { id: 'market', label: 'Chợ', icon: Coins },
     { id: 'social', label: 'Bạn Bè', icon: Heart },
     { id: 'ranking', label: 'Xếp Hạng', icon: Trophy },
+    { id: 'chat', label: 'Trò Chuyện', icon: MessageSquare },
     { id: 'music', label: 'Âm Nhạc', icon: Music },
     { id: 'auth', label: 'Đăng Nhập', icon: User },
     { id: 'settings', label: 'Cài Đặt', icon: SettingsIcon },
@@ -372,11 +372,11 @@ const GameInterface = () => {
             <EnhancementSystem />
           </TabsContent>
 
-          <TabsContent value="quests" className="mt-0">
+          <TabsContent value="quest" className="mt-0">
             <QuestSystem />
           </TabsContent>
 
-          <TabsContent value="events" className="mt-0">
+          <TabsContent value="event" className="mt-0">
             <EventSystem />
           </TabsContent>
 
