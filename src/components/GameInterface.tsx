@@ -25,7 +25,9 @@ import {
   Crown,
   Users,
   Trophy,
-  Gift
+  Gift,
+  Package,
+  Dumbbell
 } from 'lucide-react';
 import DailyQuestSystem from './DailyQuestSystem';
 import EventSystem from './EventSystem';
@@ -34,6 +36,9 @@ import SectSystem from './SectSystem';
 import QuestSystem from './QuestSystem';
 import RankingSystem from './RankingSystem';
 import WelfareSystem from './WelfareSystem';
+import CombatSystem from './CombatSystem';
+import InventorySystem from './InventorySystem';
+import CultivationSystem from './CultivationSystem';
 
 const GameInterface = () => {
   const [activeTab, setActiveTab] = useState('home');
@@ -47,6 +52,21 @@ const GameInterface = () => {
   };
 
   const expPercentage = (gameState.player.exp / gameState.player.maxExp) * 100;
+
+  // Get player info from localStorage for inventory system
+  const getPlayerInfo = () => {
+    const savedCharacter = localStorage.getItem('playerCharacter');
+    if (savedCharacter) {
+      const player = JSON.parse(savedCharacter);
+      return {
+        gender: player.gender || 'male',
+        class: player.class || 'sword'
+      };
+    }
+    return { gender: 'male', class: 'sword' };
+  };
+
+  const playerInfo = getPlayerInfo();
 
   return (
     <GameStateProvider>
@@ -149,6 +169,39 @@ const GameInterface = () => {
                   variant="ghost"
                   className="w-full justify-start"
                   onClick={() => {
+                    setActiveTab('inventory');
+                    setShowMenu(false);
+                  }}
+                >
+                  <Package className="w-4 h-4 mr-2" />
+                  Hành Trang
+                </Button>
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start"
+                  onClick={() => {
+                    setActiveTab('combat');
+                    setShowMenu(false);
+                  }}
+                >
+                  <Sword className="w-4 h-4 mr-2" />
+                  Chiến Đấu
+                </Button>
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start"
+                  onClick={() => {
+                    setActiveTab('cultivation');
+                    setShowMenu(false);
+                  }}
+                >
+                  <Dumbbell className="w-4 h-4 mr-2" />
+                  Tu Luyện
+                </Button>
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start"
+                  onClick={() => {
                     setActiveTab('quests');
                     setShowMenu(false);
                   }}
@@ -211,20 +264,6 @@ const GameInterface = () => {
                   <Users className="w-4 h-4 mr-2" />
                   Xã Hội
                 </Button>
-                <Button
-                  variant="ghost"
-                  className="w-full justify-start"
-                >
-                  <Sword className="w-4 h-4 mr-2" />
-                  Chiến Đấu
-                </Button>
-                <Button
-                  variant="ghost"
-                  className="w-full justify-start"
-                >
-                  <Zap className="w-4 h-4 mr-2" />
-                  Tu Luyện
-                </Button>
               </div>
             </div>
           </div>
@@ -235,6 +274,21 @@ const GameInterface = () => {
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsContent value="home" className="mt-0">
               <HomeSystem />
+            </TabsContent>
+
+            <TabsContent value="inventory" className="mt-0">
+              <InventorySystem 
+                playerGender={playerInfo.gender as 'male' | 'female'}
+                playerClass={playerInfo.class as 'sword' | 'magic' | 'defense'}
+              />
+            </TabsContent>
+
+            <TabsContent value="combat" className="mt-0">
+              <CombatSystem />
+            </TabsContent>
+
+            <TabsContent value="cultivation" className="mt-0">
+              <CultivationSystem />
             </TabsContent>
 
             <TabsContent value="quests" className="mt-0">
