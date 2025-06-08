@@ -16,14 +16,22 @@ import {
   Target,
   Gift,
   Building,
-  Gem
+  Gem,
+  UserPlus,
+  Gavel,
+  Flag,
+  Coins
 } from 'lucide-react';
 
 const GuildSystem = () => {
   const { gameState, addNotification } = useGameState();
+  const [showCreateGuild, setShowCreateGuild] = useState(false);
+  const [newGuildName, setNewGuildName] = useState('');
 
   const playerGuild = {
+    id: 'heavenly-sword',
     name: 'Thiên Kiếm Môn',
+    description: 'Bang hội được thành lập bởi các tu tiên giả chí cốt đạo tâm',
     level: 8,
     exp: 15420,
     maxExp: 20000,
@@ -33,24 +41,31 @@ const GuildSystem = () => {
     power: 2580000,
     position: 'Trưởng Lão',
     contribution: 25680,
-    weeklyContribution: 1250
+    weeklyContribution: 1250,
+    founder: 'Kiếm Thần',
+    foundedDate: '2024-01-15',
+    treasury: {
+      silver: 1250000,
+      goldIngots: 5000,
+      materials: 500
+    }
   };
 
   const guildBuildings = [
     {
-      name: 'Đại Sảnh',
+      name: 'Đại Sảnh Bang Hội',
       level: 8,
-      description: 'Tăng số lượng thành viên tối đa',
-      effect: '+50 Thành viên',
+      description: 'Nơi tập trung và họp mặt của bang hội',
+      effect: '+50 Thành viên tối đa',
       upgradeCost: '50000 Điểm Bang',
       upgradeTime: '24h',
       status: 'active'
     },
     {
-      name: 'Kho Báu',
+      name: 'Kho Báu Chung',
       level: 6,
-      description: 'Tăng phần thưởng hoạt động bang hội',
-      effect: '+60% Phần thưởng',
+      description: 'Kho lưu trữ tài sản chung của bang hội',
+      effect: '+60% Dung lượng kho',
       upgradeCost: '30000 Điểm Bang',
       upgradeTime: '12h',
       status: 'active'
@@ -58,17 +73,17 @@ const GuildSystem = () => {
     {
       name: 'Luyện Võ Đài',
       level: 5,
-      description: 'Mở tính năng thách đấu nội bộ',
-      effect: 'PvP Bang Hội',
+      description: 'Nơi các thành viên thiết đấu với nhau',
+      effect: 'Mở PvP nội bộ',
       upgradeCost: '25000 Điểm Bang',
       upgradeTime: '8h',
       status: 'upgrading'
     },
     {
-      name: 'Nghiên Cứu Viện',
+      name: 'Phòng Chiến Lược',
       level: 4,
-      description: 'Mở khóa kỹ năng bang hội',
-      effect: '+4 Kỹ năng',
+      description: 'Lập kế hoạch chiến đấu và quản lý bang hội',
+      effect: '+4 Chiến lược bang',
       upgradeCost: '40000 Điểm Bang',
       upgradeTime: '16h',
       status: 'active'
@@ -76,53 +91,49 @@ const GuildSystem = () => {
   ];
 
   const guildMembers = [
-    { name: 'Kiếm Thần', position: 'Bang Chủ', level: 85, power: 250000, contribution: 45000, online: true },
-    { name: 'Hỏa Vương', position: 'Phó Bang Chủ', level: 82, power: 230000, contribution: 38000, online: true },
-    { name: 'Băng Nữ', position: 'Trưởng Lão', level: 80, power: 220000, contribution: 35000, online: false },
-    { name: 'Lôi Đế', position: 'Trưởng Lão', level: 78, power: 210000, contribution: 32000, online: true },
-    { name: 'Phong Thần', position: 'Tinh Anh', level: 75, power: 195000, contribution: 28000, online: true }
+    { name: 'Kiếm Thần', position: 'Bang Chủ', level: 85, power: 250000, contribution: 45000, online: true, joinDate: '2024-01-15' },
+    { name: 'Hỏa Vương', position: 'Phó Bang Chủ', level: 82, power: 230000, contribution: 38000, online: true, joinDate: '2024-01-20' },
+    { name: 'Băng Nữ', position: 'Trưởng Lão', level: 80, power: 220000, contribution: 35000, online: false, joinDate: '2024-02-01' },
+    { name: 'Lôi Đế', position: 'Trưởng Lão', level: 78, power: 210000, contribution: 32000, online: true, joinDate: '2024-02-10' },
+    { name: 'Phong Thần', position: 'Tinh Anh', level: 75, power: 195000, contribution: 28000, online: true, joinDate: '2024-02-15' }
   ];
 
   const guildActivities = [
     {
-      name: 'Boss Bang Hội',
+      name: 'Chiến Bang Hội',
+      description: 'Tranh đoạt lãnh thổ với các bang hội khác',
+      time: 'Thứ 7 - 20:00',
+      rewards: ['Điểm Bang', 'Tài nguyên lãnh thổ', 'Danh vọng'],
+      participants: '30/50',
+      status: 'registered',
+      type: 'pvp'
+    },
+    {
+      name: 'Săn Boss Chung',
       description: 'Cùng nhau tiêu diệt boss để nhận phần thưởng',
       time: '20:00 - 21:00',
       rewards: ['Điểm Bang', 'Trang bị hiếm', 'EXP'],
       participants: '15/50',
-      status: 'available'
+      status: 'available',
+      type: 'pve'
     },
     {
-      name: 'Chiếm Lãnh Địa',
-      description: 'Tranh đoạt lãnh địa với bang hội khác',
-      time: 'Thứ 7 - 19:00',
-      rewards: ['Tài nguyên lãnh địa', 'Danh vọng bang'],
-      participants: '30/50',
-      status: 'registered'
-    },
-    {
-      name: 'Nhiệm Vụ Bang Hội',
-      description: 'Hoàn thành nhiệm vụ để đóng góp điểm bang',
+      name: 'Xây Dựng Bang Hội',
+      description: 'Đóng góp tài nguyên để phát triển bang hội',
       time: 'Hàng ngày',
       rewards: ['Điểm đóng góp', 'EXP bang hội'],
       participants: '25/50',
-      status: 'inProgress'
+      status: 'inProgress',
+      type: 'building'
     }
   ];
 
-  const guildSkills = [
-    { name: 'Tăng EXP', level: 5, effect: '+50% EXP khi luyện công', maxLevel: 10 },
-    { name: 'Tăng Đánh', level: 4, effect: '+40% Sát thương PvE', maxLevel: 10 },
-    { name: 'Tăng Thủ', level: 3, effect: '+30% Phòng thủ', maxLevel: 10 },
-    { name: 'Hồi Phục', level: 2, effect: '+20% Tốc độ hồi máu/mana', maxLevel: 10 }
-  ];
-
   const guildRanking = [
-    { rank: 1, name: 'Thiên Long Bát Bộ', level: 12, members: 50, power: 5200000 },
-    { rank: 2, name: 'Minh Giáo', level: 11, members: 50, power: 4800000 },
-    { rank: 3, name: 'Thiên Kiếm Môn', level: 8, members: 47, power: 2580000 },
-    { rank: 4, name: 'Võ Đang Phái', level: 9, members: 45, power: 2400000 },
-    { rank: 5, name: 'Nga Mi Phái', level: 7, members: 42, power: 2100000 }
+    { rank: 1, name: 'Thiên Long Bát Bộ', level: 12, members: 50, power: 5200000, type: 'player-created' },
+    { rank: 2, name: 'Minh Giáo Liên Minh', level: 11, members: 50, power: 4800000, type: 'player-created' },
+    { rank: 3, name: 'Thiên Kiếm Môn', level: 8, members: 47, power: 2580000, type: 'player-created' },
+    { rank: 4, name: 'Võ Đang Hội', level: 9, members: 45, power: 2400000, type: 'player-created' },
+    { rank: 5, name: 'Nga Mi Liên Đoàn', level: 7, members: 42, power: 2100000, type: 'player-created' }
   ];
 
   const handleJoinActivity = (activity: any) => {
@@ -133,17 +144,30 @@ const GuildSystem = () => {
     addNotification(`Bắt đầu nâng cấp ${building.name}!`, 'success');
   };
 
-  const handleLearnSkill = (skill: any) => {
-    addNotification(`Đã học kỹ năng ${skill.name}!`, 'success');
+  const handleCreateGuild = () => {
+    if (newGuildName.trim()) {
+      addNotification(`Đã thành lập bang hội "${newGuildName}"!`, 'success');
+      setShowCreateGuild(false);
+      setNewGuildName('');
+    }
+  };
+
+  const handleDonate = (type: string) => {
+    addNotification(`Đã đóng góp ${type} cho bang hội!`, 'success');
   };
 
   return (
     <div className="space-y-4">
       <Card className="p-4 bg-gradient-to-r from-mystical-purple/10 to-cultivator-gold/10 border-mystical-purple/30">
-        <h2 className="text-xl font-semibold text-mystical-purple mb-4 flex items-center gap-2">
-          <Shield className="w-5 h-5" />
-          Bang Hội: {playerGuild.name}
-        </h2>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-semibold text-mystical-purple flex items-center gap-2">
+            <Shield className="w-5 h-5" />
+            Bang Hội: {playerGuild.name}
+          </h2>
+          <Badge variant="outline" className="border-mystical-purple text-mystical-purple">
+            Do Tu Tiên Giả Lập
+          </Badge>
+        </div>
         
         {/* Guild Overview */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
@@ -162,6 +186,17 @@ const GuildSystem = () => {
           <div className="text-center p-3 bg-muted/20 rounded-lg">
             <div className="text-lg font-bold text-divine-blue">{(playerGuild.power / 1000000).toFixed(1)}M</div>
             <div className="text-xs text-muted-foreground">Lực Chiến</div>
+          </div>
+        </div>
+
+        <div className="mb-4 p-3 bg-muted/20 rounded-lg">
+          <div className="flex items-center gap-2 mb-2">
+            <Flag className="w-4 h-4 text-cultivator-gold" />
+            <span className="font-medium">Thông tin thành lập:</span>
+          </div>
+          <div className="text-sm text-muted-foreground">
+            Người sáng lập: <span className="text-cultivator-gold">{playerGuild.founder}</span><br/>
+            Ngày thành lập: {playerGuild.foundedDate}
           </div>
         </div>
 
@@ -188,8 +223,8 @@ const GuildSystem = () => {
         <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="activities">Hoạt Động</TabsTrigger>
           <TabsTrigger value="members">Thành Viên</TabsTrigger>
-          <TabsTrigger value="buildings">Công Trình</TabsTrigger>
-          <TabsTrigger value="skills">Kỹ Năng</TabsTrigger>
+          <TabsTrigger value="buildings">Xây Dựng</TabsTrigger>
+          <TabsTrigger value="treasury">Kho Bạc</TabsTrigger>
           <TabsTrigger value="ranking">Xếp Hạng</TabsTrigger>
         </TabsList>
 
@@ -198,7 +233,9 @@ const GuildSystem = () => {
             <Card key={index} className="p-4">
               <div className="flex items-start gap-3">
                 <div className="w-12 h-12 rounded-lg bg-gradient-to-r from-mystical-purple/20 to-cultivator-gold/20 flex items-center justify-center">
-                  <Target className="w-6 h-6 text-mystical-purple" />
+                  {activity.type === 'pvp' ? <Sword className="w-6 h-6 text-red-400" /> :
+                   activity.type === 'pve' ? <Target className="w-6 h-6 text-mystical-purple" /> :
+                   <Building className="w-6 h-6 text-cultivator-gold" />}
                 </div>
                 
                 <div className="flex-1">
@@ -242,6 +279,14 @@ const GuildSystem = () => {
         </TabsContent>
 
         <TabsContent value="members" className="space-y-3">
+          <div className="flex justify-between items-center mb-3">
+            <h3 className="font-semibold text-mystical-purple">Danh Sách Thành Viên</h3>
+            <Button size="sm" variant="outline">
+              <UserPlus className="w-4 h-4 mr-2" />
+              Mời Thành Viên
+            </Button>
+          </div>
+          
           {guildMembers.map((member, index) => (
             <Card key={index} className="p-4">
               <div className="flex items-center justify-between">
@@ -253,8 +298,11 @@ const GuildSystem = () => {
                     <div className="flex items-center gap-2">
                       <span className="font-medium">{member.name}</span>
                       {member.position === 'Bang Chủ' && <Crown className="w-4 h-4 text-yellow-500" />}
+                      {member.name === playerGuild.founder && <Badge variant="outline" className="text-xs border-cultivator-gold text-cultivator-gold">Sáng Lập</Badge>}
                     </div>
-                    <div className="text-xs text-muted-foreground">{member.position} • Lv.{member.level}</div>
+                    <div className="text-xs text-muted-foreground">
+                      {member.position} • Lv.{member.level} • Gia nhập: {member.joinDate}
+                    </div>
                   </div>
                 </div>
                 <div className="text-right">
@@ -296,7 +344,7 @@ const GuildSystem = () => {
                         onClick={() => handleUpgradeBuilding(building)}
                         disabled={building.status === 'upgrading'}
                       >
-                        {building.status === 'upgrading' ? 'Đang nâng cấp' : 'Nâng cấp'}
+                        {building.status === 'upgrading' ? 'Đang xây' : 'Nâng cấp'}
                       </Button>
                     </div>
                   </div>
@@ -306,39 +354,57 @@ const GuildSystem = () => {
           </div>
         </TabsContent>
 
-        <TabsContent value="skills" className="space-y-3">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {guildSkills.map((skill, index) => (
-              <Card key={index} className="p-4">
-                <div className="flex items-center justify-between mb-2">
-                  <h3 className="font-medium">{skill.name}</h3>
-                  <Badge variant="outline" className="border-spirit-jade text-spirit-jade">
-                    {skill.level}/{skill.maxLevel}
-                  </Badge>
-                </div>
-                
-                <p className="text-sm text-muted-foreground mb-3">{skill.effect}</p>
-                
-                <div className="mb-3">
-                  <Progress value={(skill.level / skill.maxLevel) * 100} className="h-2" />
-                </div>
-                
-                <Button 
-                  size="sm" 
-                  className="w-full"
-                  onClick={() => handleLearnSkill(skill)}
-                  disabled={skill.level >= skill.maxLevel}
-                >
-                  {skill.level >= skill.maxLevel ? 'Đã tối đa' : 'Nâng cấp'}
+        <TabsContent value="treasury" className="space-y-3">
+          <Card className="p-4">
+            <h3 className="font-semibold mb-4 text-mystical-purple flex items-center gap-2">
+              <Gem className="w-5 h-5" />
+              Kho Bạc Bang Hội
+            </h3>
+            
+            <div className="grid grid-cols-3 gap-4 mb-6">
+              <div className="text-center p-4 bg-muted/20 rounded-lg">
+                <Coins className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                <div className="text-lg font-bold">{playerGuild.treasury.silver.toLocaleString()}</div>
+                <div className="text-xs text-muted-foreground">Bạc</div>
+              </div>
+              <div className="text-center p-4 bg-muted/20 rounded-lg">
+                <Gem className="w-8 h-8 text-yellow-500 mx-auto mb-2" />
+                <div className="text-lg font-bold">{playerGuild.treasury.goldIngots.toLocaleString()}</div>
+                <div className="text-xs text-muted-foreground">Kim Nguyên Bảo</div>
+              </div>
+              <div className="text-center p-4 bg-muted/20 rounded-lg">
+                <Gift className="w-8 h-8 text-purple-400 mx-auto mb-2" />
+                <div className="text-lg font-bold">{playerGuild.treasury.materials}</div>
+                <div className="text-xs text-muted-foreground">Nguyên Liệu</div>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <h4 className="font-medium text-cultivator-gold">Đóng Góp Cho Bang Hội</h4>
+              <div className="grid grid-cols-2 gap-3">
+                <Button variant="outline" onClick={() => handleDonate('silver')}>
+                  <Coins className="w-4 h-4 mr-2" />
+                  Đóng Góp Bạc
                 </Button>
-              </Card>
-            ))}
-          </div>
+                <Button variant="outline" onClick={() => handleDonate('gold')}>
+                  <Gem className="w-4 h-4 mr-2" />
+                  Đóng Góp KNYB
+                </Button>
+              </div>
+            </div>
+          </Card>
         </TabsContent>
 
         <TabsContent value="ranking" className="space-y-3">
           <Card className="p-4">
-            <h3 className="font-semibold mb-3 text-mystical-purple">Bảng Xếp Hạng Bang Hội</h3>
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="font-semibold text-mystical-purple">Bảng Xếp Hạng Bang Hội</h3>
+              <Button size="sm" variant="outline" onClick={() => setShowCreateGuild(true)}>
+                <Flag className="w-4 h-4 mr-2" />
+                Lập Bang Hội
+              </Button>
+            </div>
+            
             <div className="space-y-2">
               {guildRanking.map((guild, index) => (
                 <div key={index} className={`flex items-center justify-between p-3 rounded-lg ${guild.name === playerGuild.name ? 'bg-mystical-purple/10 border border-mystical-purple/30' : 'bg-muted/20'}`}>
@@ -352,7 +418,12 @@ const GuildSystem = () => {
                       {guild.rank}
                     </div>
                     <div>
-                      <div className="font-medium">{guild.name}</div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium">{guild.name}</span>
+                        <Badge variant="outline" className="text-xs border-green-500 text-green-500">
+                          Tu Tiên Giả Lập
+                        </Badge>
+                      </div>
                       <div className="text-xs text-muted-foreground">Lv.{guild.level} • {guild.members} thành viên</div>
                     </div>
                   </div>
@@ -364,6 +435,32 @@ const GuildSystem = () => {
               ))}
             </div>
           </Card>
+
+          {showCreateGuild && (
+            <Card className="p-4 border-cultivator-gold/50">
+              <h4 className="font-medium mb-3 text-cultivator-gold">Thành Lập Bang Hội Mới</h4>
+              <div className="space-y-3">
+                <input
+                  type="text"
+                  placeholder="Nhập tên bang hội..."
+                  value={newGuildName}
+                  onChange={(e) => setNewGuildName(e.target.value)}
+                  className="w-full p-2 rounded border bg-background"
+                />
+                <div className="flex gap-2">
+                  <Button onClick={handleCreateGuild} disabled={!newGuildName.trim()}>
+                    Thành Lập
+                  </Button>
+                  <Button variant="outline" onClick={() => setShowCreateGuild(false)}>
+                    Hủy
+                  </Button>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Chi phí: 100,000 Bạc • Yêu cầu: Lv.20 • Cần 5 thành viên sáng lập
+                </p>
+              </div>
+            </Card>
+          )}
         </TabsContent>
       </Tabs>
     </div>

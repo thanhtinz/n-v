@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useGameState } from '@/hooks/useGameState';
 import { Card } from "@/components/ui/card";
@@ -125,8 +124,8 @@ const GameInterface = () => {
     { id: 'shop', label: 'Cửa Hàng', icon: ShoppingCart },
     { id: 'enhancement', label: 'Cường Hóa', icon: Star },
     { id: 'arena', label: 'Đấu Trường', icon: Trophy },
-    { id: 'guild', label: 'Tông Môn', icon: Users },
-    { id: 'sect', label: 'Phái', icon: Crown },
+    { id: 'sect', label: 'Tông Môn', icon: Crown, description: 'Học tập rèn luyện' },
+    { id: 'guild', label: 'Bang Hội', icon: Users, description: 'Tu tiên giả lập' },
     { id: 'pet', label: 'Thú Cưng', icon: PawPrint },
     { id: 'event', label: 'Sự Kiện', icon: Calendar },
     { id: 'welfare', label: 'Phúc Lợi', icon: Gift },
@@ -234,7 +233,7 @@ const GameInterface = () => {
               </div>
             </div>
 
-            {/* Menu Items - Updated to include new systems */}
+            {/* Menu Items - Updated with descriptions */}
             <div className="space-y-2">
               {menuItems.map(item => (
                 <Button
@@ -244,7 +243,12 @@ const GameInterface = () => {
                   onClick={() => handleMenuClick(item.id, item.label)}
                 >
                   <item.icon className="w-4 h-4 mr-2" />
-                  {item.label}
+                  <div className="flex flex-col items-start">
+                    <span>{item.label}</span>
+                    {item.description && (
+                      <span className="text-xs text-muted-foreground">{item.description}</span>
+                    )}
+                  </div>
                 </Button>
               ))}
             </div>
