@@ -475,7 +475,7 @@ const EntertainmentSystem = () => {
               >
                 <div className="text-center">
                   <div>TÀI</div>
-                  <div className="text-xs opacity-80">Tổng > 10</div>
+                  <div className="text-xs opacity-80">Tổng {"> 10"}</div>
                 </div>
               </Button>
               <Button
@@ -485,7 +485,7 @@ const EntertainmentSystem = () => {
               >
                 <div className="text-center">
                   <div>XỈU</div>
-                  <div className="text-xs opacity-80">Tổng < 10</div>
+                  <div className="text-xs opacity-80">Tổng {"< 10"}</div>
                 </div>
               </Button>
             </div>
@@ -512,8 +512,8 @@ const EntertainmentSystem = () => {
 
           <div className="mb-4 text-xs text-muted-foreground bg-blue-50 p-3 rounded">
             <p className="font-bold mb-2">Luật chơi:</p>
-            <p>• Tài: Tổng 3 xúc xắc > 10 (11-18)</p>
-            <p>• Xỉu: Tổng 3 xúc xắc < 10 (3-9)</p>
+            <p>• Tài: Tổng 3 xúc xắc {"> 10"} (11-18)</p>
+            <p>• Xỉu: Tổng 3 xúc xắc {"< 10"} (3-9)</p>
             <p>• Hòa: Tổng = 10 (nhà cái thắng)</p>
             <p>• Tỷ lệ thưởng: 1:1</p>
           </div>
