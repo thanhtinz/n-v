@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 
 export interface FarmPlot {
@@ -29,16 +28,6 @@ export interface FarmData {
   experience: number;
 }
 
-const cropTypes: CropType[] = [
-  { id: 'carrot', name: 'Cà Rốt', growthTime: 30, sellPrice: 50, buyPrice: 10, yieldBase: 5, type: 'food' },
-  { id: 'tomato', name: 'Cà Chua', growthTime: 60, sellPrice: 100, buyPrice: 20, yieldBase: 8, type: 'food' },
-  { id: 'corn', name: 'Ngô', growthTime: 120, sellPrice: 200, buyPrice: 50, yieldBase: 12, type: 'food' },
-  { id: 'wheat', name: 'Lúa Mì', growthTime: 180, sellPrice: 300, buyPrice: 80, yieldBase: 15, type: 'food' },
-  { id: 'pet_rice', name: 'Lúa Pet', growthTime: 30, sellPrice: 0, buyPrice: 5, yieldBase: 5, type: 'pet_food' },
-  { id: 'pet_grass', name: 'Cỏ Ngọt', growthTime: 45, sellPrice: 0, buyPrice: 8, yieldBase: 8, type: 'pet_food' },
-  { id: 'spirit_herb', name: 'Thảo Linh', growthTime: 90, sellPrice: 0, buyPrice: 15, yieldBase: 3, type: 'material' }
-];
-
 // Global farm state
 let globalFarmData: FarmData = {
   plots: [
@@ -54,6 +43,16 @@ let globalFarmData: FarmData = {
   totalHarvested: 156,
   experience: 89
 };
+
+const cropTypes: CropType[] = [
+  { id: 'carrot', name: 'Cà Rốt', growthTime: 30, sellPrice: 50, buyPrice: 10, yieldBase: 5, type: 'food' },
+  { id: 'tomato', name: 'Cà Chua', growthTime: 60, sellPrice: 100, buyPrice: 20, yieldBase: 8, type: 'food' },
+  { id: 'corn', name: 'Ngô', growthTime: 120, sellPrice: 200, buyPrice: 50, yieldBase: 12, type: 'food' },
+  { id: 'wheat', name: 'Lúa Mì', growthTime: 180, sellPrice: 300, buyPrice: 80, yieldBase: 15, type: 'food' },
+  { id: 'pet_rice', name: 'Lúa Pet', growthTime: 30, sellPrice: 0, buyPrice: 5, yieldBase: 5, type: 'pet_food' },
+  { id: 'pet_grass', name: 'Cỏ Ngọt', growthTime: 45, sellPrice: 0, buyPrice: 8, yieldBase: 8, type: 'pet_food' },
+  { id: 'spirit_herb', name: 'Thảo Linh', growthTime: 90, sellPrice: 0, buyPrice: 15, yieldBase: 3, type: 'material' }
+];
 
 const listeners: Array<() => void> = [];
 
