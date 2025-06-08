@@ -10,6 +10,53 @@ import BossArena from './BossArena';
 import PvPArena from './PvPArena';
 
 const CombatSystem = () => {
+  // Create player stats that match the expected interface
+  const [playerStats] = useState(() => {
+    const savedCharacter = localStorage.getItem('playerCharacter');
+    if (savedCharacter) {
+      const player = JSON.parse(savedCharacter);
+      return {
+        hp: player.hp || 100,
+        maxHp: player.maxHp || 100,
+        attack: 25 + (player.level * 3),
+        defense: 15 + (player.level * 2),
+        speed: 10 + player.level,
+        critRate: 5 + Math.floor(player.level / 2),
+        elemental: player.elemental || {
+          fireAttack: player.class === 'sword' ? 25 + player.level * 3 : 8,
+          waterAttack: player.class === 'magic' ? 25 + player.level * 3 : 8,
+          windAttack: 5 + player.level,
+          earthAttack: player.class === 'defense' ? 25 + player.level * 3 : 3,
+          fireResist: player.class === 'sword' ? 20 + player.level * 2 : 12
+        },
+        avatar: player.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&h=100&fit=crop&crop=center',
+        level: player.level || 1,
+        exp: player.exp || 0,
+        maxExp: player.maxExp || 100
+      };
+    }
+    // Default stats if no character saved
+    return {
+      hp: 100,
+      maxHp: 100,
+      attack: 25,
+      defense: 15,
+      speed: 10,
+      critRate: 5,
+      elemental: {
+        fireAttack: 25,
+        waterAttack: 8,
+        windAttack: 5,
+        earthAttack: 3,
+        fireResist: 20
+      },
+      avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&h=100&fit=crop&crop=center',
+      level: 1,
+      exp: 0,
+      maxExp: 100
+    };
+  });
+
   const [battleLogs, setBattleLogs] = useState<string[]>([
     "🌟 Bước vào đấu trường chiến đấu...",
     "⚔️ Sẵn sàng cho trận chiến!"
@@ -76,11 +123,11 @@ const CombatSystem = () => {
         </Card>
 
         <TabsContent value="boss">
-          <BossArena onBattleEvent={addBattleLog} />
+          <BossArena playerStats={playerStats} />
         </TabsContent>
 
         <TabsContent value="pvp">
-          <PvPArena onBattleEvent={addBattleLog} />
+          <PvPArena playerStats={playerStats} />
         </TabsContent>
       </Tabs>
     </div>
