@@ -52,6 +52,7 @@ import DailyActivitiesSystem from './DailyActivitiesSystem';
 import GuildSystem from './GuildSystem';
 import SocialSystem from './SocialSystem';
 import PetSystem from './PetSystem';
+import AdminSystem from './AdminSystem';
 
 const GameInterface = () => {
   const [activeTab, setActiveTab] = useState('overview');
@@ -201,7 +202,7 @@ const GameInterface = () => {
               </div>
             </div>
 
-            {/* Menu Items - Updated to include Pet */}
+            {/* Menu Items - Updated to include Admin */}
             <div className="space-y-2">
               <Button
                 variant="ghost"
@@ -210,6 +211,14 @@ const GameInterface = () => {
               >
                 <User className="w-4 h-4 mr-2" />
                 Trang Chủ
+              </Button>
+              <Button
+                variant="ghost"
+                className="w-full justify-start"
+                onClick={() => handleMenuClick('admin', 'Quản Trị')}
+              >
+                <Settings className="w-4 h-4 mr-2" />
+                Quản Trị Game
               </Button>
               <Button
                 variant="ghost"
@@ -351,6 +360,10 @@ const GameInterface = () => {
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsContent value="overview" className="mt-0">
             <PlayerOverview />
+          </TabsContent>
+
+          <TabsContent value="admin" className="mt-0">
+            <AdminSystem />
           </TabsContent>
 
           <TabsContent value="home" className="mt-0">
