@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -18,7 +17,7 @@ import {
   Dice4,
   Dice5,
   Dice6,
-  Chess
+  Grid3X3
 } from 'lucide-react';
 import { useGameState } from '@/hooks/useGameState';
 
@@ -259,7 +258,7 @@ const EntertainmentSystem = () => {
         <TabsContent value="chess">
           <Card className="p-4">
             <div className="text-center mb-4">
-              <Chess className="w-16 h-16 mx-auto mb-2 text-cultivator-gold" />
+              <Grid3X3 className="w-16 h-16 mx-auto mb-2 text-cultivator-gold" />
               <h3 className="text-lg font-bold">Cờ Tướng Linh Thần</h3>
               <p className="text-sm text-muted-foreground">Thách đấu với AI để nhận thưởng</p>
             </div>
