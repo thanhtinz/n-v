@@ -1,13 +1,13 @@
-
 import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
-import { Sword, Shield, Heart, Zap, Trophy, Users, User, Star } from 'lucide-react';
+import { Sword, Shield, Heart, Zap, Trophy, Users, User, Star, Target } from 'lucide-react';
 import BossArena from './BossArena';
 import PvPArena from './PvPArena';
+import ArenaSystem from './ArenaSystem';
 
 const CombatSystem = () => {
   // Create player stats that match the expected interface
@@ -104,7 +104,7 @@ const CombatSystem = () => {
       {/* Combat Tabs */}
       <Tabs defaultValue="boss" className="space-y-3 sm:space-y-4">
         <Card className="p-1 sm:p-2 bg-card/50 backdrop-blur-sm border-border/50">
-          <TabsList className="grid w-full grid-cols-2 bg-transparent gap-1">
+          <TabsList className="grid w-full grid-cols-3 bg-transparent gap-1">
             <TabsTrigger
               value="boss"
               className="flex items-center gap-2 data-[state=active]:bg-primary/20 data-[state=active]:text-primary"
@@ -119,6 +119,13 @@ const CombatSystem = () => {
               <Users className="w-4 h-4" />
               <span className="text-sm">PvP</span>
             </TabsTrigger>
+            <TabsTrigger
+              value="arena"
+              className="flex items-center gap-2 data-[state=active]:bg-primary/20 data-[state=active]:text-primary"
+            >
+              <Target className="w-4 h-4" />
+              <span className="text-sm">Đấu Trường</span>
+            </TabsTrigger>
           </TabsList>
         </Card>
 
@@ -128,6 +135,10 @@ const CombatSystem = () => {
 
         <TabsContent value="pvp">
           <PvPArena playerStats={playerStats} />
+        </TabsContent>
+
+        <TabsContent value="arena">
+          <ArenaSystem />
         </TabsContent>
       </Tabs>
     </div>

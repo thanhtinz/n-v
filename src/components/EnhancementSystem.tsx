@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -36,7 +35,7 @@ const EnhancementSystem = () => {
   const [selectedCharm, setSelectedCharm] = useState<any>(null);
   const [luckPoints, setLuckPoints] = useState(0);
 
-  // Equipment that can be enhanced (Nón, Áo, Vũ khí, Thiên sứ ban phúc, Khiên)
+  // Equipment that can be enhanced
   const enhanceableItems = [
     {
       id: 'hat1',
@@ -46,7 +45,7 @@ const EnhancementSystem = () => {
       maxLevel: 12,
       baseDefense: 50,
       enhancedDefense: 70,
-      upgradeLevel: 0, // For Tăng Cấp (0-3)
+      upgradeLevel: 0,
       rarity: 'epic',
       cost: { silver: 3000, rechargeSpiritStones: 2 }
     },
@@ -157,6 +156,11 @@ const EnhancementSystem = () => {
   };
 
   const handleEnhancement = (item: any) => {
+    if (!selectedItem) {
+      addNotification('Vui lòng chọn trang bị cần cường hóa!', 'warning');
+      return;
+    }
+
     if (!selectedStone) {
       addNotification('Vui lòng chọn đá cường hóa!', 'warning');
       return;
@@ -181,6 +185,11 @@ const EnhancementSystem = () => {
   };
 
   const handleSynthesis = (item: any) => {
+    if (!selectedItem) {
+      addNotification('Vui lòng chọn trang bị cần hợp thành!', 'warning');
+      return;
+    }
+
     if (!selectedStone) {
       addNotification('Vui lòng chọn đá hợp thành!', 'warning');
       return;
@@ -202,6 +211,11 @@ const EnhancementSystem = () => {
   };
 
   const handleUpgrade = (item: any) => {
+    if (!selectedItem) {
+      addNotification('Vui lòng chọn trang bị cần tăng cấp!', 'warning');
+      return;
+    }
+
     if (item.currentLevel < 12) {
       addNotification('Trang bị cần đạt cấp 12 mới có thể Tăng Cấp!', 'warning');
       return;
@@ -215,13 +229,11 @@ const EnhancementSystem = () => {
     const stone = upgradeStones.find(s => s.id === selectedStone.id);
     if (!stone) return;
 
-    // Check if stone matches required level
     if (stone.forLevel !== 'all' && stone.forLevel !== (item.upgradeLevel + 1)) {
       addNotification(`Cần sử dụng đúng loại đá cho cấp ${item.upgradeLevel + 1}!`, 'warning');
       return;
     }
 
-    // Base success rate decreases with upgrade level
     let baseRate = 70 - (item.upgradeLevel * 15);
     baseRate = Math.max(baseRate + luckPoints, 20); // Luck points help
     
@@ -240,6 +252,11 @@ const EnhancementSystem = () => {
   };
 
   const handleElementSeal = (item: any, seal: any) => {
+    if (!selectedItem) {
+      addNotification('Vui lòng chọn trang bị cần khảm phù hiệu!', 'warning');
+      return;
+    }
+
     if (item.type !== 'weapon' && item.type !== 'armor' && item.type !== 'hat') {
       addNotification('Chỉ có thể khảm phù hiệu vào Vũ Khí, Áo, Nón!', 'warning');
       return;
@@ -248,6 +265,23 @@ const EnhancementSystem = () => {
     addNotification(`Khảm ${seal.name} vào ${item.name} thành công!`, 'success');
   };
 
+  // Component for no equipment selected message
+  const NoEquipmentSelected = ({ action }: { action: string }) => (
+    <Card className="p-6 bg-muted/20 border-2 border-dashed border-border/50">
+      <div className="text-center space-y-4">
+        <div className="w-16 h-16 mx-auto bg-muted/50 rounded-full flex items-center justify-center">
+          <Hammer className="w-8 h-8 text-muted-foreground" />
+        </div>
+        <div>
+          <h3 className="font-medium text-muted-foreground mb-2">Chưa chọn trang bị</h3>
+          <p className="text-sm text-muted-foreground/80">
+            Vui lòng chọn trang bị từ danh sách bên trái để {action}
+          </p>
+        </div>
+      </div>
+    </Card>
+  );
+
   return (
     <div className="space-y-4">
       <Card className="p-4 bg-card/80 backdrop-blur-sm border-border/50">
@@ -255,6 +289,48 @@ const EnhancementSystem = () => {
           <Hammer className="w-5 h-5" />
           Tiệm Rèn - Cường Hóa Trang Bị
         </h2>
+
+        {/* Equipment Selection Section */}
+        <Card className="p-4 bg-muted/20 mb-4">
+          <h3 className="font-semibold mb-3 text-spirit-jade">Chọn Trang Bị</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {enhanceableItems.map((item) => (
+              <div 
+                key={item.id}
+                className={`p-3 bg-card/50 rounded-lg border cursor-pointer transition-all ${
+                  selectedItem?.id === item.id 
+                    ? 'border-cultivator-gold bg-cultivator-gold/10 scale-105' 
+                    : 'border-border/30 hover:border-border/50 hover:scale-102'
+                }`}
+                onClick={() => setSelectedItem(item)}
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <span className="font-medium text-sm">{item.name}</span>
+                  <Badge variant="outline" className={getRarityColor(item.rarity)}>
+                    +{item.currentLevel}
+                  </Badge>
+                </div>
+                <Progress value={(item.currentLevel / item.maxLevel) * 100} className="h-2 mb-1" />
+                <div className="text-xs text-muted-foreground">
+                  Cấp {item.currentLevel}/{item.maxLevel}
+                  {item.upgradeLevel > 0 && ` | Tăng: ${item.upgradeLevel}/3`}
+                </div>
+              </div>
+            ))}
+          </div>
+          
+          {selectedItem && (
+            <div className="mt-4 p-3 bg-cultivator-gold/10 border border-cultivator-gold/30 rounded-lg">
+              <div className="flex items-center gap-2 mb-2">
+                <Star className="w-4 h-4 text-cultivator-gold" />
+                <span className="font-medium text-cultivator-gold">Đã chọn: {selectedItem.name}</span>
+              </div>
+              <div className="text-xs text-muted-foreground">
+                Cấp hiện tại: +{selectedItem.currentLevel} | Loại: {selectedItem.type}
+              </div>
+            </div>
+          )}
+        </Card>
 
         <Tabs defaultValue="enhance" className="space-y-4">
           <TabsList className="grid w-full grid-cols-5">
@@ -267,119 +343,86 @@ const EnhancementSystem = () => {
 
           {/* Enhancement Tab */}
           <TabsContent value="enhance" className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Equipment Selection */}
-              <Card className="p-4 bg-muted/20">
-                <h3 className="font-semibold mb-3 text-spirit-jade">Chọn Trang Bị</h3>
-                <div className="space-y-2">
-                  {enhanceableItems.map((item) => (
-                    <div 
-                      key={item.id}
-                      className={`p-3 bg-card/50 rounded-lg border cursor-pointer transition-colors ${
-                        selectedItem?.id === item.id ? 'border-cultivator-gold bg-cultivator-gold/10' : 'border-border/30 hover:border-border/50'
-                      }`}
-                      onClick={() => setSelectedItem(item)}
-                    >
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="font-medium">{item.name}</span>
-                        <Badge variant="outline" className={getRarityColor(item.rarity)}>
-                          +{item.currentLevel}
-                        </Badge>
-                      </div>
-                      <Progress value={(item.currentLevel / item.maxLevel) * 100} className="h-2" />
-                      <div className="text-xs text-muted-foreground mt-1">
-                        Cấp {item.currentLevel}/{item.maxLevel}
-                      </div>
-                    </div>
-                  ))}
+            {!selectedItem ? (
+              <NoEquipmentSelected action="cường hóa" />
+            ) : (
+              <div className="space-y-4">
+                <div className="text-center p-3 bg-card/50 rounded-lg">
+                  <h4 className="font-medium">{selectedItem.name}</h4>
+                  <p className="text-sm text-muted-foreground">Cấp hiện tại: +{selectedItem.currentLevel}</p>
                 </div>
-              </Card>
 
-              {/* Enhancement Panel */}
-              <Card className="p-4 bg-muted/20">
-                <h3 className="font-semibold mb-3 text-spirit-jade">Cường Hóa</h3>
-                {selectedItem ? (
-                  <div className="space-y-4">
-                    {/* Selected item display */}
-                    <div className="text-center p-3 bg-card/50 rounded-lg">
-                      <h4 className="font-medium">{selectedItem.name}</h4>
-                      <p className="text-sm text-muted-foreground">Cấp hiện tại: +{selectedItem.currentLevel}</p>
-                    </div>
-
-                    {/* Stone selection */}
-                    <div>
-                      <h5 className="text-sm font-medium mb-2">Chọn Đá Cường Hóa:</h5>
-                      <div className="grid grid-cols-1 gap-2">
-                        {enhancementStones.map((stone) => (
-                          <Button
-                            key={stone.id}
-                            variant={selectedStone?.id === stone.id ? "default" : "outline"}
-                            size="sm"
-                            className="justify-between"
-                            onClick={() => setSelectedStone(stone)}
-                            disabled={stone.count === 0}
-                          >
-                            <span>{stone.name}</span>
-                            <span className="text-xs">x{stone.count}</span>
-                          </Button>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Charm selection */}
-                    <div>
-                      <h5 className="text-sm font-medium mb-2">Bùa May Mắn (Tùy chọn):</h5>
-                      <div className="grid grid-cols-1 gap-2">
-                        {luckyCharms.map((charm) => (
-                          <Button
-                            key={charm.id}
-                            variant={selectedCharm?.id === charm.id ? "default" : "outline"}
-                            size="sm"
-                            className="justify-between"
-                            onClick={() => setSelectedCharm(selectedCharm?.id === charm.id ? null : charm)}
-                            disabled={charm.count === 0}
-                          >
-                            <span>{charm.name} (+{charm.bonus}%)</span>
-                            <span className="text-xs">x{charm.count}</span>
-                          </Button>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Success rate */}
-                    {selectedStone && (
-                      <div className="text-center">
-                        <p className="text-sm">Tỷ lệ thành công: 
-                          <span className="text-green-400 font-medium ml-1">
-                            {Math.min(getSuccessRate(selectedItem.currentLevel, selectedStone.level) + (selectedCharm?.bonus || 0), 95)}%
-                          </span>
-                        </p>
-                      </div>
-                    )}
-
-                    <Button 
-                      className="w-full bg-cultivator-gold hover:bg-cultivator-gold/80 text-black"
-                      onClick={() => handleEnhancement(selectedItem)}
-                      disabled={!selectedStone}
-                    >
-                      <Hammer className="w-4 h-4 mr-2" />
-                      Cường Hóa
-                    </Button>
+                <div>
+                  <h5 className="text-sm font-medium mb-2">Chọn Đá Cường Hóa:</h5>
+                  <div className="grid grid-cols-1 gap-2">
+                    {enhancementStones.map((stone) => (
+                      <Button
+                        key={stone.id}
+                        variant={selectedStone?.id === stone.id ? "default" : "outline"}
+                        size="sm"
+                        className="justify-between"
+                        onClick={() => setSelectedStone(stone)}
+                        disabled={stone.count === 0}
+                      >
+                        <span>{stone.name}</span>
+                        <span className="text-xs">x{stone.count}</span>
+                      </Button>
+                    ))}
                   </div>
-                ) : (
-                  <div className="text-center py-8 text-muted-foreground">
-                    Chọn trang bị để cường hóa
+                </div>
+
+                <div>
+                  <h5 className="text-sm font-medium mb-2">Bùa May Mắn (Tùy chọn):</h5>
+                  <div className="grid grid-cols-1 gap-2">
+                    {luckyCharms.map((charm) => (
+                      <Button
+                        key={charm.id}
+                        variant={selectedCharm?.id === charm.id ? "default" : "outline"}
+                        size="sm"
+                        className="justify-between"
+                        onClick={() => setSelectedCharm(selectedCharm?.id === charm.id ? null : charm)}
+                        disabled={charm.count === 0}
+                      >
+                        <span>{charm.name} (+{charm.bonus}%)</span>
+                        <span className="text-xs">x{charm.count}</span>
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+
+                {selectedStone && (
+                  <div className="text-center">
+                    <p className="text-sm">Tỷ lệ thành công: 
+                      <span className="text-green-400 font-medium ml-1">
+                        {Math.min(getSuccessRate(selectedItem.currentLevel, selectedStone.level) + (selectedCharm?.bonus || 0), 95)}%
+                      </span>
+                    </p>
                   </div>
                 )}
-              </Card>
-            </div>
+
+                <Button 
+                  className="w-full bg-cultivator-gold hover:bg-cultivator-gold/80 text-black"
+                  onClick={() => handleEnhancement(selectedItem)}
+                  disabled={!selectedStone}
+                >
+                  <Hammer className="w-4 h-4 mr-2" />
+                  Cường Hóa
+                </Button>
+              </div>
+            )}
           </TabsContent>
 
           {/* Synthesis Tab */}
           <TabsContent value="synthesis" className="space-y-4">
-            <Card className="p-4 bg-muted/20">
-              <h3 className="font-semibold mb-3 text-spirit-jade">Hợp Thành Trang Bị</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {!selectedItem ? (
+              <NoEquipmentSelected action="hợp thành" />
+            ) : (
+              <div className="space-y-4">
+                <div className="text-center p-3 bg-card/50 rounded-lg">
+                  <h4 className="font-medium">{selectedItem.name}</h4>
+                  <p className="text-sm text-muted-foreground">Cấp hiện tại: +{selectedItem.currentLevel}</p>
+                </div>
+
                 <div>
                   <h5 className="text-sm font-medium mb-2">Chọn Đá Hợp Thành:</h5>
                   <div className="space-y-2">
@@ -399,45 +442,51 @@ const EnhancementSystem = () => {
                   </div>
                 </div>
 
-                {selectedItem && selectedStone && (
-                  <div className="space-y-4">
-                    <div className="text-center p-3 bg-card/50 rounded-lg">
-                      <h4 className="font-medium">{selectedItem.name}</h4>
-                      <p className="text-sm text-cultivator-gold">
-                        Tỷ lệ: {Math.min(selectedStone.successRate + (selectedCharm?.bonus || 0), 95)}%
-                      </p>
-                    </div>
-
-                    <Button 
-                      className="w-full bg-spirit-jade hover:bg-spirit-jade/80"
-                      onClick={() => handleSynthesis(selectedItem)}
-                    >
-                      <Gem className="w-4 h-4 mr-2" />
-                      Hợp Thành
-                    </Button>
+                {selectedStone && (
+                  <div className="text-center p-3 bg-card/50 rounded-lg">
+                    <p className="text-sm text-cultivator-gold">
+                      Tỷ lệ: {Math.min(selectedStone.successRate + (selectedCharm?.bonus || 0), 95)}%
+                    </p>
                   </div>
                 )}
+
+                <Button 
+                  className="w-full bg-spirit-jade hover:bg-spirit-jade/80"
+                  onClick={() => handleSynthesis(selectedItem)}
+                  disabled={!selectedStone}
+                >
+                  <Gem className="w-4 h-4 mr-2" />
+                  Hợp Thành
+                </Button>
               </div>
-            </Card>
+            )}
           </TabsContent>
 
           {/* Upgrade Tab */}
           <TabsContent value="upgrade" className="space-y-4">
-            <Card className="p-4 bg-muted/20">
-              <h3 className="font-semibold mb-3 text-spirit-jade">Tăng Cấp Trang Bị</h3>
-              
-              {/* Luck points display */}
-              <div className="mb-4 p-3 bg-card/50 rounded-lg">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm">Điểm May Mắn:</span>
-                  <span className="text-yellow-400 font-medium">{luckPoints}</span>
-                </div>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Tự động reset sau 24h | Tăng tỷ lệ thành công
-                </p>
+            <div className="mb-4 p-3 bg-card/50 rounded-lg">
+              <div className="flex items-center justify-between">
+                <span className="text-sm">Điểm May Mắn:</span>
+                <span className="text-yellow-400 font-medium">{luckPoints}</span>
               </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                Tự động reset sau 24h | Tăng tỷ lệ thành công
+              </p>
+            </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {!selectedItem ? (
+              <NoEquipmentSelected action="tăng cấp" />
+            ) : (
+              <div className="space-y-4">
+                <div className="text-center p-3 bg-card/50 rounded-lg">
+                  <h4 className="font-medium">{selectedItem.name}</h4>
+                  <p className="text-sm">Cấp Cường Hóa: +{selectedItem.currentLevel}</p>
+                  <p className="text-sm text-cultivator-gold">Cấp Tăng: {selectedItem.upgradeLevel}/3</p>
+                  {selectedItem.currentLevel < 12 && (
+                    <p className="text-xs text-red-400">Cần cường hóa +12 trước</p>
+                  )}
+                </div>
+
                 <div>
                   <h5 className="text-sm font-medium mb-2">Đá Tăng Cấp:</h5>
                   <div className="space-y-2">
@@ -457,138 +506,133 @@ const EnhancementSystem = () => {
                   </div>
                 </div>
 
-                {selectedItem && (
-                  <div className="space-y-4">
-                    <div className="text-center p-3 bg-card/50 rounded-lg">
-                      <h4 className="font-medium">{selectedItem.name}</h4>
-                      <p className="text-sm">Cấp Cường Hóa: +{selectedItem.currentLevel}</p>
-                      <p className="text-sm text-cultivator-gold">Cấp Tăng: {selectedItem.upgradeLevel}/3</p>
-                      {selectedItem.currentLevel < 12 && (
-                        <p className="text-xs text-red-400">Cần cường hóa +12 trước</p>
-                      )}
-                    </div>
-
-                    <Button 
-                      className="w-full bg-mystical-purple hover:bg-mystical-purple/80"
-                      onClick={() => handleUpgrade(selectedItem)}
-                      disabled={selectedItem.currentLevel < 12 || !selectedStone}
-                    >
-                      <ArrowUp className="w-4 h-4 mr-2" />
-                      Tăng Cấp
-                    </Button>
-                  </div>
-                )}
+                <Button 
+                  className="w-full bg-mystical-purple hover:bg-mystical-purple/80"
+                  onClick={() => handleUpgrade(selectedItem)}
+                  disabled={selectedItem.currentLevel < 12 || !selectedStone}
+                >
+                  <ArrowUp className="w-4 h-4 mr-2" />
+                  Tăng Cấp
+                </Button>
               </div>
-            </Card>
+            )}
           </TabsContent>
 
           {/* Element Seals Tab */}
           <TabsContent value="seals" className="space-y-4">
-            <Card className="p-4 bg-muted/20">
-              <h3 className="font-semibold mb-3 text-spirit-jade">Phù Hiệu Nguyên Tố</h3>
-              <p className="text-xs text-muted-foreground mb-4">
-                Yêu cầu: Cấp 30+ | Khảm vào Vũ Khí, Áo, Nón (Tối đa 3 phù hiệu/vị trí)
-              </p>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {elementSeals.map((seal) => {
-                  const SealIcon = seal.icon;
-                  return (
-                    <div key={seal.id} className="p-3 bg-card/50 rounded-lg border border-border/30">
-                      <div className="flex items-center gap-3 mb-2">
-                        <SealIcon className={`w-6 h-6 ${seal.color}`} />
-                        <div>
-                          <h4 className="font-medium">{seal.name}</h4>
-                          <p className="text-xs text-muted-foreground">Phẩm chất: {seal.quality}</p>
+            <p className="text-xs text-muted-foreground mb-4">
+              Yêu cầu: Cấp 30+ | Khảm vào Vũ Khí, Áo, Nón (Tối đa 3 phù hiệu/vị trí)
+            </p>
+            
+            {!selectedItem ? (
+              <NoEquipmentSelected action="khảm phù hiệu" />
+            ) : (
+              <div className="space-y-4">
+                <div className="text-center p-3 bg-card/50 rounded-lg">
+                  <h4 className="font-medium">{selectedItem.name}</h4>
+                  <p className="text-sm text-muted-foreground">Loại: {selectedItem.type}</p>
+                  {selectedItem.type !== 'weapon' && selectedItem.type !== 'armor' && selectedItem.type !== 'hat' && (
+                    <p className="text-xs text-red-400">Không thể khảm phù hiệu vào loại trang bị này</p>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-1 gap-3">
+                  {elementSeals.map((seal) => {
+                    const SealIcon = seal.icon;
+                    return (
+                      <div key={seal.id} className="p-3 bg-card/50 rounded-lg border border-border/30">
+                        <div className="flex items-center gap-3 mb-2">
+                          <SealIcon className={`w-6 h-6 ${seal.color}`} />
+                          <div className="flex-1">
+                            <h4 className="font-medium">{seal.name}</h4>
+                            <p className="text-xs text-muted-foreground">Phẩm chất: {seal.quality}</p>
+                          </div>
+                          <span className="text-sm">x{seal.count}</span>
                         </div>
-                        <span className="ml-auto text-sm">x{seal.count}</span>
+                        
+                        <div className="text-xs space-y-1 mb-3">
+                          {seal.element === 'fire' && (
+                            <>
+                              <div>• Công Lửa: 15% thiêu đốt, 1% sát thương/turn (3 turn)</div>
+                              <div>• Kháng Lửa: Hấp thụ 10 sát thương/turn</div>
+                            </>
+                          )}
+                          {seal.element === 'water' && (
+                            <>
+                              <div>• Công Nước: 3% đóng băng 2 turn</div>
+                              <div>• Kháng Nước: Hồi 10 HP/turn</div>
+                            </>
+                          )}
+                          {seal.element === 'wind' && (
+                            <>
+                              <div>• Công Gió: 15% sấm sét, 1% sát thương phạm vi 300</div>
+                              <div>• Kháng Gió: Tăng 1% né</div>
+                            </>
+                          )}
+                          {seal.element === 'earth' && (
+                            <>
+                              <div>• Công Đất: +1% sát thương mỗi 100 pixel cao hơn</div>
+                              <div>• Kháng Đất: Giảm 10 sát thương mỗi 100 pixel</div>
+                            </>
+                          )}
+                        </div>
+                        
+                        <Button 
+                          size="sm" 
+                          className="w-full"
+                          onClick={() => handleElementSeal(selectedItem, seal)}
+                          disabled={seal.count === 0 || (selectedItem.type !== 'weapon' && selectedItem.type !== 'armor' && selectedItem.type !== 'hat')}
+                        >
+                          <Target className="w-3 h-3 mr-1" />
+                          Khảm Phù Hiệu
+                        </Button>
                       </div>
-                      
-                      <div className="text-xs space-y-1 mb-3">
-                        {seal.element === 'fire' && (
-                          <>
-                            <div>• Công Lửa: 15% thiêu đốt, 1% sát thương/turn (3 turn)</div>
-                            <div>• Kháng Lửa: Hấp thụ 10 sát thương/turn</div>
-                          </>
-                        )}
-                        {seal.element === 'water' && (
-                          <>
-                            <div>• Công Nước: 3% đóng băng 2 turn</div>
-                            <div>• Kháng Nước: Hồi 10 HP/turn</div>
-                          </>
-                        )}
-                        {seal.element === 'wind' && (
-                          <>
-                            <div>• Công Gió: 15% sấm sét, 1% sát thương phạm vi 300</div>
-                            <div>• Kháng Gió: Tăng 1% né</div>
-                          </>
-                        )}
-                        {seal.element === 'earth' && (
-                          <>
-                            <div>• Công Đất: +1% sát thương mỗi 100 pixel cao hơn</div>
-                            <div>• Kháng Đất: Giảm 10 sát thương mỗi 100 pixel</div>
-                          </>
-                        )}
-                      </div>
-                      
-                      <Button 
-                        size="sm" 
-                        className="w-full"
-                        onClick={() => selectedItem && handleElementSeal(selectedItem, seal)}
-                        disabled={!selectedItem || seal.count === 0}
-                      >
-                        <Target className="w-3 h-3 mr-1" />
-                        Khảm Phù Hiệu
-                      </Button>
-                    </div>
-                  );
-                })}
+                    );
+                  })}
+                </div>
               </div>
-            </Card>
+            )}
           </TabsContent>
 
           {/* Energy Tab */}
           <TabsContent value="energy" className="space-y-4">
-            <Card className="p-4 bg-muted/20">
-              <h3 className="font-semibold mb-3 text-spirit-jade">Năng Lượng Siêu Gà</h3>
-              <p className="text-xs text-muted-foreground mb-4">
-                Chỉ nâng cấp: Tóc, Mặt, Mắt, Set Avatar, Cánh | Tăng cả 4 thuộc tính
-              </p>
-              
-              <div className="space-y-4">
-                <div className="p-3 bg-card/50 rounded-lg">
-                  <h4 className="font-medium mb-2">Đá Năng Lượng</h4>
-                  <div className="grid grid-cols-3 gap-2">
-                    <div className="text-center p-2 bg-muted/50 rounded">
-                      <div className="text-sm font-medium">Thấp</div>
-                      <div className="text-xs">Max: 40 điểm</div>
-                      <div className="text-xs text-cultivator-gold">x3</div>
-                    </div>
-                    <div className="text-center p-2 bg-muted/50 rounded">
-                      <div className="text-sm font-medium">Cao</div>
-                      <div className="text-xs">Max: 80 điểm</div>
-                      <div className="text-xs text-cultivator-gold">x1</div>
-                    </div>
-                    <div className="text-center p-2 bg-muted/50 rounded">
-                      <div className="text-sm font-medium">Tối Thượng</div>
-                      <div className="text-xs">Max: 120 điểm</div>
-                      <div className="text-xs text-cultivator-gold">x0</div>
-                    </div>
+            <p className="text-xs text-muted-foreground mb-4">
+              Chỉ nâng cấp: Tóc, Mặt, Mắt, Set Avatar, Cánh | Tăng cả 4 thuộc tính
+            </p>
+            
+            <div className="space-y-4">
+              <div className="p-3 bg-card/50 rounded-lg">
+                <h4 className="font-medium mb-2">Đá Năng Lượng</h4>
+                <div className="grid grid-cols-3 gap-2">
+                  <div className="text-center p-2 bg-muted/50 rounded">
+                    <div className="text-sm font-medium">Thấp</div>
+                    <div className="text-xs">Max: 40 điểm</div>
+                    <div className="text-xs text-cultivator-gold">x3</div>
+                  </div>
+                  <div className="text-center p-2 bg-muted/50 rounded">
+                    <div className="text-sm font-medium">Cao</div>
+                    <div className="text-xs">Max: 80 điểm</div>
+                    <div className="text-xs text-cultivator-gold">x1</div>
+                  </div>
+                  <div className="text-center p-2 bg-muted/50 rounded">
+                    <div className="text-sm font-medium">Tối Thượng</div>
+                    <div className="text-xs">Max: 120 điểm</div>
+                    <div className="text-xs text-cultivator-gold">x0</div>
                   </div>
                 </div>
-
-                <div className="text-center">
-                  <Button className="bg-divine-blue hover:bg-divine-blue/80">
-                    <Sparkles className="w-4 h-4 mr-2" />
-                    Kích Hoạt Tiềm Năng
-                  </Button>
-                </div>
-
-                <div className="text-xs text-yellow-400 text-center">
-                  Hiệu lực: 7 ngày | Mua Đá Năng Lượng tại Cửa Hàng Mê Cung
-                </div>
               </div>
-            </Card>
+
+              <div className="text-center">
+                <Button className="bg-divine-blue hover:bg-divine-blue/80">
+                  <Sparkles className="w-4 h-4 mr-2" />
+                  Kích Hoạt Tiềm Năng
+                </Button>
+              </div>
+
+              <div className="text-xs text-yellow-400 text-center">
+                Hiệu lực: 7 ngày | Mua Đá Năng Lượng tại Cửa Hàng Mê Cung
+              </div>
+            </div>
           </TabsContent>
         </Tabs>
       </Card>

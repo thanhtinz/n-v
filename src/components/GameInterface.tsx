@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useGameState } from '@/hooks/useGameState';
 import { Card } from "@/components/ui/card";
@@ -50,7 +49,6 @@ import CentralDisplay from './CentralDisplay';
 import PlayerOverview from './PlayerOverview';
 import ShopSystem from './ShopSystem';
 import DailyActivitiesSystem from './DailyActivitiesSystem';
-import ArenaSystem from './ArenaSystem';
 import GuildSystem from './GuildSystem';
 import GiftCodeSystem from './GiftCodeSystem';
 import LuckyWheelSystem from './LuckyWheelSystem';
@@ -70,7 +68,6 @@ const GameInterface = () => {
 
   const expPercentage = gameState?.player ? (gameState.player.exp / gameState.player.maxExp) * 100 : 0;
 
-  // Get player info from localStorage for inventory system
   const getPlayerInfo = () => {
     const savedCharacter = localStorage.getItem('playerCharacter');
     if (savedCharacter) {
@@ -85,10 +82,9 @@ const GameInterface = () => {
 
   const playerInfo = getPlayerInfo();
 
-  // Create player object for CentralDisplay
   const playerForDisplay = {
     name: gameState?.player?.name || 'Tu Tiên Giả',
-    realm: 'Phàm Nhân', // Default realm
+    realm: 'Phàm Nhân',
     level: gameState?.player?.level || 1,
     gender: playerInfo.gender as 'male' | 'female',
     class: playerInfo.class as 'sword' | 'magic' | 'defense',
@@ -106,13 +102,11 @@ const GameInterface = () => {
     setSelectedAction(actionName);
     setShowMenu(false);
     
-    // Clear the animation after a delay
     setTimeout(() => {
       setSelectedAction(null);
     }, 2000);
   };
 
-  // Early return if gameState is not available
   if (!gameState) {
     return <div>Loading...</div>;
   }
@@ -232,14 +226,6 @@ const GameInterface = () => {
               >
                 <Clock className="w-4 h-4 mr-2" />
                 Hoạt Động
-              </Button>
-              <Button
-                variant="ghost"
-                className="w-full justify-start"
-                onClick={() => handleMenuClick('arena', 'Đấu Trường')}
-              >
-                <Target className="w-4 h-4 mr-2" />
-                Đấu Trường
               </Button>
               <Button
                 variant="ghost"
@@ -381,33 +367,6 @@ const GameInterface = () => {
 
           <TabsContent value="activities" className="mt-0">
             <DailyActivitiesSystem />
-          </TabsContent>
-
-          <TabsContent value="arena" className="mt-0">
-            <ArenaSystem />
-          </TabsContent>
-
-          <TabsContent value="guild" className="mt-0">
-            <GuildSystem />
-          </TabsContent>
-
-          <TabsContent value="shop" className="mt-0">
-            <ShopSystem />
-          </TabsContent>
-
-          <TabsContent value="luckywheel" className="mt-0">
-            <LuckyWheelSystem />
-          </TabsContent>
-
-          <TabsContent value="giftcode" className="mt-0">
-            <GiftCodeSystem />
-          </TabsContent>
-
-          <TabsContent value="inventory" className="mt-0">
-            <InventorySystem 
-              playerGender={playerInfo.gender as 'male' | 'female'}
-              playerClass={playerInfo.class as 'sword' | 'magic' | 'defense'}
-            />
           </TabsContent>
 
           <TabsContent value="combat" className="mt-0">
