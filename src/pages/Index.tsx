@@ -1,8 +1,8 @@
 
-import GameInterface from '@/components/GameInterface';
+import IntegratedGameInterface from '@/components/IntegratedGameInterface';
 
 const Index = () => {
-  return <GameInterface />;
+  return <IntegratedGameInterface />;
 };
 
 export default Index;
