@@ -1,5 +1,4 @@
-
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -30,7 +29,10 @@ import {
   Settings,
   Backpack,
   Shield,
-  Star
+  Star,
+  Gift,
+  Crown,
+  Calendar
 } from 'lucide-react';
 
 interface ElementalStats {
@@ -210,6 +212,10 @@ const GameInterface = () => {
     { id: 'character', label: 'Nhân Vật', icon: User },
     { id: 'cultivation', label: 'Tu Luyện', icon: Zap },
     { id: 'combat', label: 'Chiến Đấu', icon: Sword },
+    { id: 'quests', label: 'Nhiệm Vụ', icon: Star },
+    { id: 'welfare', label: 'Phúc Lợi', icon: Gift },
+    { id: 'vip', label: 'VIP', icon: Crown },
+    { id: 'events', label: 'Sự Kiện', icon: Calendar },
     { id: 'inventory', label: 'Hành Trang', icon: Backpack },
     { id: 'sect', label: 'Tông Môn', icon: Users },
     { id: 'home', label: 'Động Phủ', icon: Home },
@@ -218,6 +224,12 @@ const GameInterface = () => {
     { id: 'chat', label: 'Chat', icon: MessageCircle },
     { id: 'settings', label: 'Cài Đặt', icon: Settings }
   ];
+
+  // Add import for new components at the top
+  const DailyQuestSystem = lazy(() => import('./DailyQuestSystem'));
+  const WelfareSystem = lazy(() => import('./WelfareSystem'));
+  const VIPSystem = lazy(() => import('./VIPSystem'));
+  const EventSystem = lazy(() => import('./EventSystem'));
 
   // Add new states for enhanced display
   const [isInCombat, setIsInCombat] = useState(false);
@@ -259,7 +271,7 @@ const GameInterface = () => {
                 Tiên Vực Truyền Sinh
               </h1>
               <Badge variant="outline" className="border-cultivator-gold text-cultivator-gold text-xs">
-                Alpha v0.1
+                Alpha v0.2
               </Badge>
             </div>
             <div className="flex items-center gap-2 sm:gap-4">
@@ -316,7 +328,7 @@ const GameInterface = () => {
               {/* Tab Navigation */}
               <Card className="p-1 sm:p-2 bg-card/50 backdrop-blur-sm border-border/50">
                 <div className="overflow-x-auto">
-                  <TabsList className="flex w-max sm:grid sm:grid-cols-10 sm:w-full bg-transparent gap-1 p-1">
+                  <TabsList className="flex w-max lg:grid lg:grid-cols-7 xl:grid-cols-14 lg:w-full bg-transparent gap-1 p-1">
                     {menuItems.map((item) => {
                       const Icon = item.icon;
                       return (
@@ -569,6 +581,30 @@ const GameInterface = () => {
 
                 <TabsContent value="combat">
                   <CombatSystem />
+                </TabsContent>
+
+                <TabsContent value="quests">
+                  <Suspense fallback={<div>Đang tải...</div>}>
+                    <DailyQuestSystem />
+                  </Suspense>
+                </TabsContent>
+
+                <TabsContent value="welfare">
+                  <Suspense fallback={<div>Đang tải...</div>}>
+                    <WelfareSystem />
+                  </Suspense>
+                </TabsContent>
+
+                <TabsContent value="vip">
+                  <Suspense fallback={<div>Đang tải...</div>}>
+                    <VIPSystem />
+                  </Suspense>
+                </TabsContent>
+
+                <TabsContent value="events">
+                  <Suspense fallback={<div>Đang tải...</div>}>
+                    <EventSystem />
+                  </Suspense>
                 </TabsContent>
 
                 <TabsContent value="inventory">
