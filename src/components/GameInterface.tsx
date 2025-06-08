@@ -109,21 +109,23 @@ const GameInterface = () => {
             <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-3 sm:space-y-4">
               {/* Tab Navigation */}
               <Card className="p-1 sm:p-2 bg-card/50 backdrop-blur-sm border-border/50">
-                <TabsList className="mobile-tab-list sm:grid sm:grid-cols-9 w-full bg-transparent gap-1">
-                  {menuItems.map((item) => {
-                    const Icon = item.icon;
-                    return (
-                      <TabsTrigger
-                        key={item.id}
-                        value={item.id}
-                        className="mobile-tab-btn flex flex-col items-center gap-1 text-xs data-[state=active]:bg-primary/20 data-[state=active]:text-primary"
-                      >
-                        <Icon className="w-4 h-4" />
-                        <span className="text-xs leading-tight">{item.label}</span>
-                      </TabsTrigger>
-                    );
-                  })}
-                </TabsList>
+                <div className="overflow-x-auto">
+                  <TabsList className="flex w-max sm:grid sm:grid-cols-9 sm:w-full bg-transparent gap-1 p-1">
+                    {menuItems.map((item) => {
+                      const Icon = item.icon;
+                      return (
+                        <TabsTrigger
+                          key={item.id}
+                          value={item.id}
+                          className="mobile-tab-btn flex flex-col items-center gap-1 text-xs data-[state=active]:bg-primary/20 data-[state=active]:text-primary flex-shrink-0 min-w-[70px]"
+                        >
+                          <Icon className="w-4 h-4" />
+                          <span className="text-xs leading-tight whitespace-nowrap">{item.label}</span>
+                        </TabsTrigger>
+                      );
+                    })}
+                  </TabsList>
+                </div>
               </Card>
 
               {/* Tab Content */}
