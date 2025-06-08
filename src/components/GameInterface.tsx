@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -6,6 +5,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import CharacterDisplay from './CharacterDisplay';
 import CultivationSystem from './CultivationSystem';
+import CombatSystem from './CombatSystem';
+import SectSystem from './SectSystem';
 import StoryDialog from './StoryDialog';
 import { 
   User, 
@@ -183,25 +184,11 @@ const GameInterface = () => {
                 </TabsContent>
 
                 <TabsContent value="combat">
-                  <Card className="p-4 sm:p-6 bg-card/80 backdrop-blur-sm border-border/50">
-                    <h2 className="text-lg sm:text-xl font-semibold text-cultivator-gold mb-3 sm:mb-4">Chiến Đấu</h2>
-                    <div className="text-center py-8 sm:py-12 text-muted-foreground">
-                      <Sword className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-4 opacity-50" />
-                      <p className="text-sm sm:text-base">Hệ thống chiến đấu đang được phát triển...</p>
-                      <p className="text-xs sm:text-sm mt-2">Sẽ có chiến đấu boss, PvP, và phó bản!</p>
-                    </div>
-                  </Card>
+                  <CombatSystem />
                 </TabsContent>
 
                 <TabsContent value="sect">
-                  <Card className="p-4 sm:p-6 bg-card/80 backdrop-blur-sm border-border/50">
-                    <h2 className="text-lg sm:text-xl font-semibold text-cultivator-gold mb-3 sm:mb-4">Tông Môn</h2>
-                    <div className="text-center py-8 sm:py-12 text-muted-foreground">
-                      <Users className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-4 opacity-50" />
-                      <p className="text-sm sm:text-base">Chưa gia nhập tông môn nào</p>
-                      <p className="text-xs sm:text-sm mt-2">Tìm kiếm tông môn phù hợp để cùng tu luyện!</p>
-                    </div>
-                  </Card>
+                  <SectSystem />
                 </TabsContent>
 
                 <TabsContent value="home">
