@@ -70,6 +70,7 @@ import OfflineCultivationSystem from './OfflineCultivationSystem';
 import StorySystem from './StorySystem';
 import EnhancedFairyGuideAI from './EnhancedFairyGuideAI';
 import EntertainmentSystem from './EntertainmentSystem';
+import MarketSystem from './MarketSystem';
 
 const IntegratedGameInterface = () => {
   const [activeTab, setActiveTab] = useState('overview');
@@ -145,10 +146,8 @@ const IntegratedGameInterface = () => {
     }, 2000);
   };
 
-  // Monitor tab changes for integration
-  useEffect(() => {
-    setLocation(activeTab);
-  }, [activeTab, setLocation]);
+  // Fix the infinite loop by removing the problematic useEffect
+  // The setLocation call is already handled in handleMenuClick
 
   const menuItems = [
     { id: 'overview', label: 'Thông Tin', icon: User, description: 'Trang chủ nhân vật' },
@@ -394,6 +393,10 @@ const IntegratedGameInterface = () => {
 
           <TabsContent value="shop" className="mt-0">
             <ShopSystem />
+          </TabsContent>
+
+          <TabsContent value="market" className="mt-0">
+            <MarketSystem />
           </TabsContent>
 
           <TabsContent value="inventory" className="mt-0">
