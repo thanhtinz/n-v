@@ -28,7 +28,8 @@ import {
   Gift,
   Package,
   Dumbbell,
-  Sparkles
+  Sparkles,
+  Hammer
 } from 'lucide-react';
 import DailyQuestSystem from './DailyQuestSystem';
 import EventSystem from './EventSystem';
@@ -40,6 +41,7 @@ import WelfareSystem from './WelfareSystem';
 import CombatSystem from './CombatSystem';
 import InventorySystem from './InventorySystem';
 import CultivationSystem from './CultivationSystem';
+import EnhancementSystem from './EnhancementSystem';
 import CentralDisplay from './CentralDisplay';
 import PlayerOverview from './PlayerOverview';
 
@@ -240,6 +242,14 @@ const GameInterface = () => {
               <Button
                 variant="ghost"
                 className="w-full justify-start"
+                onClick={() => handleMenuClick('enhancement', 'Rèn Đồ')}
+              >
+                <Hammer className="w-4 h-4 mr-2" />
+                Rèn Đồ
+              </Button>
+              <Button
+                variant="ghost"
+                className="w-full justify-start"
                 onClick={() => handleMenuClick('quests', 'Nhiệm Vụ')}
               >
                 <BookOpen className="w-4 h-4 mr-2" />
@@ -324,6 +334,10 @@ const GameInterface = () => {
 
           <TabsContent value="cultivation" className="mt-0">
             <CultivationSystem />
+          </TabsContent>
+
+          <TabsContent value="enhancement" className="mt-0">
+            <EnhancementSystem />
           </TabsContent>
 
           <TabsContent value="quests" className="mt-0">
