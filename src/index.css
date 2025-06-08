@@ -58,6 +58,30 @@
   }
 }
 
+/* Mobile responsive text sizes */
+@media (max-width: 640px) {
+  .mobile-text-xs { font-size: 0.65rem; }
+  .mobile-text-sm { font-size: 0.75rem; }
+  .mobile-text-base { font-size: 0.875rem; }
+  .mobile-text-lg { font-size: 1rem; }
+  .mobile-text-xl { font-size: 1.125rem; }
+}
+
+/* Mobile button improvements */
+@media (max-width: 640px) {
+  .mobile-btn {
+    min-height: 44px;
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+  }
+  
+  .mobile-tab-btn {
+    min-height: 48px;
+    padding: 0.5rem;
+    font-size: 0.75rem;
+  }
+}
+
 /* Tu Tiên Animations */
 @keyframes cultivate {
   0%, 100% { transform: scale(1); opacity: 0.8; }
@@ -171,4 +195,31 @@
   background: radial-gradient(circle, rgba(255, 215, 0, 0.8) 0%, transparent 70%);
   border-radius: 50%;
   pointer-events: none;
+}
+
+/* Mobile specific improvements */
+@media (max-width: 640px) {
+  .character-display-mobile {
+    width: 200px;
+    height: 240px;
+  }
+  
+  .mobile-grid-2 {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+  }
+  
+  .mobile-grid-3 {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.25rem;
+  }
+  
+  .mobile-tab-list {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+  }
+  
+  .mobile-px-2 { padding-left: 0.5rem; padding-right: 0.5rem; }
+  .mobile-py-1 { padding-top: 0.25rem; padding-bottom: 0.25rem; }
+  .mobile-space-y-2 > * + * { margin-top: 0.5rem; }
 }
