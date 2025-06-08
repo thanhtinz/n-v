@@ -1,8 +1,8 @@
-
 import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   ShoppingCart, 
   Coins, 
@@ -11,7 +11,9 @@ import {
   Star,
   Package,
   Users,
-  Search
+  Search,
+  Plus,
+  DollarSign
 } from 'lucide-react';
 
 interface MarketItem {
@@ -24,6 +26,16 @@ interface MarketItem {
   timeLeft: number; // hours
   description: string;
   quantity: number;
+}
+
+interface PlayerItem {
+  id: string;
+  name: string;
+  category: 'weapon' | 'armor' | 'pill' | 'material' | 'misc';
+  quality: 'common' | 'rare' | 'epic' | 'legendary';
+  description: string;
+  quantity: number;
+  canSell: boolean;
 }
 
 interface Transaction {
@@ -39,6 +51,8 @@ interface Transaction {
 const MarketSystem = () => {
   const [activeTab, setActiveTab] = useState<'browse' | 'sell' | 'history' | 'auction'>('browse');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [sellPrice, setSellPrice] = useState<string>('');
+  const [sellDuration, setSellDuration] = useState<string>('24');
 
   const [marketItems] = useState<MarketItem[]>([
     {
@@ -84,6 +98,45 @@ const MarketSystem = () => {
       timeLeft: 48,
       description: 'Nguyên liệu tu luyện cơ bản',
       quantity: 100
+    }
+  ]);
+
+  const [playerItems] = useState<PlayerItem[]>([
+    {
+      id: 'p1',
+      name: 'Tăng Lực Đan',
+      category: 'pill',
+      quality: 'common',
+      description: 'Tăng sức mạnh tạm thời',
+      quantity: 3,
+      canSell: true
+    },
+    {
+      id: 'p2',
+      name: 'Linh Thảo',
+      category: 'material',
+      quality: 'common',
+      description: 'Nguyên liệu luyện đan',
+      quantity: 15,
+      canSell: true
+    },
+    {
+      id: 'p3',
+      name: 'Kiếm Sắt Cũ',
+      category: 'weapon',
+      quality: 'common',
+      description: 'Kiếm sắt đã qua sử dụng, +8 Công Kích',
+      quantity: 1,
+      canSell: true
+    },
+    {
+      id: 'p4',
+      name: 'Kiếm Sắt',
+      category: 'weapon',
+      quality: 'common',
+      description: 'Kiếm sắt hiện tại đang trang bị',
+      quantity: 1,
+      canSell: false
     }
   ]);
 
@@ -140,9 +193,19 @@ const MarketSystem = () => {
     alert(`Đã mua ${item.name} với giá ${item.price} Linh Thạch!`);
   };
 
+  const sellItem = (item: PlayerItem) => {
+    const price = parseInt(sellPrice);
+    if (price > 0) {
+      console.log(`Đã đặt bán ${item.name} với giá ${price} Linh Thạch, thời gian ${sellDuration}h`);
+      setSellPrice('');
+    }
+  };
+
   const filteredItems = selectedCategory === 'all' 
     ? marketItems 
     : marketItems.filter(item => item.category === selectedCategory);
+
+  const sellableItems = playerItems.filter(item => item.canSell);
 
   const tabs = [
     { id: 'browse', label: 'Duyệt', icon: Search },
@@ -253,14 +316,74 @@ const MarketSystem = () => {
 
       {/* Sell Tab */}
       {activeTab === 'sell' && (
-        <Card className="p-4 sm:p-6 bg-card/80 backdrop-blur-sm border-border/50">
-          <h3 className="font-semibold text-sm sm:text-base mb-4 text-cultivator-gold">Bán Vật Phẩm</h3>
-          <div className="text-center py-8 text-muted-foreground">
-            <Package className="w-12 h-12 mx-auto mb-4 opacity-50" />
-            <p className="text-sm">Tính năng bán vật phẩm đang được phát triển...</p>
-            <p className="text-xs mt-2">Sẽ có thể đặt giá và bán vật phẩm của bạn!</p>
-          </div>
-        </Card>
+        <div className="space-y-4">
+          <Card className="p-4 bg-card/80 backdrop-blur-sm border-border/50">
+            <h3 className="font-semibold text-sm sm:text-base mb-4 text-cultivator-gold">Bán Vật Phẩm</h3>
+            
+            {sellableItems.length > 0 ? (
+              <div className="space-y-3">
+                {sellableItems.map((item) => (
+                  <Card key={item.id} className="p-3 bg-muted/20 hover:bg-muted/40 transition-colors">
+                    <div className="flex flex-col sm:flex-row items-start justify-between gap-3">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-2">
+                          <span className="font-medium text-sm">{item.name}</span>
+                          <Badge variant="outline" className={`text-xs ${getQualityColor(item.quality)}`}>
+                            {getQualityLabel(item.quality)}
+                          </Badge>
+                          {item.quantity > 1 && (
+                            <Badge variant="outline" className="text-xs">
+                              x{item.quantity}
+                            </Badge>
+                          )}
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          {item.description}
+                        </div>
+                      </div>
+
+                      <div className="flex flex-col sm:flex-row items-end gap-2">
+                        <div className="flex gap-2">
+                          <input
+                            type="number"
+                            placeholder="Giá"
+                            value={sellPrice}
+                            onChange={(e) => setSellPrice(e.target.value)}
+                            className="w-20 px-2 py-1 text-xs bg-muted/30 border border-border/50 rounded"
+                          />
+                          <select
+                            value={sellDuration}
+                            onChange={(e) => setSellDuration(e.target.value)}
+                            className="px-2 py-1 text-xs bg-muted/30 border border-border/50 rounded"
+                          >
+                            <option value="12">12h</option>
+                            <option value="24">24h</option>
+                            <option value="48">48h</option>
+                            <option value="72">72h</option>
+                          </select>
+                        </div>
+                        <Button
+                          onClick={() => sellItem(item)}
+                          className="bg-cultivator-gold hover:bg-cultivator-gold/80 text-black"
+                          size="sm"
+                        >
+                          <DollarSign className="w-3 h-3 mr-1" />
+                          <span className="text-xs">Bán</span>
+                        </Button>
+                      </div>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8 text-muted-foreground">
+                <Package className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                <p className="text-sm">Không có vật phẩm nào có thể bán</p>
+                <p className="text-xs mt-2">Trang bị đang sử dụng không thể bán!</p>
+              </div>
+            )}
+          </Card>
+        </div>
       )}
 
       {/* History Tab */}

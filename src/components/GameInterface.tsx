@@ -9,6 +9,10 @@ import CombatSystem from './CombatSystem';
 import SectSystem from './SectSystem';
 import HomeSystem from './HomeSystem';
 import MarketSystem from './MarketSystem';
+import InventorySystem from './InventorySystem';
+import RankingSystem from './RankingSystem';
+import ChatSystem from './ChatSystem';
+import SettingsSystem from './SettingsSystem';
 import StoryDialog from './StoryDialog';
 import { 
   User, 
@@ -19,7 +23,8 @@ import {
   ShoppingCart, 
   Trophy,
   MessageCircle,
-  Settings
+  Settings,
+  Backpack
 } from 'lucide-react';
 
 const GameInterface = () => {
@@ -48,6 +53,7 @@ const GameInterface = () => {
     { id: 'character', label: 'Nhân Vật', icon: User },
     { id: 'cultivation', label: 'Tu Luyện', icon: Zap },
     { id: 'combat', label: 'Chiến Đấu', icon: Sword },
+    { id: 'inventory', label: 'Hành Trang', icon: Backpack },
     { id: 'sect', label: 'Tông Môn', icon: Users },
     { id: 'home', label: 'Động Phủ', icon: Home },
     { id: 'market', label: 'Thị Trường', icon: ShoppingCart },
@@ -113,7 +119,7 @@ const GameInterface = () => {
               {/* Tab Navigation */}
               <Card className="p-1 sm:p-2 bg-card/50 backdrop-blur-sm border-border/50">
                 <div className="overflow-x-auto">
-                  <TabsList className="flex w-max sm:grid sm:grid-cols-9 sm:w-full bg-transparent gap-1 p-1">
+                  <TabsList className="flex w-max sm:grid sm:grid-cols-10 sm:w-full bg-transparent gap-1 p-1">
                     {menuItems.map((item) => {
                       const Icon = item.icon;
                       return (
@@ -189,6 +195,10 @@ const GameInterface = () => {
                   <CombatSystem />
                 </TabsContent>
 
+                <TabsContent value="inventory">
+                  <InventorySystem />
+                </TabsContent>
+
                 <TabsContent value="sect">
                   <SectSystem />
                 </TabsContent>
@@ -202,36 +212,15 @@ const GameInterface = () => {
                 </TabsContent>
 
                 <TabsContent value="ranking">
-                  <Card className="p-4 sm:p-6 bg-card/80 backdrop-blur-sm border-border/50">
-                    <h2 className="text-lg sm:text-xl font-semibold text-cultivator-gold mb-3 sm:mb-4">Bảng Xếp Hạng</h2>
-                    <div className="text-center py-8 sm:py-12 text-muted-foreground">
-                      <Trophy className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-4 opacity-50" />
-                      <p className="text-sm sm:text-base">Bảng xếp hạng tu vi đang được cập nhật...</p>
-                      <p className="text-xs sm:text-sm mt-2">Tranh đấu vị trí cao nhất!</p>
-                    </div>
-                  </Card>
+                  <RankingSystem />
                 </TabsContent>
 
                 <TabsContent value="chat">
-                  <Card className="p-4 sm:p-6 bg-card/80 backdrop-blur-sm border-border/50">
-                    <h2 className="text-lg sm:text-xl font-semibold text-cultivator-gold mb-3 sm:mb-4">Cộng Đồng</h2>
-                    <div className="text-center py-8 sm:py-12 text-muted-foreground">
-                      <MessageCircle className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-4 opacity-50" />
-                      <p className="text-sm sm:text-base">Hệ thống chat đang được phát triển...</p>
-                      <p className="text-xs sm:text-sm mt-2">Giao lưu với đồng đạo khắp tiên giới!</p>
-                    </div>
-                  </Card>
+                  <ChatSystem />
                 </TabsContent>
 
                 <TabsContent value="settings">
-                  <Card className="p-4 sm:p-6 bg-card/80 backdrop-blur-sm border-border/50">
-                    <h2 className="text-lg sm:text-xl font-semibold text-cultivator-gold mb-3 sm:mb-4">Cài Đặt</h2>
-                    <div className="text-center py-8 sm:py-12 text-muted-foreground">
-                      <Settings className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-4 opacity-50" />
-                      <p className="text-sm sm:text-base">Bảng cài đặt đang được thiết kế...</p>
-                      <p className="text-xs sm:text-sm mt-2">Tùy chỉnh trải nghiệm game của bạn!</p>
-                    </div>
-                  </Card>
+                  <SettingsSystem />
                 </TabsContent>
               </div>
             </Tabs>
