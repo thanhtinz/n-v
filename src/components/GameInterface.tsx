@@ -39,10 +39,12 @@ import WelfareSystem from './WelfareSystem';
 import CombatSystem from './CombatSystem';
 import InventorySystem from './InventorySystem';
 import CultivationSystem from './CultivationSystem';
+import CentralDisplay from './CentralDisplay';
 
 const GameInterface = () => {
   const [activeTab, setActiveTab] = useState('home');
   const [showMenu, setShowMenu] = useState(false);
+  const [selectedAction, setSelectedAction] = useState<string | null>(null);
   const { gameState } = useGameState();
 
   const formatNumber = (num: number) => {
@@ -67,6 +69,17 @@ const GameInterface = () => {
   };
 
   const playerInfo = getPlayerInfo();
+
+  const handleMenuClick = (tab: string, actionName: string) => {
+    setActiveTab(tab);
+    setSelectedAction(actionName);
+    setShowMenu(false);
+    
+    // Clear the animation after a delay
+    setTimeout(() => {
+      setSelectedAction(null);
+    }, 2000);
+  };
 
   return (
     <GameStateProvider>
@@ -157,10 +170,7 @@ const GameInterface = () => {
                 <Button
                   variant="ghost"
                   className="w-full justify-start"
-                  onClick={() => {
-                    setActiveTab('home');
-                    setShowMenu(false);
-                  }}
+                  onClick={() => handleMenuClick('home', 'Trang Chủ')}
                 >
                   <Home className="w-4 h-4 mr-2" />
                   Trang Chủ
@@ -168,10 +178,7 @@ const GameInterface = () => {
                 <Button
                   variant="ghost"
                   className="w-full justify-start"
-                  onClick={() => {
-                    setActiveTab('inventory');
-                    setShowMenu(false);
-                  }}
+                  onClick={() => handleMenuClick('inventory', 'Hành Trang')}
                 >
                   <Package className="w-4 h-4 mr-2" />
                   Hành Trang
@@ -179,10 +186,7 @@ const GameInterface = () => {
                 <Button
                   variant="ghost"
                   className="w-full justify-start"
-                  onClick={() => {
-                    setActiveTab('combat');
-                    setShowMenu(false);
-                  }}
+                  onClick={() => handleMenuClick('combat', 'Chiến Đấu')}
                 >
                   <Sword className="w-4 h-4 mr-2" />
                   Chiến Đấu
@@ -190,10 +194,7 @@ const GameInterface = () => {
                 <Button
                   variant="ghost"
                   className="w-full justify-start"
-                  onClick={() => {
-                    setActiveTab('cultivation');
-                    setShowMenu(false);
-                  }}
+                  onClick={() => handleMenuClick('cultivation', 'Tu Luyện')}
                 >
                   <Dumbbell className="w-4 h-4 mr-2" />
                   Tu Luyện
@@ -201,10 +202,7 @@ const GameInterface = () => {
                 <Button
                   variant="ghost"
                   className="w-full justify-start"
-                  onClick={() => {
-                    setActiveTab('quests');
-                    setShowMenu(false);
-                  }}
+                  onClick={() => handleMenuClick('quests', 'Nhiệm Vụ')}
                 >
                   <BookOpen className="w-4 h-4 mr-2" />
                   Nhiệm Vụ
@@ -212,10 +210,7 @@ const GameInterface = () => {
                 <Button
                   variant="ghost"
                   className="w-full justify-start"
-                  onClick={() => {
-                    setActiveTab('events');
-                    setShowMenu(false);
-                  }}
+                  onClick={() => handleMenuClick('events', 'Sự Kiện')}
                 >
                   <Flame className="w-4 h-4 mr-2" />
                   Sự Kiện
@@ -223,10 +218,7 @@ const GameInterface = () => {
                 <Button
                   variant="ghost"
                   className="w-full justify-start"
-                  onClick={() => {
-                    setActiveTab('sect');
-                    setShowMenu(false);
-                  }}
+                  onClick={() => handleMenuClick('sect', 'Tông Môn')}
                 >
                   <Shield className="w-4 h-4 mr-2" />
                   Tông Môn
@@ -234,10 +226,7 @@ const GameInterface = () => {
                 <Button
                   variant="ghost"
                   className="w-full justify-start"
-                  onClick={() => {
-                    setActiveTab('ranking');
-                    setShowMenu(false);
-                  }}
+                  onClick={() => handleMenuClick('ranking', 'Bảng Xếp Hạng')}
                 >
                   <Trophy className="w-4 h-4 mr-2" />
                   Bảng Xếp Hạng
@@ -245,10 +234,7 @@ const GameInterface = () => {
                 <Button
                   variant="ghost"
                   className="w-full justify-start"
-                  onClick={() => {
-                    setActiveTab('welfare');
-                    setShowMenu(false);
-                  }}
+                  onClick={() => handleMenuClick('welfare', 'Phúc Lợi')}
                 >
                   <Gift className="w-4 h-4 mr-2" />
                   Phúc Lợi
@@ -256,10 +242,7 @@ const GameInterface = () => {
                 <Button
                   variant="ghost"
                   className="w-full justify-start"
-                  onClick={() => {
-                    setActiveTab('social');
-                    setShowMenu(false);
-                  }}
+                  onClick={() => handleMenuClick('social', 'Xã Hội')}
                 >
                   <Users className="w-4 h-4 mr-2" />
                   Xã Hội
@@ -271,6 +254,13 @@ const GameInterface = () => {
 
         {/* Main Content */}
         <div className="container mx-auto px-4 py-4 max-w-md">
+          {/* Central Display for animations */}
+          {selectedAction && (
+            <div className="mb-4">
+              <CentralDisplay selectedAction={selectedAction} />
+            </div>
+          )}
+
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsContent value="home" className="mt-0">
               <HomeSystem />
