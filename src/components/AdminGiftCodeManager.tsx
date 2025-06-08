@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -308,7 +307,7 @@ const AdminGiftCodeManager = () => {
               )}
             </div>
             
-            <ItemSelector onSelectItem={handleAddItem} />
+            <ItemSelector onSelect={handleAddItem} />
             
             <div className="flex gap-2 mt-4">
               <Button onClick={handleSave} disabled={!formData.code || selectedItems.length === 0}>

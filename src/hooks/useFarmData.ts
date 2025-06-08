@@ -20,7 +20,7 @@ export interface CropType {
   type: 'food' | 'material' | 'pet_food';
 }
 
-export interface FarmData {
+export interface FarmDataType {
   plots: FarmPlot[];
   autoHarvest: boolean;
   petHelp: boolean;
@@ -29,7 +29,7 @@ export interface FarmData {
 }
 
 // Global farm state
-let globalFarmData: FarmData = {
+let globalFarmData: FarmDataType = {
   plots: [
     { id: '1', crop: 'carrot', plantedTime: new Date(Date.now() - 25 * 60 * 1000), growthTime: 30, isReady: false, yield: 5, petBonus: 0 },
     { id: '2', crop: 'tomato', plantedTime: new Date(Date.now() - 55 * 60 * 1000), growthTime: 60, isReady: true, yield: 8, petBonus: 2 },
@@ -59,7 +59,7 @@ const listeners: Array<() => void> = [];
 export const useFarmData = () => {
   const [, forceUpdate] = useState({});
 
-  const updateFarmData = (newData: Partial<FarmData>) => {
+  const updateFarmData = (newData: Partial<FarmDataType>) => {
     globalFarmData = { ...globalFarmData, ...newData };
     listeners.forEach(listener => listener());
   };
@@ -181,4 +181,4 @@ export const useFarmData = () => {
   };
 };
 
-export type { FarmData };
+export type { FarmDataType };

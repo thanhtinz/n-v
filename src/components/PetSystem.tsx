@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useGameState } from '@/hooks/useGameState';
-import { useFarmData } from '@/hooks/useFarmData';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -77,8 +76,7 @@ interface TreasureMap {
 
 const PetSystem = () => {
   const { gameState, addNotification } = useGameState();
-  const { farmData, cropTypes, plantCrop, harvestCrop, getPlotProgress, updatePlotReadiness, togglePetHelp } = useFarmData();
-  const [activeTab, setActiveTab] = useState<'farm' | 'pets' | 'treasure' | 'training'>('farm');
+  const [activeTab, setActiveTab] = useState<'pets' | 'treasure' | 'training'>('pets');
   
   const [pets, setPets] = useState<Pet[]>([
     {
@@ -141,47 +139,6 @@ const PetSystem = () => {
   });
 
   const [selectedPet, setSelectedPet] = useState<Pet | null>(pets[0]);
-
-  // Update plot readiness every second
-  useEffect(() => {
-    const interval = setInterval(() => {
-      updatePlotReadiness();
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [updatePlotReadiness]);
-
-  const handlePlantCrop = (plotId: string, cropId: string) => {
-    const crop = cropTypes.find(c => c.id === cropId);
-    if (!crop) return;
-
-    if (plantCrop(plotId, cropId)) {
-      addNotification(`Đã gieo ${crop.name} thành công!`, 'success');
-      if (farmData.petHelp) {
-        addNotification(`Pet hỗ trợ tăng 20% năng suất!`, 'info');
-      }
-    }
-  };
-
-  const handleHarvestCrop = (plotId: string) => {
-    const result = harvestCrop(plotId);
-    if (result) {
-      const crop = cropTypes.find(c => c.id === result.crop);
-      if (crop && crop.type === 'pet_food') {
-        setMaterials(prev => prev.map(m => 
-          m.name === 'Thức Ăn Pet' 
-            ? { ...m, quantity: m.quantity + result.yield }
-            : m
-        ));
-        addNotification(`Thu hoạch ${crop.name} (+${result.yield} Thức Ăn Pet)!`, 'success');
-      } else if (crop) {
-        addNotification(`Thu hoạch ${crop.name}!`, 'success');
-      }
-      
-      if (result.petBonus > 0) {
-        addNotification(`Pet hỗ trợ: +${result.petBonus} năng suất!`, 'info');
-      }
-    }
-  };
 
   const feedPet = (petId: string) => {
     const pet = pets.find(p => p.id === petId);
@@ -304,7 +261,6 @@ const PetSystem = () => {
   };
 
   const tabs = [
-    { id: 'farm', label: 'Nông Trại Pet', icon: Sprout },
     { id: 'pets', label: 'Pet', icon: Heart },
     { id: 'treasure', label: 'Kho Báu', icon: Gem },
     { id: 'training', label: 'Đào Tạo', icon: Target }
@@ -330,125 +286,6 @@ const PetSystem = () => {
           );
         })}
       </div>
-
-      {/* Farm Tab - Synchronized with Home Farm */}
-      {activeTab === 'farm' && (
-        <div className="space-y-3">
-          {/* Farm Stats */}
-          <Card className="p-3 bg-card/80 backdrop-blur-sm border-border/50">
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="font-semibold text-sm text-cultivator-gold">Nông Trại Pet</h3>
-              <div className="flex items-center gap-2">
-                <Badge variant={farmData.petHelp ? "default" : "outline"}>
-                  <Users className="w-3 h-3 mr-1" />
-                  {farmData.petHelp ? 'Đang hỗ trợ' : 'Không hỗ trợ'}
-                </Badge>
-                <Button 
-                  size="sm" 
-                  variant={farmData.petHelp ? "default" : "outline"}
-                  onClick={togglePetHelp}
-                >
-                  {farmData.petHelp ? 'Tắt' : 'Bật'}
-                </Button>
-              </div>
-            </div>
-            
-            <div className="grid grid-cols-3 gap-2 text-xs">
-              <div className="text-center p-2 bg-muted/20 rounded">
-                <div className="font-medium">{materials.find(m => m.name === 'Thức Ăn Pet')?.quantity || 0}</div>
-                <div className="text-muted-foreground">Thức ăn Pet</div>
-              </div>
-              <div className="text-center p-2 bg-muted/20 rounded">
-                <div className="font-medium">{farmData.plots.filter(p => p.crop && cropTypes.find(c => c.id === p.crop)?.type === 'pet_food').length}</div>
-                <div className="text-muted-foreground">Cây Pet</div>
-              </div>
-              <div className="text-center p-2 bg-muted/20 rounded">
-                <div className="font-medium">+20%</div>
-                <div className="text-muted-foreground">Hỗ trợ Pet</div>
-              </div>
-            </div>
-          </Card>
-
-          {/* Pet Farm Plots */}
-          <Card className="p-3 bg-card/80 backdrop-blur-sm border-border/50">
-            <div className="grid grid-cols-3 gap-2">
-              {farmData.plots.map((plot) => (
-                <Card key={plot.id} className="p-3 text-center">
-                  <div className="text-xs text-muted-foreground mb-1">Ô {plot.id}</div>
-                  {plot.crop ? (
-                    <div className="space-y-2">
-                      <div className="text-sm font-medium">
-                        {cropTypes.find(c => c.id === plot.crop)?.name || plot.crop}
-                      </div>
-                      {plot.isReady ? (
-                        <Button 
-                          size="sm" 
-                          onClick={() => handleHarvestCrop(plot.id)}
-                          className="w-full bg-green-600 hover:bg-green-700"
-                        >
-                          Thu Hoạch
-                        </Button>
-                      ) : (
-                        <div>
-                          <Progress value={getPlotProgress(plot)} className="h-1 mb-1" />
-                          <div className="text-xs text-muted-foreground">
-                            {Math.round(getPlotProgress(plot))}%
-                          </div>
-                          {plot.petBonus > 0 && (
-                            <div className="text-xs text-green-400">+{plot.petBonus}</div>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  ) : (
-                    <div className="space-y-2">
-                      <div className="text-sm text-muted-foreground">Trống</div>
-                      <div className="space-y-1">
-                        {cropTypes.filter(c => c.type === 'pet_food').map((crop) => (
-                          <Button
-                            key={crop.id}
-                            size="sm"
-                            className="w-full text-xs"
-                            onClick={() => handlePlantCrop(plot.id, crop.id)}
-                          >
-                            {crop.name}
-                          </Button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </Card>
-              ))}
-            </div>
-
-            <div className="text-xs text-muted-foreground mt-3 space-y-1">
-              <div>* Pet hỗ trợ tăng 20% năng suất cho tất cả cây trồng</div>
-              <div>* Trồng cây thức ăn Pet để nuôi Pet khỏe mạnh</div>
-              <div>* Pet vui vẻ càng cao, hỗ trợ nông trại càng tốt</div>
-            </div>
-          </Card>
-
-          {/* Auto Help */}
-          <Card className="p-3 bg-card/80 backdrop-blur-sm border-border/50">
-            <h3 className="font-semibold text-sm mb-3 text-cultivator-gold">Trợ Giúp Tự Động</h3>
-            <div className="space-y-3">
-              <div className="flex items-center justify-between p-2 bg-muted/20 rounded">
-                <div>
-                  <div className="text-sm">Pet tự động hỗ trợ nông trại</div>
-                  <div className="text-xs text-muted-foreground">Tăng năng suất khi Pet vui vẻ</div>
-                </div>
-                <Badge variant={farmData.petHelp ? "default" : "secondary"}>
-                  {farmData.petHelp ? 'BẬT' : 'TẮT'}
-                </Badge>
-              </div>
-              
-              <div className="text-xs text-muted-foreground">
-                Pet với độ vui vẻ cao sẽ hỗ trợ nông trại hiệu quả hơn. Hãy cho Pet ăn thường xuyên!
-              </div>
-            </div>
-          </Card>
-        </div>
-      )}
 
       {/* Pets Tab */}
       {activeTab === 'pets' && (
