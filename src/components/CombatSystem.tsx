@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
-import { Sword, Shield, Heart, Zap, Trophy, Users, User } from 'lucide-react';
+import { Sword, Shield, Heart, Zap, Trophy, Users, User, Star } from 'lucide-react';
 import BossArena from './BossArena';
 import PvPArena from './PvPArena';
 
