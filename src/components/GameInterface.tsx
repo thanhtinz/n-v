@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useGameState } from '@/hooks/useGameState';
 import { Card } from "@/components/ui/card";
@@ -29,7 +28,8 @@ import {
   Package,
   Dumbbell,
   Sparkles,
-  Hammer
+  Hammer,
+  ShoppingCart
 } from 'lucide-react';
 import DailyQuestSystem from './DailyQuestSystem';
 import EventSystem from './EventSystem';
@@ -44,6 +44,7 @@ import CultivationSystem from './CultivationSystem';
 import EnhancementSystem from './EnhancementSystem';
 import CentralDisplay from './CentralDisplay';
 import PlayerOverview from './PlayerOverview';
+import ShopSystem from './ShopSystem';
 
 const GameInterface = () => {
   const [activeTab, setActiveTab] = useState('overview');
@@ -218,6 +219,14 @@ const GameInterface = () => {
               <Button
                 variant="ghost"
                 className="w-full justify-start"
+                onClick={() => handleMenuClick('shop', 'Cửa Hàng')}
+              >
+                <ShoppingCart className="w-4 h-4 mr-2" />
+                Cửa Hàng
+              </Button>
+              <Button
+                variant="ghost"
+                className="w-full justify-start"
                 onClick={() => handleMenuClick('inventory', 'Hành Trang')}
               >
                 <Package className="w-4 h-4 mr-2" />
@@ -319,6 +328,10 @@ const GameInterface = () => {
 
           <TabsContent value="home" className="mt-0">
             <HomeSystem />
+          </TabsContent>
+
+          <TabsContent value="shop" className="mt-0">
+            <ShopSystem />
           </TabsContent>
 
           <TabsContent value="inventory" className="mt-0">
