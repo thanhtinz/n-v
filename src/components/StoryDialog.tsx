@@ -3,241 +3,274 @@ import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ChevronRight, Award, Heart, Skull } from 'lucide-react';
+import { 
+  MessageCircle, 
+  X, 
+  ChevronRight, 
+  Star, 
+  Gift,
+  BookOpen
+} from 'lucide-react';
 
-interface StoryChoice {
-  text: string;
-  alignment: 'good' | 'evil' | 'neutral';
-  consequence: string;
-  rewards?: {
-    experience?: number;
-    spiritStones?: number;
-    items?: string[];
-  };
-}
-
-interface StoryScene {
-  id: number;
+interface StoryEvent {
+  id: string;
   title: string;
-  content: string;
-  character?: string;
-  background?: string;
-  choices: StoryChoice[];
+  description: string;
+  character: string;
+  choices?: {
+    text: string;
+    reward?: string;
+    consequence?: string;
+  }[];
+  reward?: {
+    type: 'exp' | 'item' | 'skill';
+    amount: number;
+    name: string;
+  };
+  isRead: boolean;
 }
 
 const StoryDialog = () => {
-  const [currentScene, setCurrentScene] = useState<StoryScene | null>(null);
-  const [alignment, setAlignment] = useState({ good: 0, evil: 0, neutral: 0 });
-  const [isVisible, setIsVisible] = useState(false);
-
-  const storyScenes: StoryScene[] = [
+  const [isOpen, setIsOpen] = useState(false);
+  const [currentEvent, setCurrentEvent] = useState<StoryEvent | null>(null);
+  const [events, setEvents] = useState<StoryEvent[]>([
     {
-      id: 1,
-      title: "Khởi Đầu Tu Tiên",
-      content: "Bạn là một phàm nhân bình thường trong một ngôi làng nhỏ. Một ngày nọ, khi đang lên núi hái thuốc, bạn phát hiện một hang động bí ẩn toả ra ánh sáng kỳ lạ. Bạn có muốn tiến vào khám phá không?",
-      character: "Mysterious Old Man",
+      id: '1',
+      title: 'Gặp Gỡ Sư Phụ',
+      description: 'Một vị cao nhân bí ẩn xuất hiện trước mặt ngươi, đôi mắt sâu thẳm như có thể nhìn thấu mọi thứ.',
+      character: 'Huyền Thiên Đạo Nhân',
       choices: [
         {
-          text: "Dũng cảm tiến vào hang động",
-          alignment: "neutral",
-          consequence: "Bạn phát hiện ra một cuốn bí tịch tu luyện cổ xưa!",
-          rewards: { experience: 50, spiritStones: 10 }
+          text: 'Cung kính chào hỏi',
+          reward: '+50 Exp, +10 Danh Vọng'
         },
         {
-          text: "Quay về báo cho dân làng",
-          alignment: "good",
-          consequence: "Dân làng cảm kích và tặng bạn một số linh thạch quý.",
-          rewards: { spiritStones: 20 }
-        },
-        {
-          text: "Giấu kín và tự mình thu thập tài nguyên",
-          alignment: "evil",
-          consequence: "Bạn có được nhiều linh thạch nhưng bị nghi ngờ.",
-          rewards: { spiritStones: 30, experience: 20 }
+          text: 'Thận trọng quan sát',
+          reward: '+30 Exp, +5 Trí Tuệ'
         }
-      ]
+      ],
+      isRead: false
     },
     {
-      id: 2,
-      title: "Cuộc Gặp Gỡ Định Mệnh",
-      content: "Trong hang động, bạn gặp một tu sĩ bị thương nặng. Ông ta nói rằng đang bị một tà ma truy đuổi và yêu cầu bạn giúp đỡ. Ông hứa sẽ truyền cho bạn tâm pháp tu luyện nếu bạn cứu được ông.",
-      character: "Injured Cultivator",
+      id: '2',
+      title: 'Khám Phá Hang Động Bí Mật',
+      description: 'Trong quá trình khám phá, ngươi tìm thấy một hang động cổ kỳ tỏa ra ánh sáng kỳ lạ.',
+      character: 'Người Kể Chuyện',
       choices: [
         {
-          text: "Không ngần ngại cứu giúp",
-          alignment: "good",
-          consequence: "Tu sĩ truyền cho bạn 'Thiên Địa Quyết' - một tâm pháp mạnh mẽ!",
-          rewards: { experience: 100, items: ["Thiên Địa Quyết"] }
+          text: 'Tiến vào hang động',
+          reward: 'Kiếm Cổ + 100 Exp'
         },
         {
-          text: "Đòi hỏi phần thưởng trước khi giúp",
-          alignment: "neutral",
-          consequence: "Tu sĩ đồng ý và đưa cho bạn một phần linh thạch trước.",
-          rewards: { spiritStones: 50, experience: 50 }
-        },
-        {
-          text: "Lợi dụng lúc ông ta yếu để cướp tài sản",
-          alignment: "evil",
-          consequence: "Bạn có được nhiều tài nguyên nhưng bị nguyền rủa.",
-          rewards: { spiritStones: 100, experience: 30 }
+          text: 'Quay về sau',
+          reward: '+20 Exp (An toàn)'
         }
-      ]
+      ],
+      isRead: false
+    },
+    {
+      id: '3',
+      title: 'Cuộc Gặp Gỡ Định Mệnh',
+      description: 'Một thiếu nữ xinh đẹp đang bị truy sát bởi một nhóm tu sĩ tà đạo. Ngươi sẽ làm gì?',
+      character: 'Lạnh Nguyệt',
+      choices: [
+        {
+          text: 'Anh hùng cứu mỹ nhân',
+          reward: '+100 Exp, Bạn đồng hành'
+        },
+        {
+          text: 'Tránh xa rắc rối',
+          reward: 'Không có phần thưởng'
+        }
+      ],
+      isRead: false
     }
-  ];
+  ]);
+  const [hasNewEvent, setHasNewEvent] = useState(false);
 
   useEffect(() => {
-    // Show first story scene when component mounts
-    setCurrentScene(storyScenes[0]);
-    setIsVisible(true);
-  }, []);
+    // Check for new events periodically
+    const interval = setInterval(() => {
+      const unreadEvents = events.filter(event => !event.isRead);
+      if (unreadEvents.length > 0 && !isOpen) {
+        setHasNewEvent(true);
+      }
+    }, 30000); // Check every 30 seconds
 
-  const makeChoice = (choice: StoryChoice) => {
-    // Update alignment
-    setAlignment(prev => ({
-      ...prev,
-      [choice.alignment]: prev[choice.alignment] + 1
-    }));
+    return () => clearInterval(interval);
+  }, [events, isOpen]);
 
-    // Show consequence
-    alert(`${choice.consequence}\n\nPhần thưởng: ${
-      choice.rewards ? 
-      `${choice.rewards.experience || 0} EXP, ${choice.rewards.spiritStones || 0} Linh Thạch` +
-      (choice.rewards.items ? `, ${choice.rewards.items.join(', ')}` : '') :
-      'Không có'
-    }`);
+  const openEvent = (event: StoryEvent) => {
+    setCurrentEvent(event);
+    setIsOpen(true);
+    setHasNewEvent(false);
+  };
 
-    // Move to next scene or close
-    const currentIndex = storyScenes.findIndex(scene => scene.id === currentScene?.id);
-    if (currentIndex < storyScenes.length - 1) {
-      setCurrentScene(storyScenes[currentIndex + 1]);
-    } else {
-      setIsVisible(false);
+  const makeChoice = (choice: any) => {
+    if (currentEvent) {
+      // Mark event as read
+      setEvents(prev => prev.map(event => 
+        event.id === currentEvent.id 
+          ? { ...event, isRead: true }
+          : event
+      ));
+
+      // Show reward
+      alert(`Lựa chọn: "${choice.text}"\nPhần thưởng: ${choice.reward}`);
+      
+      setIsOpen(false);
+      setCurrentEvent(null);
     }
   };
 
-  const getAlignmentColor = (align: string) => {
-    switch (align) {
-      case 'good': return 'text-green-400 border-green-400';
-      case 'evil': return 'text-red-400 border-red-400';
-      default: return 'text-blue-400 border-blue-400';
-    }
+  const closeDialog = () => {
+    setIsOpen(false);
+    setCurrentEvent(null);
   };
 
-  const getAlignmentIcon = (align: string) => {
-    switch (align) {
-      case 'good': return <Heart className="w-4 h-4" />;
-      case 'evil': return <Skull className="w-4 h-4" />;
-      default: return <Award className="w-4 h-4" />;
-    }
-  };
-
-  const getCurrentAlignment = () => {
-    const total = alignment.good + alignment.evil + alignment.neutral;
-    if (total === 0) return 'Trung Lập';
-    
-    const maxAlign = Math.max(alignment.good, alignment.evil, alignment.neutral);
-    if (maxAlign === alignment.good) return 'Chính Đạo';
-    if (maxAlign === alignment.evil) return 'Tà Đạo';
-    return 'Trung Lập';
-  };
-
-  if (!isVisible || !currentScene) {
-    return (
-      <Button
-        onClick={() => setIsVisible(true)}
-        className="fixed bottom-4 right-4 gradient-purple text-white"
-      >
-        Mở Cốt Truyện
-      </Button>
-    );
-  }
+  const unreadEvents = events.filter(event => !event.isRead);
+  const readEvents = events.filter(event => event.isRead);
 
   return (
-    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <Card className="max-w-2xl w-full max-h-[80vh] overflow-y-auto bg-card/95 backdrop-blur border-border">
-        <div className="p-6 space-y-4">
-          {/* Story Header */}
-          <div className="text-center space-y-2">
-            <h2 className="text-2xl font-bold gradient-gold bg-clip-text text-transparent">
-              {currentScene.title}
-            </h2>
-            <div className="flex justify-center gap-2">
-              <Badge variant="outline" className={getAlignmentColor('good')}>
-                <Heart className="w-3 h-3 mr-1" />
-                {alignment.good}
+    <>
+      {/* Story Event Trigger Button */}
+      {(hasNewEvent || unreadEvents.length > 0) && !isOpen && (
+        <div className="fixed bottom-4 right-4 z-50">
+          <Button
+            onClick={() => setIsOpen(true)}
+            className="relative bg-mystical-purple hover:bg-mystical-purple/80 text-white shadow-lg"
+            size="lg"
+          >
+            <MessageCircle className="w-5 h-5 mr-2" />
+            Sự Kiện
+            {unreadEvents.length > 0 && (
+              <Badge className="absolute -top-2 -right-2 bg-red-500 text-white min-w-[20px] h-5 text-xs">
+                {unreadEvents.length}
               </Badge>
-              <Badge variant="outline" className={getAlignmentColor('neutral')}>
-                <Award className="w-3 h-3 mr-1" />
-                {alignment.neutral}
-              </Badge>
-              <Badge variant="outline" className={getAlignmentColor('evil')}>
-                <Skull className="w-3 h-3 mr-1" />
-                {alignment.evil}
-              </Badge>
-            </div>
-            <Badge className="gradient-cultivation text-black">
-              Căn Tính: {getCurrentAlignment()}
-            </Badge>
-          </div>
-
-          {/* Character Portrait */}
-          {currentScene.character && (
-            <div className="flex justify-center">
-              <div className="w-24 h-24 bg-gradient-jade rounded-full flex items-center justify-center border-2 border-spirit-jade/50">
-                <span className="text-xs text-center text-white font-medium">
-                  {currentScene.character}
-                </span>
-              </div>
-            </div>
-          )}
-
-          {/* Story Content */}
-          <div className="bg-muted/20 p-4 rounded-lg border border-border/50">
-            <p className="text-foreground leading-relaxed">
-              {currentScene.content}
-            </p>
-          </div>
-
-          {/* Choices */}
-          <div className="space-y-3">
-            <h3 className="text-lg font-semibold text-cultivator-gold">Lựa Chọn:</h3>
-            {currentScene.choices.map((choice, index) => (
-              <Button
-                key={index}
-                onClick={() => makeChoice(choice)}
-                variant="outline"
-                className={`w-full text-left justify-start p-4 h-auto ${getAlignmentColor(choice.alignment)} hover:bg-muted/30`}
-              >
-                <div className="flex items-start gap-3 w-full">
-                  {getAlignmentIcon(choice.alignment)}
-                  <div className="flex-1">
-                    <div className="text-sm">{choice.text}</div>
-                    {choice.rewards && (
-                      <div className="text-xs text-muted-foreground mt-1">
-                        Thưởng: {choice.rewards.experience || 0} EXP, {choice.rewards.spiritStones || 0} Linh Thạch
-                        {choice.rewards.items && `, ${choice.rewards.items.join(', ')}`}
-                      </div>
-                    )}
-                  </div>
-                  <ChevronRight className="w-4 h-4" />
-                </div>
-              </Button>
-            ))}
-          </div>
-
-          {/* Close Button */}
-          <div className="flex justify-center pt-4">
-            <Button
-              onClick={() => setIsVisible(false)}
-              variant="ghost"
-              className="text-muted-foreground"
-            >
-              Đóng Cốt Truyện
-            </Button>
-          </div>
+            )}
+          </Button>
         </div>
-      </Card>
-    </div>
+      )}
+
+      {/* Story Dialog Modal */}
+      {isOpen && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <Card className="w-full max-w-2xl max-h-[80vh] overflow-y-auto bg-card/95 backdrop-blur border-border/50">
+            <div className="p-4 sm:p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg sm:text-xl font-semibold text-cultivator-gold flex items-center gap-2">
+                  <BookOpen className="w-5 h-5" />
+                  {currentEvent ? 'Sự Kiện Đặc Biệt' : 'Danh Sách Sự Kiện'}
+                </h2>
+                <Button variant="ghost" size="sm" onClick={closeDialog}>
+                  <X className="w-4 h-4" />
+                </Button>
+              </div>
+
+              {currentEvent ? (
+                /* Current Event Display */
+                <div className="space-y-4">
+                  <div className="text-center p-4 bg-gradient-cultivation rounded-lg">
+                    <h3 className="text-xl font-bold text-black mb-2">{currentEvent.title}</h3>
+                    <Badge variant="outline" className="border-black text-black">
+                      {currentEvent.character}
+                    </Badge>
+                  </div>
+
+                  <div className="p-4 bg-muted/30 rounded-lg">
+                    <p className="text-sm leading-relaxed">{currentEvent.description}</p>
+                  </div>
+
+                  {currentEvent.choices && (
+                    <div className="space-y-3">
+                      <h4 className="font-semibold text-spirit-jade">Lựa chọn của ngươi:</h4>
+                      {currentEvent.choices.map((choice, index) => (
+                        <Button
+                          key={index}
+                          onClick={() => makeChoice(choice)}
+                          className="w-full justify-between bg-muted hover:bg-muted/80 text-foreground border border-border/50"
+                          variant="outline"
+                        >
+                          <span>{choice.text}</span>
+                          <div className="flex items-center gap-2 text-xs">
+                            <Gift className="w-3 h-3" />
+                            {choice.reward}
+                            <ChevronRight className="w-3 h-3" />
+                          </div>
+                        </Button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ) : (
+                /* Event List */
+                <div className="space-y-4">
+                  {unreadEvents.length > 0 && (
+                    <div>
+                      <h3 className="font-semibold text-mystical-purple mb-3">Sự Kiện Mới</h3>
+                      <div className="space-y-2">
+                        {unreadEvents.map((event) => (
+                          <div
+                            key={event.id}
+                            onClick={() => openEvent(event)}
+                            className="p-3 bg-mystical-purple/10 border border-mystical-purple/30 rounded-lg cursor-pointer hover:bg-mystical-purple/20 transition-colors"
+                          >
+                            <div className="flex items-center justify-between">
+                              <div className="flex-1">
+                                <div className="font-medium text-sm">{event.title}</div>
+                                <div className="text-xs text-muted-foreground">{event.character}</div>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <Star className="w-4 h-4 text-mystical-purple" />
+                                <ChevronRight className="w-4 h-4" />
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {readEvents.length > 0 && (
+                    <div>
+                      <h3 className="font-semibold text-muted-foreground mb-3">Sự Kiện Đã Hoàn Thành</h3>
+                      <div className="space-y-2">
+                        {readEvents.map((event) => (
+                          <div
+                            key={event.id}
+                            onClick={() => openEvent(event)}
+                            className="p-3 bg-muted/20 border border-border/30 rounded-lg cursor-pointer hover:bg-muted/30 transition-colors opacity-75"
+                          >
+                            <div className="flex items-center justify-between">
+                              <div className="flex-1">
+                                <div className="font-medium text-sm">{event.title}</div>
+                                <div className="text-xs text-muted-foreground">{event.character}</div>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <Badge variant="outline" className="text-xs">Hoàn thành</Badge>
+                                <ChevronRight className="w-4 h-4" />
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {unreadEvents.length === 0 && readEvents.length === 0 && (
+                    <div className="text-center py-8 text-muted-foreground">
+                      <BookOpen className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                      <p>Chưa có sự kiện nào...</p>
+                      <p className="text-xs mt-2">Hãy khám phá thế giới để mở khóa câu chuyện!</p>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </Card>
+        </div>
+      )}
+    </>
   );
 };
 

@@ -1,5 +1,4 @@
-
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -39,7 +38,7 @@ interface HomeItem {
 const HomeSystem = () => {
   const [activeSection, setActiveSection] = useState<'overview' | 'garden' | 'rooms' | 'craft'>('overview');
   
-  const [garden] = useState<Plant[]>([
+  const [garden, setGarden] = useState<Plant[]>([
     {
       id: '1',
       name: 'Linh Thảo',
@@ -96,6 +95,25 @@ const HomeSystem = () => {
     }
   ]);
 
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setGarden(prev => prev.map(plant => {
+        if (plant.planted && !plant.isReady) {
+          const elapsed = Date.now() - plant.planted.getTime();
+          const isReady = elapsed >= (plant.growthTime * 60 * 1000);
+          if (isReady && !plant.isReady) {
+            // Show notification when plant is ready
+            setTimeout(() => alert(`${plant.name} đã chín! Có thể thu hoạch.`), 100);
+          }
+          return { ...plant, isReady };
+        }
+        return plant;
+      }));
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
+
   const getPlantIcon = (type: string) => {
     switch (type) {
       case 'herb': return <Flower2 className="w-4 h-4" />;
@@ -113,11 +131,27 @@ const HomeSystem = () => {
   };
 
   const harvestPlant = (plantId: string) => {
-    alert('Thu hoạch thành công! +' + garden.find(p => p.id === plantId)?.value + ' Linh Thạch');
+    const plant = garden.find(p => p.id === plantId);
+    if (plant && plant.isReady) {
+      setGarden(prev => prev.map(p => 
+        p.id === plantId 
+          ? { ...p, planted: null, isReady: false }
+          : p
+      ));
+      alert(`Thu hoạch thành công! +${plant.value} Linh Thạch`);
+    }
   };
 
   const plantSeed = (plantId: string) => {
-    alert('Đã gieo hạt ' + garden.find(p => p.id === plantId)?.name);
+    const plant = garden.find(p => p.id === plantId);
+    if (plant && !plant.planted) {
+      setGarden(prev => prev.map(p => 
+        p.id === plantId 
+          ? { ...p, planted: new Date(), isReady: false }
+          : p
+      ));
+      alert(`Đã gieo hạt ${plant.name}. Thời gian sinh trưởng: ${plant.growthTime} phút.`);
+    }
   };
 
   const sections = [
