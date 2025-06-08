@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { useGameState } from '@/hooks/useGameState';
 import { 
   Hammer, 
@@ -333,13 +334,18 @@ const EnhancementSystem = () => {
         </Card>
 
         <Tabs defaultValue="enhance" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="enhance">Cường Hóa</TabsTrigger>
-            <TabsTrigger value="synthesis">Hợp Thành</TabsTrigger>
-            <TabsTrigger value="upgrade">Tăng Cấp</TabsTrigger>
-            <TabsTrigger value="seals">Phù Hiệu</TabsTrigger>
-            <TabsTrigger value="energy">Năng Lượng</TabsTrigger>
-          </TabsList>
+          {/* Updated TabsList with horizontal scroll */}
+          <div className="relative">
+            <ScrollArea className="w-full whitespace-nowrap rounded-md border">
+              <TabsList className="inline-flex h-10 items-center justify-start rounded-md bg-muted p-1 text-muted-foreground w-max">
+                <TabsTrigger value="enhance" className="whitespace-nowrap">Cường Hóa</TabsTrigger>
+                <TabsTrigger value="synthesis" className="whitespace-nowrap">Hợp Thành</TabsTrigger>
+                <TabsTrigger value="upgrade" className="whitespace-nowrap">Tăng Cấp</TabsTrigger>
+                <TabsTrigger value="seals" className="whitespace-nowrap">Phù Hiệu</TabsTrigger>
+                <TabsTrigger value="energy" className="whitespace-nowrap">Năng Lượng</TabsTrigger>
+              </TabsList>
+            </ScrollArea>
+          </div>
 
           {/* Enhancement Tab */}
           <TabsContent value="enhance" className="space-y-4">

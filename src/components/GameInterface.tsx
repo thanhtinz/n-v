@@ -34,7 +34,6 @@ import {
   Target,
   Clock
 } from 'lucide-react';
-import DailyQuestSystem from './DailyQuestSystem';
 import EventSystem from './EventSystem';
 import HomeSystem from './HomeSystem';
 import SectSystem from './SectSystem';
