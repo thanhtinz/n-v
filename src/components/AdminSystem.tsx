@@ -11,6 +11,8 @@ import AdminStoryManager from './AdminStoryManager';
 import AdminShopManager from './AdminShopManager';
 import AdminEventManager from './AdminEventManager';
 import AdminPlayerManager from './AdminPlayerManager';
+import AdminGiftCodeManager from './AdminGiftCodeManager';
+import AdminPackageManager from './AdminPackageManager';
 import { 
   Settings, 
   BarChart3,
@@ -39,8 +41,8 @@ const AdminSystem = () => {
     { id: 'quests', label: 'Nhiệm Vụ', icon: Sword, component: AdminQuestManager },
     { id: 'shop', label: 'Shop', icon: ShoppingCart, component: AdminShopManager },
     { id: 'events', label: 'Sự Kiện', icon: Calendar, component: AdminEventManager },
-    { id: 'giftcodes', label: 'Gift Code', icon: Gift, component: () => <div>Gift Code Manager</div> },
-    { id: 'packages', label: 'Gói Nạp', icon: Package, component: () => <div>Package Manager</div> },
+    { id: 'giftcodes', label: 'Gift Code', icon: Gift, component: AdminGiftCodeManager },
+    { id: 'packages', label: 'Gói Nạp', icon: Package, component: AdminPackageManager },
     { id: 'players', label: 'Người Chơi', icon: Users, component: AdminPlayerManager }
   ];
 
