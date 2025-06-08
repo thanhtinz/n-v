@@ -189,16 +189,16 @@ const CultivationSystem = () => {
     tamphaph: 2,
     kinhvan: 1,
     truyenthua: 1,
-    cultivationTime: 1.5,
+    cultivationTime: 25,
     activityPoints: 100
   });
 
   const [currentRealmIndex, setCurrentRealmIndex] = useState(0);
   const [currentRealm, setCurrentRealm] = useState<Realm>({
     name: REALM_PROGRESSION[0].name,
-    level: 1,
+    level: 9,
     maxLevel: 9,
-    progress: 85,
+    progress: 100,
     description: REALM_PROGRESSION[0].description,
     nextRealm: REALM_PROGRESSION[0].nextRealm,
     requiresTribulation: REALM_PROGRESSION[0].requiresTribulation,
@@ -374,10 +374,19 @@ const CultivationSystem = () => {
   const canStartTribulation = () => {
     const hasRequiredProgress = currentRealm.progress >= 100 && currentRealm.level >= currentRealm.maxLevel;
     const hasRequiredTime = resources.cultivationTime >= currentRealm.minCultivationTime;
-    const hasRequiredItems = currentRealm.requiredItems.length === 0 || 
-      (resources.tamphaph > 0 && resources.kinhvan > 0 && resources.truyenthua > 0);
     
-    return hasRequiredProgress && hasRequiredTime && hasRequiredItems && currentRealm.requiresTribulation;
+    console.log('Checking tribulation conditions:', {
+      hasRequiredProgress,
+      hasRequiredTime,
+      currentProgress: currentRealm.progress,
+      currentLevel: currentRealm.level,
+      maxLevel: currentRealm.maxLevel,
+      cultivationTime: resources.cultivationTime,
+      minTime: currentRealm.minCultivationTime,
+      requiresTribulation: currentRealm.requiresTribulation
+    });
+    
+    return hasRequiredProgress && hasRequiredTime && currentRealm.requiresTribulation;
   };
 
   const startTribulation = () => {
@@ -666,31 +675,51 @@ const CultivationSystem = () => {
                   </Button>
                 </div>
                 
-                {currentRealm.progress >= 100 && currentRealm.requiresTribulation && (
+                {/* Tribulation Section - Always show when max level reached */}
+                {currentRealm.level >= currentRealm.maxLevel && (
                   <div className="mt-3 p-3 bg-gradient-to-r from-yellow-900/50 to-red-900/50 rounded-lg border border-yellow-600/50">
                     <div className="flex items-center gap-2 text-yellow-300 mb-2">
                       <CloudLightning className="w-5 h-5" />
-                      <span className="font-semibold">Sẵn sàng độ kiếp!</span>
+                      <span className="font-semibold">
+                        {currentRealm.progress >= 100 ? 'Sẵn sàng độ kiếp!' : 'Chuẩn bị độ kiếp...'}
+                      </span>
                     </div>
+                    
+                    {/* Progress requirement */}
+                    {currentRealm.progress < 100 && (
+                      <div className="text-xs text-yellow-200 mb-2">
+                        Cần đạt 100% tiến độ tu luyện (hiện tại: {currentRealm.progress}%)
+                      </div>
+                    )}
+                    
+                    {/* Success rate display */}
                     <div className="text-xs text-yellow-200 mb-2">
                       Tỷ lệ thành công hiện tại: {40 + (resources.leidans > 0 ? 20 : 0) + (resources.dokiepfu > 0 ? 15 : 0) + (resources.tuvirondan > 0 ? 10 : 0)}%
                     </div>
+                    
+                    {/* Requirements check */}
                     <div className="text-xs text-muted-foreground mb-3">
                       {!canStartTribulation() && (
                         <div className="text-red-300">
                           <AlertTriangle className="w-3 h-3 inline mr-1" />
+                          {currentRealm.progress < 100 && 'Chưa đủ tiến độ tu luyện! '}
                           {resources.cultivationTime < currentRealm.minCultivationTime && 'Chưa đủ thời gian tu luyện! '}
-                          {currentRealm.requiredItems.length > 0 && resources.tamphaph === 0 && 'Thiếu vật phẩm cần thiết! '}
+                        </div>
+                      )}
+                      {canStartTribulation() && (
+                        <div className="text-green-300">
+                          ✓ Đã đủ điều kiện độ kiếp!
                         </div>
                       )}
                     </div>
+                    
                     <Button 
                       onClick={startTribulation}
                       disabled={tribulation.isActive || !canStartTribulation()}
                       className="w-full bg-gradient-to-r from-yellow-600 to-red-600 hover:from-yellow-700 hover:to-red-700 text-white"
                     >
                       <Skull className="w-4 h-4 mr-2" />
-                      Bắt Đầu Độ Kiếp
+                      {canStartTribulation() ? 'Bắt Đầu Độ Kiếp' : 'Chưa Đủ Điều Kiện'}
                     </Button>
                   </div>
                 )}
