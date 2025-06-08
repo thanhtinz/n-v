@@ -5,13 +5,9 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
-  Sword, 
-  Shield, 
   Shirt, 
-  Crown,
   Package,
   Zap,
-  Star,
   Plus,
   Minus,
   Info
@@ -32,6 +28,7 @@ interface Item {
   description: string;
   equipped?: boolean;
   setName?: string; // For set items
+  imageUrl?: string; // For item images
 }
 
 interface EquipmentSlot {
@@ -44,8 +41,8 @@ const InventorySystem = () => {
   const [activeTab, setActiveTab] = useState('equipment');
   
   const [equipmentSlots, setEquipmentSlots] = useState<EquipmentSlot[]>([
-    { type: 'weapon', name: 'Vũ Khí', item: { id: 'eq1', name: 'Kiếm Sắt', type: 'weapon', quality: 'common', stats: { attack: 10, agility: -2 }, quantity: 1, description: 'Kiếm sắt cơ bản, +10 Công Kích, -2 Nhanh Nhẹn', equipped: true } },
-    { type: 'armor', name: 'Áo Giáp', item: { id: 'eq2', name: 'Áo Vải Thô', type: 'armor', quality: 'common', stats: { defense: 5, agility: -1 }, quantity: 1, description: 'Áo vải thô, +5 Phòng Thủ, -1 Nhanh Nhẹn', equipped: true } },
+    { type: 'weapon', name: 'Vũ Khí', item: { id: 'eq1', name: 'Kiếm Sắt', type: 'weapon', quality: 'common', stats: { attack: 10, agility: -2 }, quantity: 1, description: 'Kiếm sắt cơ bản, +10 Công Kích, -2 Nhanh Nhẹn', equipped: true, imageUrl: 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=64&h=64&fit=crop' } },
+    { type: 'armor', name: 'Áo Giáp', item: { id: 'eq2', name: 'Áo Vải Thô', type: 'armor', quality: 'common', stats: { defense: 5, agility: -1 }, quantity: 1, description: 'Áo vải thô, +5 Phòng Thủ, -1 Nhanh Nhẹn', equipped: true, imageUrl: 'https://images.unsplash.com/photo-1582562124811-c09040d0a901?w=64&h=64&fit=crop' } },
     { type: 'pants', name: 'Quần' },
     { type: 'hair', name: 'Tóc' },
     { type: 'hat', name: 'Nón' },
@@ -64,7 +61,8 @@ const InventorySystem = () => {
       type: 'pill',
       quality: 'common',
       quantity: 5,
-      description: 'Phục hồi 100 HP'
+      description: 'Phục hồi 100 HP',
+      imageUrl: 'https://images.unsplash.com/photo-1493962853295-0fd70327578a?w=64&h=64&fit=crop'
     },
     {
       id: 'inv2',
@@ -72,7 +70,8 @@ const InventorySystem = () => {
       type: 'material',
       quality: 'common',
       quantity: 50,
-      description: 'Nguyên liệu tu luyện cơ bản'
+      description: 'Nguyên liệu tu luyện cơ bản',
+      imageUrl: 'https://images.unsplash.com/photo-1535268647677-300dbf3d78d1?w=64&h=64&fit=crop'
     },
     {
       id: 'inv3',
@@ -81,7 +80,8 @@ const InventorySystem = () => {
       quality: 'epic',
       stats: { attack: 25, luck: 5, agility: -3 },
       quantity: 1,
-      description: 'Kiếm với sức mạnh phong lôi, +25 Công Kích, +5 May Mắn, -3 Nhanh Nhẹn'
+      description: 'Kiếm với sức mạnh phong lôi, +25 Công Kích, +5 May Mắn, -3 Nhanh Nhẹn',
+      imageUrl: 'https://images.unsplash.com/photo-1501286353178-1ec881214838?w=64&h=64&fit=crop'
     },
     {
       id: 'inv4',
@@ -90,7 +90,8 @@ const InventorySystem = () => {
       quality: 'rare',
       stats: { luck: 8, defense: -2 },
       quantity: 1,
-      description: 'Nhẫn tăng may mắn, +8 May Mắn, -2 Phòng Thủ'
+      description: 'Nhẫn tăng may mắn, +8 May Mắn, -2 Phòng Thủ',
+      imageUrl: 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=64&h=64&fit=crop'
     },
     {
       id: 'inv5',
@@ -100,7 +101,8 @@ const InventorySystem = () => {
       stats: { attack: 15, defense: 15, agility: 10 },
       quantity: 1,
       description: 'Bộ đồ huyền thoại, +15 Công Kích, +15 Phòng Thủ, +10 Nhanh Nhẹn',
-      setName: 'Thiên Hạ'
+      setName: 'Thiên Hạ',
+      imageUrl: 'https://images.unsplash.com/photo-1582562124811-c09040d0a901?w=64&h=64&fit=crop'
     }
   ]);
 
@@ -114,22 +116,22 @@ const InventorySystem = () => {
     }
   };
 
-  const getTypeIcon = (type: string) => {
+  const getDefaultItemImage = (type: string) => {
     switch (type) {
-      case 'weapon': return Sword;
+      case 'weapon': return 'https://images.unsplash.com/photo-1501286353178-1ec881214838?w=64&h=64&fit=crop';
       case 'armor':
       case 'pants':
-      case 'chest': return Shield;
+      case 'chest': return 'https://images.unsplash.com/photo-1582562124811-c09040d0a901?w=64&h=64&fit=crop';
       case 'hat':
-      case 'hair': return Crown;
+      case 'hair': return 'https://images.unsplash.com/photo-1535268647677-300dbf3d78d1?w=64&h=64&fit=crop';
       case 'ring':
       case 'bracelet':
       case 'necklace':
-      case 'treasure': return Star;
-      case 'set': return Shirt;
-      case 'pill': return Zap;
-      case 'material': return Package;
-      default: return Package;
+      case 'treasure': return 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=64&h=64&fit=crop';
+      case 'set': return 'https://images.unsplash.com/photo-1582562124811-c09040d0a901?w=64&h=64&fit=crop';
+      case 'pill': return 'https://images.unsplash.com/photo-1493962853295-0fd70327578a?w=64&h=64&fit=crop';
+      case 'material': return 'https://images.unsplash.com/photo-1535268647677-300dbf3d78d1?w=64&h=64&fit=crop';
+      default: return 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=64&h=64&fit=crop';
     }
   };
 
@@ -189,14 +191,21 @@ const InventorySystem = () => {
                 <h3 className="font-semibold mb-3 text-spirit-jade">Trang Bị Hiện Tại</h3>
                 <div className="grid grid-cols-2 gap-2">
                   {equipmentSlots.map((slot) => {
-                    const Icon = getTypeIcon(slot.type);
                     return (
                       <div key={slot.type} className="p-2 bg-card/50 rounded-lg border border-border/30 min-h-[80px]">
                         <div className="text-xs text-muted-foreground mb-1">{slot.name}</div>
                         {slot.item ? (
                           <div>
-                            <div className="flex items-center gap-1 mb-1">
-                              <Icon className="w-4 h-4 text-cultivator-gold" />
+                            <div className="flex items-center gap-2 mb-1">
+                              <img 
+                                src={slot.item.imageUrl || getDefaultItemImage(slot.item.type)} 
+                                alt={slot.item.name}
+                                className="w-6 h-6 rounded object-cover border border-border/50"
+                                onError={(e) => {
+                                  const target = e.target as HTMLImageElement;
+                                  target.src = getDefaultItemImage(slot.item?.type || 'material');
+                                }}
+                              />
                               <span className="text-sm font-medium truncate">{slot.item.name}</span>
                             </div>
                             <Badge variant="outline" className={`text-xs ${getQualityColor(slot.item.quality)}`}>
@@ -213,7 +222,9 @@ const InventorySystem = () => {
                           </div>
                         ) : (
                           <div className="flex items-center justify-center h-full">
-                            <Icon className="w-6 h-6 text-muted-foreground/50" />
+                            <div className="w-8 h-8 bg-muted/50 rounded border-2 border-dashed border-muted-foreground/30 flex items-center justify-center">
+                              <span className="text-xs text-muted-foreground/50">?</span>
+                            </div>
                           </div>
                         )}
                       </div>
@@ -260,12 +271,19 @@ const InventorySystem = () => {
           <TabsContent value="inventory" className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
               {inventory.map((item) => {
-                const Icon = getTypeIcon(item.type);
                 return (
                   <Card key={item.id} className="p-3 bg-card/50 hover:bg-card/70 transition-colors">
                     <div className="flex items-start justify-between mb-2">
                       <div className="flex items-center gap-2">
-                        <Icon className="w-4 h-4 text-cultivator-gold" />
+                        <img 
+                          src={item.imageUrl || getDefaultItemImage(item.type)} 
+                          alt={item.name}
+                          className="w-8 h-8 rounded object-cover border border-border/50"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.src = getDefaultItemImage(item.type);
+                          }}
+                        />
                         <span className="font-medium text-sm">{item.name}</span>
                       </div>
                       {item.quantity > 1 && (
