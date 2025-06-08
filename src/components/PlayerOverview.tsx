@@ -1,3 +1,4 @@
+
 import { useGameState } from '@/hooks/useGameState';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -26,13 +27,14 @@ import {
 const PlayerOverview = () => {
   const { gameState } = useGameState();
 
-  const formatNumber = (num: number) => {
+  const formatNumber = (num: number | undefined) => {
+    if (num === undefined || num === null) return '0';
     if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
     if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
     return num.toString();
   };
 
-  const expPercentage = (gameState.player.exp / gameState.player.maxExp) * 100;
+  const expPercentage = gameState?.player ? (gameState.player.exp / gameState.player.maxExp) * 100 : 0;
 
   // Get player info from localStorage
   const getPlayerInfo = () => {
@@ -73,11 +75,16 @@ const PlayerOverview = () => {
   ];
 
   const dailyProgress = [
-    { label: 'Đăng nhập', current: gameState.dailyActivities.loginDays, max: 7, reward: '1000 Bạc', icon: Gift },
-    { label: 'Nhiệm vụ', current: gameState.dailyActivities.questsCompleted, max: 5, reward: '50 KN', icon: Target },
-    { label: 'Boss', current: gameState.dailyActivities.bossesDefeated, max: 3, reward: '5 KNYB', icon: Trophy },
-    { label: 'Tu luyện', current: Math.floor(gameState.dailyActivities.cultivationTime / 60), max: 2, reward: '30 KN', icon: Clock }
+    { label: 'Đăng nhập', current: gameState?.dailyActivities?.loginDays || 0, max: 7, reward: '1000 Bạc', icon: Gift },
+    { label: 'Nhiệm vụ', current: gameState?.dailyActivities?.questsCompleted || 0, max: 5, reward: '50 KN', icon: Target },
+    { label: 'Boss', current: gameState?.dailyActivities?.bossesDefeated || 0, max: 3, reward: '5 KNYB', icon: Trophy },
+    { label: 'Tu luyện', current: Math.floor((gameState?.dailyActivities?.cultivationTime || 0) / 60), max: 2, reward: '30 KN', icon: Clock }
   ];
+
+  // Early return if gameState is not available
+  if (!gameState?.player) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className="space-y-4">
