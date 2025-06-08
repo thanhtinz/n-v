@@ -1,8 +1,10 @@
+
 import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
 import CharacterDisplay from './CharacterDisplay';
 import CultivationSystem from './CultivationSystem';
 import CombatSystem from './CombatSystem';
@@ -26,8 +28,21 @@ import {
   Trophy,
   MessageCircle,
   Settings,
-  Backpack
+  Backpack,
+  Shield,
+  Star
 } from 'lucide-react';
+
+interface ElementalStats {
+  fireAttack: number;
+  waterAttack: number;
+  windAttack: number;
+  earthAttack: number;
+  fireResist: number;
+  waterResist: number;
+  windResist: number;
+  earthResist: number;
+}
 
 interface PlayerCharacter {
   name: string;
@@ -42,6 +57,12 @@ interface PlayerCharacter {
     pet: string;
     aura: string;
   };
+  hp: number;
+  maxHp: number;
+  exp: number;
+  maxExp: number;
+  avatar: string;
+  elemental: ElementalStats;
 }
 
 const GameInterface = () => {
@@ -59,6 +80,21 @@ const GameInterface = () => {
       wings: '',
       pet: '',
       aura: ''
+    },
+    hp: 100,
+    maxHp: 100,
+    exp: 45,
+    maxExp: 100,
+    avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&h=100&fit=crop&crop=center',
+    elemental: {
+      fireAttack: 25,
+      waterAttack: 8,
+      windAttack: 5,
+      earthAttack: 3,
+      fireResist: 20,
+      waterResist: 12,
+      windResist: 8,
+      earthResist: 5
     }
   });
 
@@ -72,7 +108,27 @@ const GameInterface = () => {
   useEffect(() => {
     const savedCharacter = localStorage.getItem('playerCharacter');
     if (savedCharacter) {
-      setPlayer(JSON.parse(savedCharacter));
+      const parsedCharacter = JSON.parse(savedCharacter);
+      // Update player with enhanced stats
+      const enhancedPlayer = {
+        ...parsedCharacter,
+        hp: parsedCharacter.hp || Math.floor(100 + (parsedCharacter.level * 15)),
+        maxHp: parsedCharacter.maxHp || Math.floor(100 + (parsedCharacter.level * 15)),
+        exp: parsedCharacter.exp || Math.floor(parsedCharacter.level * 45),
+        maxExp: parsedCharacter.maxExp || Math.floor((parsedCharacter.level + 1) * 100),
+        avatar: parsedCharacter.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&h=100&fit=crop&crop=center',
+        elemental: parsedCharacter.elemental || {
+          fireAttack: parsedCharacter.class === 'sword' ? 25 + parsedCharacter.level * 3 : 8,
+          waterAttack: parsedCharacter.class === 'magic' ? 25 + parsedCharacter.level * 3 : 8,
+          windAttack: 5 + parsedCharacter.level,
+          earthAttack: parsedCharacter.class === 'defense' ? 25 + parsedCharacter.level * 3 : 3,
+          fireResist: parsedCharacter.class === 'sword' ? 20 + parsedCharacter.level * 2 : 12,
+          waterResist: parsedCharacter.class === 'magic' ? 20 + parsedCharacter.level * 2 : 12,
+          windResist: 8 + parsedCharacter.level,
+          earthResist: parsedCharacter.class === 'defense' ? 20 + parsedCharacter.level * 2 : 5
+        }
+      };
+      setPlayer(enhancedPlayer);
       setIsCharacterCreated(true);
     }
   }, []);
@@ -127,6 +183,21 @@ const GameInterface = () => {
         wings: '',
         pet: '',
         aura: ''
+      },
+      hp: 100,
+      maxHp: 100,
+      exp: 0,
+      maxExp: 100,
+      avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&h=100&fit=crop&crop=center',
+      elemental: {
+        fireAttack: character.class === 'sword' ? 25 : 8,
+        waterAttack: character.class === 'magic' ? 25 : 8,
+        windAttack: 5,
+        earthAttack: character.class === 'defense' ? 25 : 3,
+        fireResist: character.class === 'sword' ? 20 : 12,
+        waterResist: character.class === 'magic' ? 20 : 12,
+        windResist: 8,
+        earthResist: character.class === 'defense' ? 20 : 5
       }
     };
     
@@ -159,6 +230,16 @@ const GameInterface = () => {
     if (data) {
       if (data.craftingJobs !== undefined) setActiveCraftingJobs(data.craftingJobs);
       if (data.plantsGrowing !== undefined) setPlantsGrowing(data.plantsGrowing);
+    }
+  };
+
+  const getElementalIcon = (element: string) => {
+    switch (element) {
+      case 'fire': return '🔥';
+      case 'water': return '💧';
+      case 'wind': return '💨';
+      case 'earth': return '🌍';
+      default: return '⚡';
     }
   };
 
@@ -256,8 +337,53 @@ const GameInterface = () => {
               {/* Tab Content */}
               <div className="min-h-[400px] sm:min-h-[500px]">
                 <TabsContent value="character" className="space-y-3 sm:space-y-4">
+                  {/* Enhanced Character Info with Avatar, HP, EXP */}
                   <Card className="p-4 sm:p-6 bg-card/80 backdrop-blur-sm border-border/50">
-                    <h2 className="text-lg sm:text-xl font-semibold text-cultivator-gold mb-3 sm:mb-4">Thông Tin Nhân Vật</h2>
+                    <div className="flex items-center gap-4 mb-4">
+                      <div className="w-20 h-20 rounded-lg overflow-hidden border-2 border-spirit-jade/50">
+                        <img
+                          src={player.avatar}
+                          alt="Player Avatar"
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.style.display = 'none';
+                            target.nextElementSibling?.classList.remove('hidden');
+                          }}
+                        />
+                        <div className="hidden w-full h-full flex items-center justify-center bg-spirit-jade/20">
+                          <User className="w-10 h-10 text-spirit-jade" />
+                        </div>
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-2">
+                          <h2 className="text-xl font-semibold text-cultivator-gold">{player.name}</h2>
+                          <Badge variant="outline" className="border-spirit-jade text-spirit-jade">
+                            Lv.{player.level}
+                          </Badge>
+                        </div>
+                        
+                        {/* Health Bar */}
+                        <div className="mb-2">
+                          <div className="flex items-center justify-between text-xs mb-1">
+                            <span className="text-red-400">HP</span>
+                            <span>{player.hp}/{player.maxHp}</span>
+                          </div>
+                          <Progress value={(player.hp / player.maxHp) * 100} className="h-3 bg-muted [&>div]:bg-red-400" />
+                        </div>
+
+                        {/* EXP Bar */}
+                        <div>
+                          <div className="flex items-center justify-between text-xs mb-1">
+                            <span className="text-blue-400">EXP</span>
+                            <span>{player.exp}/{player.maxExp}</span>
+                          </div>
+                          <Progress value={(player.exp / player.maxExp) * 100} className="h-3 bg-muted [&>div]:bg-blue-400" />
+                        </div>
+                      </div>
+                    </div>
+
+                    <h3 className="font-semibold text-cultivator-gold mb-3">Thông Tin Nhân Vật</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                       <div className="space-y-3 sm:space-y-4">
                         <div>
@@ -288,6 +414,8 @@ const GameInterface = () => {
                             {combatPower.toLocaleString()}
                           </div>
                         </div>
+                      </div>
+                      <div className="space-y-3 sm:space-y-4">
                         <div>
                           <label className="text-sm text-muted-foreground">Trang Bị</label>
                           <div className="space-y-1">
@@ -297,8 +425,6 @@ const GameInterface = () => {
                             <div className="text-sm text-muted-foreground">🐾 Chưa có pet</div>
                           </div>
                         </div>
-                      </div>
-                      <div className="space-y-3 sm:space-y-4">
                         <div>
                           <label className="text-sm text-muted-foreground">Thành Tựu</label>
                           <div className="space-y-2 mobile-space-y-2">
@@ -319,19 +445,120 @@ const GameInterface = () => {
                             <div className="text-cultivator-gold">Lực chiến hiện tại: {combatPower.toLocaleString()}</div>
                           </div>
                         </div>
-                        <div>
-                          <Button 
-                            variant="outline" 
-                            onClick={() => {
-                              localStorage.removeItem('playerCharacter');
-                              setIsCharacterCreated(false);
-                            }}
-                            className="w-full text-red-400 border-red-400 hover:bg-red-400/10"
-                          >
-                            Tạo Lại Nhân Vật
-                          </Button>
+                      </div>
+                    </div>
+                  </Card>
+
+                  {/* Elemental Attributes */}
+                  <Card className="p-4 sm:p-6 bg-card/80 backdrop-blur-sm border-border/50">
+                    <h3 className="font-semibold text-cultivator-gold mb-3">Thuộc Tính Nguyên Tố</h3>
+                    
+                    {/* Elemental Attack */}
+                    <div className="mb-4">
+                      <h4 className="text-sm font-medium text-muted-foreground mb-2">Công Nguyên Tố</h4>
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                        <div className="flex items-center gap-2 p-2 bg-red-950/30 rounded border border-red-400/30">
+                          <span className="text-lg">{getElementalIcon('fire')}</span>
+                          <div>
+                            <div className="text-sm font-medium text-red-400">{player.elemental.fireAttack}</div>
+                            <div className="text-xs text-muted-foreground">Lửa</div>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2 p-2 bg-blue-950/30 rounded border border-blue-400/30">
+                          <span className="text-lg">{getElementalIcon('water')}</span>
+                          <div>
+                            <div className="text-sm font-medium text-blue-400">{player.elemental.waterAttack}</div>
+                            <div className="text-xs text-muted-foreground">Nước</div>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2 p-2 bg-green-950/30 rounded border border-green-400/30">
+                          <span className="text-lg">{getElementalIcon('wind')}</span>
+                          <div>
+                            <div className="text-sm font-medium text-green-400">{player.elemental.windAttack}</div>
+                            <div className="text-xs text-muted-foreground">Gió</div>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2 p-2 bg-yellow-950/30 rounded border border-yellow-600/30">
+                          <span className="text-lg">{getElementalIcon('earth')}</span>
+                          <div>
+                            <div className="text-sm font-medium text-yellow-600">{player.elemental.earthAttack}</div>
+                            <div className="text-xs text-muted-foreground">Đất</div>
+                          </div>
                         </div>
                       </div>
+                    </div>
+
+                    {/* Elemental Resistance */}
+                    <div>
+                      <h4 className="text-sm font-medium text-muted-foreground mb-2">Kháng Nguyên Tố</h4>
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                        <div className="flex items-center gap-2 p-2 bg-red-950/20 rounded border border-red-400/20">
+                          <Shield className="w-4 h-4 text-red-400" />
+                          <div>
+                            <div className="text-sm font-medium text-red-400">{player.elemental.fireResist}</div>
+                            <div className="text-xs text-muted-foreground">Kháng Lửa</div>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2 p-2 bg-blue-950/20 rounded border border-blue-400/20">
+                          <Shield className="w-4 h-4 text-blue-400" />
+                          <div>
+                            <div className="text-sm font-medium text-blue-400">{player.elemental.waterResist}</div>
+                            <div className="text-xs text-muted-foreground">Kháng Nước</div>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2 p-2 bg-green-950/20 rounded border border-green-400/20">
+                          <Shield className="w-4 h-4 text-green-400" />
+                          <div>
+                            <div className="text-sm font-medium text-green-400">{player.elemental.windResist}</div>
+                            <div className="text-xs text-muted-foreground">Kháng Gió</div>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2 p-2 bg-yellow-950/20 rounded border border-yellow-600/20">
+                          <Shield className="w-4 h-4 text-yellow-600" />
+                          <div>
+                            <div className="text-sm font-medium text-yellow-600">{player.elemental.earthResist}</div>
+                            <div className="text-xs text-muted-foreground">Kháng Đất</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Elemental Effects Info */}
+                    <div className="mt-4 p-3 bg-muted/20 rounded-lg">
+                      <h4 className="text-sm font-medium text-cultivator-gold mb-2">Hiệu Ứng Nguyên Tố Mạnh Nhất</h4>
+                      <div className="text-sm space-y-1">
+                        {player.class === 'sword' && (
+                          <>
+                            <div className="text-red-400">🔥 Công Lửa: 15% xác suất gây bỏng (DMG: {Math.floor(player.elemental.fireAttack * 0.8)})</div>
+                            <div className="text-red-400">🛡️ Kháng Lửa: Khiên nóng bỏng giảm {Math.floor(player.elemental.fireResist * 0.6)}% sát thương</div>
+                          </>
+                        )}
+                        {player.class === 'magic' && (
+                          <>
+                            <div className="text-blue-400">💧 Công Nước: Xác suất đóng băng mục tiêu</div>
+                            <div className="text-blue-400">🛡️ Kháng Nước: Giảm {Math.floor(player.elemental.waterResist * 0.6)}% sát thương</div>
+                          </>
+                        )}
+                        {player.class === 'defense' && (
+                          <>
+                            <div className="text-yellow-600">🌍 Công Đất: Tăng sát thương theo địa hình</div>
+                            <div className="text-yellow-600">🛡️ Kháng Đất: Giảm {Math.floor(player.elemental.earthResist * 0.6)}% sát thương</div>
+                          </>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="mt-4">
+                      <Button 
+                        variant="outline" 
+                        onClick={() => {
+                          localStorage.removeItem('playerCharacter');
+                          setIsCharacterCreated(false);
+                        }}
+                        className="w-full text-red-400 border-red-400 hover:bg-red-400/10"
+                      >
+                        Tạo Lại Nhân Vật
+                      </Button>
                     </div>
                   </Card>
                 </TabsContent>
