@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -16,6 +15,7 @@ import ChatSystem from './ChatSystem';
 import SettingsSystem from './SettingsSystem';
 import StoryDialog from './StoryDialog';
 import CharacterCreation from './CharacterCreation';
+import CentralDisplay from './CentralDisplay';
 import { 
   User, 
   Zap, 
@@ -143,6 +143,11 @@ const GameInterface = () => {
     { id: 'settings', label: 'Cài Đặt', icon: Settings }
   ];
 
+  // Add new states for enhanced display
+  const [isInCombat, setIsInCombat] = useState(false);
+  const [isInTribulation, setIsInTribulation] = useState(false);
+  const [currentSect, setCurrentSect] = useState('Thiên Đạo Tông');
+
   // If character hasn't been created, show character creation
   if (!isCharacterCreated) {
     return <CharacterCreation onComplete={handleCharacterCreation} />;
@@ -183,14 +188,13 @@ const GameInterface = () => {
           <div className="lg:col-span-1">
             <Card className="p-3 sm:p-4 bg-card/80 backdrop-blur-sm border-border/50">
               <div className="text-center space-y-2 sm:space-y-4">
-                <div className="character-display-mobile sm:w-64 sm:h-80 mx-auto">
-                  <CharacterDisplay
-                    realm={player.realm}
-                    equipment={player.equipment}
-                    name={player.name}
-                    isActive={activeTab === 'cultivation'}
-                  />
-                </div>
+                <CentralDisplay
+                  player={player}
+                  activeTab={activeTab}
+                  isInCombat={isInCombat}
+                  isInTribulation={isInTribulation}
+                  currentSect={currentSect}
+                />
                 <div className="space-y-1 sm:space-y-2">
                   <Badge variant="outline" className="w-full border-spirit-jade text-spirit-jade text-xs sm:text-sm">
                     {player.realm} • Tầng {player.level}
