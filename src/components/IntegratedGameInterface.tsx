@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useGameState } from '@/hooks/useGameState';
 import { useGameStateIntegration } from '@/hooks/useGameStateIntegration';
@@ -71,14 +72,30 @@ import StorySystem from './StorySystem';
 import EnhancedFairyGuideAI from './EnhancedFairyGuideAI';
 import EntertainmentSystem from './EntertainmentSystem';
 import MarketSystem from './MarketSystem';
+import GameLandingPage from './GameLandingPage';
+import CharacterSelection from './CharacterSelection';
+
+type GameState = 'landing' | 'auth' | 'character-selection' | 'game';
 
 const IntegratedGameInterface = () => {
+  const [gameState, setGameState] = useState<GameState>('landing');
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [activeTab, setActiveTab] = useState('overview');
   const [showMenu, setShowMenu] = useState(false);
   const [selectedAction, setSelectedAction] = useState<string | null>(null);
   const [showNotifications, setShowNotifications] = useState(false);
-  const { gameState } = useGameState();
+  const { gameState: gameData } = useGameState();
   const { setLocation, setCombatState, setCultivationState, triggerEvent } = useGameStateIntegration();
+
+  // Check if user is logged in on component mount
+  useEffect(() => {
+    // This would normally check with your auth system
+    // For now, we'll check localStorage for demo purposes
+    const authToken = localStorage.getItem('authToken');
+    if (authToken) {
+      setIsLoggedIn(true);
+    }
+  }, []);
 
   const formatNumber = (num: number | undefined) => {
     if (num === undefined || num === null) return '0';
@@ -87,7 +104,7 @@ const IntegratedGameInterface = () => {
     return num.toString();
   };
 
-  const expPercentage = gameState?.player ? (gameState.player.exp / gameState.player.maxExp) * 100 : 0;
+  const expPercentage = gameData?.player ? (gameData.player.exp / gameData.player.maxExp) * 100 : 0;
 
   const getPlayerInfo = () => {
     const savedCharacter = localStorage.getItem('playerCharacter');
@@ -104,9 +121,9 @@ const IntegratedGameInterface = () => {
   const playerInfo = getPlayerInfo();
 
   const playerForDisplay = {
-    name: gameState?.player?.name || 'Tu Tiên Giả',
+    name: gameData?.player?.name || 'Tu Tiên Giả',
     realm: 'Phàm Nhân',
-    level: gameState?.player?.level || 1,
+    level: gameData?.player?.level || 1,
     gender: playerInfo.gender as 'male' | 'female',
     class: playerInfo.class as 'sword' | 'magic' | 'defense',
     equipment: {
@@ -116,6 +133,28 @@ const IntegratedGameInterface = () => {
       pet: '',
       aura: ''
     }
+  };
+
+  const handleLogin = () => {
+    setGameState('auth');
+  };
+
+  const handleAuthSuccess = () => {
+    setIsLoggedIn(true);
+    localStorage.setItem('authToken', 'demo-token'); // Demo token
+    setGameState('landing');
+  };
+
+  const handleStartGame = () => {
+    setGameState('character-selection');
+  };
+
+  const handleCharacterSelect = (character: any) => {
+    setGameState('game');
+  };
+
+  const handleBackToLanding = () => {
+    setGameState('landing');
   };
 
   const handleMenuClick = (tab: string, actionName: string) => {
@@ -146,9 +185,6 @@ const IntegratedGameInterface = () => {
     }, 2000);
   };
 
-  // Fix the infinite loop by removing the problematic useEffect
-  // The setLocation call is already handled in handleMenuClick
-
   const menuItems = [
     { id: 'overview', label: 'Thông Tin', icon: User, description: 'Trang chủ nhân vật' },
     { id: 'home', label: 'Động Phủ', icon: Home, description: 'Trang riêng cá nhân' },
@@ -176,7 +212,43 @@ const IntegratedGameInterface = () => {
     { id: 'admin', label: 'Quản Trị', icon: Settings }
   ];
 
-  if (!gameState) {
+  // Render based on game state
+  if (gameState === 'landing') {
+    return (
+      <GameLandingPage
+        isLoggedIn={isLoggedIn}
+        onLogin={handleLogin}
+        onStartGame={handleStartGame}
+      />
+    );
+  }
+
+  if (gameState === 'auth') {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted flex items-center justify-center p-4">
+        <div className="w-full max-w-md">
+          <AuthSystem />
+          <div className="mt-4 text-center">
+            <Button variant="outline" onClick={() => setGameState('landing')}>
+              Quay Lại
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (gameState === 'character-selection') {
+    return (
+      <CharacterSelection
+        onCharacterSelect={handleCharacterSelect}
+        onBack={handleBackToLanding}
+      />
+    );
+  }
+
+  // Game state - existing game interface
+  if (!gameData) {
     return <div>Loading...</div>;
   }
 
@@ -205,9 +277,9 @@ const IntegratedGameInterface = () => {
                 onClick={() => setShowNotifications(!showNotifications)}
               >
                 <Bell className="w-4 h-4" />
-                {gameState.notifications.unreadCount > 0 && (
+                {gameData.notifications.unreadCount > 0 && (
                   <Badge className="absolute -top-1 -right-1 h-4 w-4 p-0 text-xs bg-red-500">
-                    {gameState.notifications.unreadCount}
+                    {gameData.notifications.unreadCount}
                   </Badge>
                 )}
               </Button>
@@ -226,13 +298,13 @@ const IntegratedGameInterface = () => {
                       </Button>
                     </div>
                     
-                    {gameState.notifications.messages.length === 0 ? (
+                    {gameData.notifications.messages.length === 0 ? (
                       <p className="text-sm text-muted-foreground text-center py-4">
                         Không có thông báo mới
                       </p>
                     ) : (
                       <div className="space-y-2">
-                        {gameState.notifications.messages.map((notification: any) => (
+                        {gameData.notifications.messages.map((notification: any) => (
                           <div key={notification.id} className="p-2 bg-muted/20 rounded text-sm">
                             <div className="flex items-start gap-2">
                               <Gift className="w-4 h-4 text-spirit-jade mt-0.5" />
@@ -266,7 +338,6 @@ const IntegratedGameInterface = () => {
             className="fixed left-0 top-0 h-full w-80 bg-card border-r border-border p-4 overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* ... keep existing sidebar content ... */}
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-lg font-bold">Menu</h2>
               <Button variant="ghost" size="sm" onClick={() => setShowMenu(false)}>
@@ -282,18 +353,18 @@ const IntegratedGameInterface = () => {
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <p className="font-medium text-cultivator-gold">{gameState.player.name}</p>
+                    <p className="font-medium text-cultivator-gold">{gameData.player.name}</p>
                     <div className="flex items-center gap-1">
                       <Crown className="w-3 h-3 text-mystical-purple" />
-                      <span className="text-xs text-mystical-purple">VIP{gameState.player.vipLevel}</span>
+                      <span className="text-xs text-mystical-purple">VIP{gameData.player.vipLevel}</span>
                     </div>
                   </div>
                   <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                    <span>Lv.{gameState.player.level}</span>
+                    <span>Lv.{gameData.player.level}</span>
                     <span>•</span>
                     <div className="flex items-center gap-1">
                       <Star className="w-3 h-3 text-divine-blue" />
-                      <span className="text-divine-blue font-medium">{formatNumber(gameState.player.combatPower)}</span>
+                      <span className="text-divine-blue font-medium">{formatNumber(gameData.player.combatPower)}</span>
                     </div>
                   </div>
                 </div>
@@ -302,7 +373,7 @@ const IntegratedGameInterface = () => {
               <div className="mb-3">
                 <div className="flex justify-between text-xs mb-1">
                   <span>Kinh Nghiệm</span>
-                  <span>{gameState.player.exp}/{gameState.player.maxExp}</span>
+                  <span>{gameData.player.exp}/{gameData.player.maxExp}</span>
                 </div>
                 <Progress value={expPercentage} className="h-2" />
               </div>
@@ -310,17 +381,17 @@ const IntegratedGameInterface = () => {
               <div className="grid grid-cols-3 gap-2">
                 <div className="text-center p-2 bg-card rounded">
                   <Coins className="w-4 h-4 text-gray-400 mx-auto mb-1" />
-                  <span className="text-xs font-medium">{formatNumber(gameState.player.silver)}</span>
+                  <span className="text-xs font-medium">{formatNumber(gameData.player.silver)}</span>
                   <div className="text-xs text-muted-foreground">Bạc</div>
                 </div>
                 <div className="text-center p-2 bg-card rounded">
                   <Gem className="w-4 h-4 text-yellow-500 mx-auto mb-1" />
-                  <span className="text-xs font-medium">{formatNumber(gameState.player.goldIngots)}</span>
+                  <span className="text-xs font-medium">{formatNumber(gameData.player.goldIngots)}</span>
                   <div className="text-xs text-muted-foreground">KNYB</div>
                 </div>
                 <div className="text-center p-2 bg-card rounded">
                   <Sparkles className="w-4 h-4 text-mystical-purple mx-auto mb-1" />
-                  <span className="text-xs font-medium">{formatNumber(gameState.player.rechargeSpiritStones)}</span>
+                  <span className="text-xs font-medium">{formatNumber(gameData.player.rechargeSpiritStones)}</span>
                   <div className="text-xs text-muted-foreground">LT Nạp</div>
                 </div>
               </div>
