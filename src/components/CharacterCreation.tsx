@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -36,7 +37,6 @@ const CharacterCreation = ({ onComplete }: CharacterCreationProps) => {
   });
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
-    // Ensure all required properties are present
     if (values.name && values.gender && values.class) {
       onComplete({
         name: values.name,
@@ -89,19 +89,19 @@ const CharacterCreation = ({ onComplete }: CharacterCreationProps) => {
   ];
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
-      <Card className="w-full max-w-4xl p-6 bg-card/90 backdrop-blur-sm border-border/50">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold gradient-gold bg-clip-text text-transparent mb-2">
+    <div className="min-h-screen bg-background flex items-center justify-center p-2 sm:p-4">
+      <Card className="w-full max-w-2xl p-3 sm:p-6 bg-card/90 backdrop-blur-sm border-border/50 mx-2">
+        <div className="text-center mb-4 sm:mb-8">
+          <h1 className="text-xl sm:text-3xl font-bold gradient-gold bg-clip-text text-transparent mb-2">
             Tạo Nhân Vật Tu Tiên
           </h1>
-          <p className="text-muted-foreground">
+          <p className="text-sm sm:text-base text-muted-foreground px-2">
             Hãy chọn tên, giới tính và class để bắt đầu hành trình tu tiên của bạn
           </p>
         </div>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 sm:space-y-8">
             {/* Character Name */}
             <div>
               <FormField
@@ -109,12 +109,12 @@ const CharacterCreation = ({ onComplete }: CharacterCreationProps) => {
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-lg font-semibold text-cultivator-gold">Tên Đạo Hiệu</FormLabel>
+                    <FormLabel className="text-base sm:text-lg font-semibold text-cultivator-gold">Tên Đạo Hiệu</FormLabel>
                     <FormControl>
                       <Input 
                         placeholder="Nhập tên nhân vật của bạn..." 
                         {...field}
-                        className="text-center text-lg"
+                        className="text-center text-sm sm:text-lg h-10 sm:h-12"
                       />
                     </FormControl>
                     <FormMessage />
@@ -130,12 +130,12 @@ const CharacterCreation = ({ onComplete }: CharacterCreationProps) => {
                 name="gender"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-lg font-semibold text-spirit-jade">Giới Tính</FormLabel>
+                    <FormLabel className="text-base sm:text-lg font-semibold text-spirit-jade">Giới Tính</FormLabel>
                     <FormControl>
                       <RadioGroup
                         onValueChange={field.onChange}
                         defaultValue={field.value}
-                        className="grid grid-cols-2 gap-4"
+                        className="grid grid-cols-2 gap-2 sm:gap-4"
                       >
                         {genders.map((gender) => {
                           const Icon = gender.icon;
@@ -148,12 +148,12 @@ const CharacterCreation = ({ onComplete }: CharacterCreationProps) => {
                               />
                               <Label
                                 htmlFor={gender.id}
-                                className="flex flex-col items-center justify-between rounded-lg border-2 border-muted bg-card/50 p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer"
+                                className="flex flex-col items-center justify-between rounded-lg border-2 border-muted bg-card/50 p-2 sm:p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer min-h-[80px] sm:min-h-[120px]"
                               >
-                                <Icon className="w-8 h-8 mb-3" />
+                                <Icon className="w-6 h-6 sm:w-8 sm:h-8 mb-1 sm:mb-3" />
                                 <div className="text-center">
-                                  <div className="font-semibold">{gender.name}</div>
-                                  <div className="text-sm text-muted-foreground mt-1">
+                                  <div className="font-semibold text-sm sm:text-base">{gender.name}</div>
+                                  <div className="text-xs sm:text-sm text-muted-foreground mt-1 hidden sm:block">
                                     {gender.description}
                                   </div>
                                 </div>
@@ -176,12 +176,12 @@ const CharacterCreation = ({ onComplete }: CharacterCreationProps) => {
                 name="class"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-lg font-semibold text-mystical-purple">Lựa Chọn Class</FormLabel>
+                    <FormLabel className="text-base sm:text-lg font-semibold text-mystical-purple">Lựa Chọn Class</FormLabel>
                     <FormControl>
                       <RadioGroup
                         onValueChange={field.onChange}
                         defaultValue={field.value}
-                        className="grid grid-cols-1 md:grid-cols-3 gap-4"
+                        className="grid grid-cols-1 gap-2 sm:gap-4"
                       >
                         {classes.map((classOption) => {
                           const Icon = classOption.icon;
@@ -194,12 +194,12 @@ const CharacterCreation = ({ onComplete }: CharacterCreationProps) => {
                               />
                               <Label
                                 htmlFor={classOption.id}
-                                className="flex flex-col items-center justify-between rounded-lg border-2 border-muted bg-card/50 p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer min-h-[160px]"
+                                className="flex items-center justify-start rounded-lg border-2 border-muted bg-card/50 p-3 sm:p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer"
                               >
-                                <Icon className="w-12 h-12 mb-3" />
-                                <div className="text-center">
-                                  <div className="font-semibold text-lg">{classOption.name}</div>
-                                  <div className="text-sm text-muted-foreground mt-2 mb-3">
+                                <Icon className="w-8 h-8 sm:w-12 sm:h-12 mr-3 sm:mr-4 flex-shrink-0" />
+                                <div className="flex-1 text-left">
+                                  <div className="font-semibold text-sm sm:text-lg">{classOption.name}</div>
+                                  <div className="text-xs sm:text-sm text-muted-foreground mt-1 sm:mt-2 mb-1 sm:mb-3">
                                     {classOption.description}
                                   </div>
                                   <Badge variant="outline" className={`text-xs ${classOption.color}`}>
@@ -218,10 +218,10 @@ const CharacterCreation = ({ onComplete }: CharacterCreationProps) => {
               />
             </div>
 
-            <div className="flex justify-center pt-6">
-              <Button type="submit" size="lg" className="px-12 py-3 text-lg">
+            <div className="flex justify-center pt-4 sm:pt-6">
+              <Button type="submit" size="lg" className="w-full sm:w-auto px-6 sm:px-12 py-2 sm:py-3 text-sm sm:text-lg">
                 Bắt Đầu Hành Trình Tu Tiên
-                <Sword className="w-5 h-5 ml-2" />
+                <Sword className="w-4 h-4 sm:w-5 sm:h-5 ml-2" />
               </Button>
             </div>
           </form>
