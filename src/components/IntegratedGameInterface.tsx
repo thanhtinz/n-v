@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useGameState } from '@/hooks/useGameState';
 import { useGameStateIntegration } from '@/hooks/useGameStateIntegration';
@@ -142,6 +141,7 @@ const IntegratedGameInterface = () => {
   const handleAuthSuccess = () => {
     setIsLoggedIn(true);
     localStorage.setItem('authToken', 'demo-token'); // Demo token
+    // Quay về landing page với trạng thái đã đăng nhập
     setGameState('landing');
   };
 
@@ -227,7 +227,7 @@ const IntegratedGameInterface = () => {
     return (
       <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted flex items-center justify-center p-4">
         <div className="w-full max-w-md">
-          <AuthSystem />
+          <AuthSystem onAuthSuccess={handleAuthSuccess} />
           <div className="mt-4 text-center">
             <Button variant="outline" onClick={() => setGameState('landing')}>
               Quay Lại
