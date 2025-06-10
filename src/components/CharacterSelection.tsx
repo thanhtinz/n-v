@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -405,25 +404,6 @@ const CharacterSelection = ({ onCharacterSelect, onBack }: CharacterSelectionPro
       </div>
     </div>
   );
-
-  function handleDeleteCharacter(characterId: string) {
-    const updatedCharacters = characters.filter(char => char.id !== characterId);
-    setCharacters(updatedCharacters);
-    localStorage.setItem('gameCharacters', JSON.stringify(updatedCharacters));
-    
-    if (selectedCharacter === characterId) {
-      setSelectedCharacter(updatedCharacters.length > 0 ? updatedCharacters[0].id : null);
-    }
-  }
-
-  function handleSelectCharacter(character: Character) {
-    localStorage.setItem('playerCharacter', JSON.stringify({
-      name: character.name,
-      gender: character.gender,
-      class: character.class
-    }));
-    onCharacterSelect(character);
-  }
 };
 
 export default CharacterSelection;
