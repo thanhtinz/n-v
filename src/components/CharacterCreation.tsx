@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -11,6 +10,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Sword, Shield, Zap, User, Users } from 'lucide-react';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const formSchema = z.object({
   name: z.string().min(2, 'Tên phải có ít nhất 2 ký tự').max(20, 'Tên không được quá 20 ký tự'),
@@ -27,6 +27,7 @@ interface CharacterCreationProps {
 }
 
 const CharacterCreation = ({ onComplete }: CharacterCreationProps) => {
+  const isMobile = useIsMobile();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -89,31 +90,31 @@ const CharacterCreation = ({ onComplete }: CharacterCreationProps) => {
   ];
 
   return (
-    <div className="w-full bg-gradient-to-b from-black/90 to-black/95 text-white p-6">
-      <div className="text-center mb-6">
-        <h1 className="text-3xl font-bold bg-gradient-to-r from-amber-400 via-yellow-500 to-orange-500 bg-clip-text text-transparent mb-2">
+    <div className="w-full bg-gradient-to-b from-black/90 to-black/95 text-white p-3 sm:p-6">
+      <div className="text-center mb-4 sm:mb-6">
+        <h1 className={`font-bold bg-gradient-to-r from-amber-400 via-yellow-500 to-orange-500 bg-clip-text text-transparent mb-1 sm:mb-2 ${isMobile ? 'text-2xl' : 'text-3xl'}`}>
           Tạo Nhân Vật Tu Tiên
         </h1>
-        <p className="text-amber-200/80">
+        <p className={`text-amber-200/80 ${isMobile ? 'text-sm' : 'text-base'}`}>
           Chọn tên, giới tính và class để bắt đầu hành trình tu tiên
         </p>
       </div>
 
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          {/* Character Name */}
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 sm:space-y-6">
+          {/* Character Name - mobile optimized */}
           <div>
             <FormField
               control={form.control}
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-lg font-semibold text-amber-400">Tên Đạo Hiệu</FormLabel>
+                  <FormLabel className={`font-semibold text-amber-400 ${isMobile ? 'text-base' : 'text-lg'}`}>Tên Đạo Hiệu</FormLabel>
                   <FormControl>
                     <Input 
                       placeholder="Nhập tên nhân vật của bạn..." 
                       {...field}
-                      className="text-center text-lg h-12 bg-black/40 border-amber-500/30 text-white placeholder:text-gray-400"
+                      className={`text-center bg-black/40 border-amber-500/30 text-white placeholder:text-gray-400 ${isMobile ? 'text-base h-10' : 'text-lg h-12'}`}
                     />
                   </FormControl>
                   <FormMessage />
@@ -122,19 +123,19 @@ const CharacterCreation = ({ onComplete }: CharacterCreationProps) => {
             />
           </div>
 
-          {/* Gender Selection */}
+          {/* Gender Selection - mobile optimized */}
           <div>
             <FormField
               control={form.control}
               name="gender"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-lg font-semibold text-amber-400">Giới Tính</FormLabel>
+                  <FormLabel className={`font-semibold text-amber-400 ${isMobile ? 'text-base' : 'text-lg'}`}>Giới Tính</FormLabel>
                   <FormControl>
                     <RadioGroup
                       onValueChange={field.onChange}
                       defaultValue={field.value}
-                      className="grid grid-cols-2 gap-4"
+                      className="grid grid-cols-2 gap-2 sm:gap-4"
                     >
                       {genders.map((gender) => {
                         const Icon = gender.icon;
@@ -147,12 +148,12 @@ const CharacterCreation = ({ onComplete }: CharacterCreationProps) => {
                             />
                             <Label
                               htmlFor={gender.id}
-                              className="flex flex-col items-center justify-between rounded-lg border-2 border-amber-500/20 bg-black/40 p-4 hover:bg-amber-500/10 hover:border-amber-400/50 peer-data-[state=checked]:border-amber-400 peer-data-[state=checked]:bg-amber-400/20 cursor-pointer min-h-[120px] transition-all"
+                              className={`flex flex-col items-center justify-between rounded-lg border-2 border-amber-500/20 bg-black/40 hover:bg-amber-500/10 hover:border-amber-400/50 peer-data-[state=checked]:border-amber-400 peer-data-[state=checked]:bg-amber-400/20 cursor-pointer transition-all ${isMobile ? 'p-3 min-h-[100px]' : 'p-4 min-h-[120px]'}`}
                             >
-                              <Icon className="w-8 h-8 mb-3 text-amber-400" />
+                              <Icon className={`mb-2 sm:mb-3 text-amber-400 ${isMobile ? 'w-6 h-6' : 'w-8 h-8'}`} />
                               <div className="text-center">
-                                <div className="font-semibold text-white">{gender.name}</div>
-                                <div className="text-sm text-gray-400 mt-1">
+                                <div className={`font-semibold text-white ${isMobile ? 'text-sm' : 'text-base'}`}>{gender.name}</div>
+                                <div className={`text-gray-400 mt-1 ${isMobile ? 'text-xs' : 'text-sm'}`}>
                                   {gender.description}
                                 </div>
                               </div>
@@ -168,19 +169,19 @@ const CharacterCreation = ({ onComplete }: CharacterCreationProps) => {
             />
           </div>
 
-          {/* Class Selection */}
+          {/* Class Selection - mobile optimized */}
           <div>
             <FormField
               control={form.control}
               name="class"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-lg font-semibold text-amber-400">Lựa Chọn Class</FormLabel>
+                  <FormLabel className={`font-semibold text-amber-400 ${isMobile ? 'text-base' : 'text-lg'}`}>Lựa Chọn Class</FormLabel>
                   <FormControl>
                     <RadioGroup
                       onValueChange={field.onChange}
                       defaultValue={field.value}
-                      className="grid grid-cols-1 gap-4"
+                      className="grid grid-cols-1 gap-2 sm:gap-4"
                     >
                       {classes.map((classOption) => {
                         const Icon = classOption.icon;
@@ -193,15 +194,15 @@ const CharacterCreation = ({ onComplete }: CharacterCreationProps) => {
                             />
                             <Label
                               htmlFor={classOption.id}
-                              className="flex items-center justify-start rounded-lg border-2 border-amber-500/20 bg-black/40 p-4 hover:bg-amber-500/10 hover:border-amber-400/50 peer-data-[state=checked]:border-amber-400 peer-data-[state=checked]:bg-amber-400/20 cursor-pointer transition-all"
+                              className={`flex items-center justify-start rounded-lg border-2 border-amber-500/20 bg-black/40 hover:bg-amber-500/10 hover:border-amber-400/50 peer-data-[state=checked]:border-amber-400 peer-data-[state=checked]:bg-amber-400/20 cursor-pointer transition-all ${isMobile ? 'p-3' : 'p-4'}`}
                             >
-                              <Icon className="w-12 h-12 mr-4 flex-shrink-0 text-amber-400" />
+                              <Icon className={`mr-3 sm:mr-4 flex-shrink-0 text-amber-400 ${isMobile ? 'w-8 h-8' : 'w-12 h-12'}`} />
                               <div className="flex-1 text-left">
-                                <div className="font-semibold text-lg text-white">{classOption.name}</div>
-                                <div className="text-sm text-gray-400 mt-2 mb-3">
+                                <div className={`font-semibold text-white ${isMobile ? 'text-base' : 'text-lg'}`}>{classOption.name}</div>
+                                <div className={`text-gray-400 mt-1 sm:mt-2 mb-2 sm:mb-3 ${isMobile ? 'text-xs' : 'text-sm'}`}>
                                   {classOption.description}
                                 </div>
-                                <Badge variant="outline" className="text-xs border-amber-400/50 text-amber-300">
+                                <Badge variant="outline" className={`border-amber-400/50 text-amber-300 ${isMobile ? 'text-xs' : 'text-xs'}`}>
                                   Vũ khí: {classOption.weapons.join(', ')}
                                 </Badge>
                               </div>
@@ -217,14 +218,14 @@ const CharacterCreation = ({ onComplete }: CharacterCreationProps) => {
             />
           </div>
 
-          <div className="flex justify-center pt-6">
+          <div className="flex justify-center pt-4 sm:pt-6">
             <Button 
               type="submit" 
-              size="lg" 
-              className="px-12 py-3 text-lg bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 shadow-2xl"
+              size={isMobile ? "default" : "lg"}
+              className={`bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 shadow-2xl ${isMobile ? 'px-8 py-2 text-base' : 'px-12 py-3 text-lg'}`}
             >
               Bắt Đầu Hành Trình Tu Tiên
-              <Sword className="w-5 h-5 ml-2" />
+              <Sword className={`ml-2 ${isMobile ? 'w-4 h-4' : 'w-5 h-5'}`} />
             </Button>
           </div>
         </form>
