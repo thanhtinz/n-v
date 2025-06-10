@@ -13,10 +13,11 @@ interface CharacterDisplayProps {
   realm: string;
   equipment: Equipment;
   name: string;
+  class?: 'thien_kiem' | 'anh_vu' | 'thien_am' | 'loi_tong' | 'huyet_ma' | 'van_mong' | 'huyen_vu' | 'xich_diem';
   isActive?: boolean;
 }
 
-const CharacterDisplay = ({ realm, equipment, name, isActive = false }: CharacterDisplayProps) => {
+const CharacterDisplay = ({ realm, equipment, name, class: characterClass, isActive = false }: CharacterDisplayProps) => {
   const [particles, setParticles] = useState<Array<{ id: number; x: number; y: number }>>([]);
 
   useEffect(() => {
@@ -47,6 +48,33 @@ const CharacterDisplay = ({ realm, equipment, name, isActive = false }: Characte
     return realmGlows[realm as keyof typeof realmGlows] || 'realm-glow-mortal';
   };
 
+  const getClassColors = (classType?: 'thien_kiem' | 'anh_vu' | 'thien_am' | 'loi_tong' | 'huyet_ma' | 'van_mong' | 'huyen_vu' | 'xich_diem') => {
+    if (!classType) return { primary: 'from-muted/60 to-muted/20', accent: 'bg-gradient-jade' };
+    
+    switch (classType) {
+      case 'thien_kiem':
+        return { primary: 'from-red-500/60 to-orange-500/20', accent: 'bg-gradient-to-r from-red-500 to-orange-500' };
+      case 'anh_vu':
+        return { primary: 'from-purple-500/60 to-blue-500/20', accent: 'bg-gradient-to-r from-purple-500 to-blue-500' };
+      case 'thien_am':
+        return { primary: 'from-blue-500/60 to-cyan-500/20', accent: 'bg-gradient-to-r from-blue-500 to-cyan-500' };
+      case 'loi_tong':
+        return { primary: 'from-yellow-500/60 to-orange-500/20', accent: 'bg-gradient-to-r from-yellow-500 to-orange-500' };
+      case 'huyet_ma':
+        return { primary: 'from-red-900/60 to-black/20', accent: 'bg-gradient-to-r from-red-900 to-black' };
+      case 'van_mong':
+        return { primary: 'from-green-500/60 to-emerald-500/20', accent: 'bg-gradient-to-r from-green-500 to-emerald-500' };
+      case 'huyen_vu':
+        return { primary: 'from-gray-500/60 to-slate-500/20', accent: 'bg-gradient-to-r from-gray-500 to-slate-500' };
+      case 'xich_diem':
+        return { primary: 'from-orange-500/60 to-red-500/20', accent: 'bg-gradient-to-r from-orange-500 to-red-500' };
+      default:
+        return { primary: 'from-muted/60 to-muted/20', accent: 'bg-gradient-jade' };
+    }
+  };
+
+  const classColors = getClassColors(characterClass);
+
   return (
     <div className="relative">
       <div className={`relative w-full h-full mx-auto bg-gradient-to-b from-card/20 to-card/40 rounded-xl border border-border/50 overflow-hidden ${getRealmGlow(realm)} ${isActive ? 'animate-pulse' : ''}`}>
@@ -68,13 +96,13 @@ const CharacterDisplay = ({ realm, equipment, name, isActive = false }: Characte
 
         {/* Character layers */}
         <div className="character-layer">
-          {/* Base character silhouette */}
-          <div className="absolute bottom-1 sm:bottom-4 left-1/2 transform -translate-x-1/2 w-24 sm:w-32 h-32 sm:h-48 bg-gradient-to-t from-muted/60 to-muted/20 rounded-full" 
+          {/* Base character silhouette with class colors */}
+          <div className={`absolute bottom-1 sm:bottom-4 left-1/2 transform -translate-x-1/2 w-24 sm:w-32 h-32 sm:h-48 bg-gradient-to-t ${classColors.primary} rounded-full`}
                style={{ clipPath: 'ellipse(40% 48% at 50% 100%)' }} />
           
-          {/* Clothing layer */}
+          {/* Clothing layer with class theme */}
           {equipment.clothing && (
-            <div className="absolute bottom-2 sm:bottom-8 left-1/2 transform -translate-x-1/2 w-20 sm:w-28 h-28 sm:h-40 bg-gradient-jade rounded-lg opacity-80 equipment-glow" />
+            <div className={`absolute bottom-2 sm:bottom-8 left-1/2 transform -translate-x-1/2 w-20 sm:w-28 h-28 sm:h-40 ${classColors.accent} rounded-lg opacity-80 equipment-glow`} />
           )}
           
           {/* Weapon layer */}
@@ -102,6 +130,23 @@ const CharacterDisplay = ({ realm, equipment, name, isActive = false }: Characte
         <div className="absolute bottom-1 sm:bottom-2 left-1 sm:left-2 right-1 sm:right-2 text-center">
           <div className="text-xs sm:text-sm font-semibold text-foreground">{name}</div>
           <div className="text-xs text-muted-foreground">{realm}</div>
+          {characterClass && (
+            <div className="text-xs text-amber-400 mt-1">
+              {(() => {
+                switch (characterClass) {
+                  case 'thien_kiem': return 'Thiên Kiếm';
+                  case 'anh_vu': return 'Ảnh Vũ';
+                  case 'thien_am': return 'Thiên Âm';
+                  case 'loi_tong': return 'Lôi Tông';
+                  case 'huyet_ma': return 'Huyết Ma';
+                  case 'van_mong': return 'Vân Mộng';
+                  case 'huyen_vu': return 'Huyền Vũ';
+                  case 'xich_diem': return 'Xích Diệm';
+                  default: return '';
+                }
+              })()}
+            </div>
+          )}
         </div>
       </div>
     </div>
