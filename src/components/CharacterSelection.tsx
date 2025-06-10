@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -13,7 +14,8 @@ import {
   Zap,
   Crown,
   Star,
-  ArrowLeft
+  ArrowLeft,
+  Server
 } from 'lucide-react';
 import CharacterCreation from './CharacterCreation';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -40,18 +42,44 @@ const CharacterSelection = ({ onCharacterSelect, onBack }: CharacterSelectionPro
     const saved = localStorage.getItem('gameCharacters');
     return saved ? JSON.parse(saved) : [];
   });
-  const [selectedCharacter, setSelectedCharacter] = useState<string | null>(null);
+  const [selectedCharacter, setSelectedCharacter] = useState<string | null>(
+    characters.length > 0 ? characters[0].id : null
+  );
   const [showCreateCharacter, setShowCreateCharacter] = useState(false);
+  const [selectedServer, setSelectedServer] = useState('Server 1');
   const isMobile = useIsMobile();
+
+  const servers = ['Server 1', 'Server 2', 'Server 3', 'Server 4'];
 
   const getClassInfo = (classType: 'sword' | 'magic' | 'defense') => {
     switch (classType) {
       case 'sword':
-        return { name: 'Kiếm Khách', icon: Sword, color: 'text-red-400', bgGradient: 'from-red-500/20 to-orange-500/20' };
+        return { 
+          name: 'Kiếm Khách', 
+          icon: Sword, 
+          color: 'text-red-400', 
+          bgGradient: 'from-red-500/20 to-orange-500/20',
+          wings: 'from-red-500 to-orange-500',
+          platform: 'from-orange-500/40 to-red-500/40'
+        };
       case 'magic':
-        return { name: 'Pháp Sư', icon: Zap, color: 'text-purple-400', bgGradient: 'from-purple-500/20 to-blue-500/20' };
+        return { 
+          name: 'Pháp Sư', 
+          icon: Zap, 
+          color: 'text-purple-400', 
+          bgGradient: 'from-purple-500/20 to-blue-500/20',
+          wings: 'from-blue-500 to-cyan-500',
+          platform: 'from-cyan-500/40 to-blue-500/40'
+        };
       case 'defense':
-        return { name: 'Hộ Vệ', icon: Shield, color: 'text-blue-400', bgGradient: 'from-blue-500/20 to-cyan-500/20' };
+        return { 
+          name: 'Hộ Vệ', 
+          icon: Shield, 
+          color: 'text-blue-400', 
+          bgGradient: 'from-blue-500/20 to-cyan-500/20',
+          wings: 'from-green-500 to-blue-500',
+          platform: 'from-blue-500/40 to-cyan-500/40'
+        };
     }
   };
 
@@ -76,6 +104,7 @@ const CharacterSelection = ({ onCharacterSelect, onBack }: CharacterSelectionPro
     setCharacters(updatedCharacters);
     localStorage.setItem('gameCharacters', JSON.stringify(updatedCharacters));
     localStorage.setItem('playerCharacter', JSON.stringify(newCharacter));
+    setSelectedCharacter(character.id);
     setShowCreateCharacter(false);
   };
 
@@ -85,7 +114,7 @@ const CharacterSelection = ({ onCharacterSelect, onBack }: CharacterSelectionPro
     localStorage.setItem('gameCharacters', JSON.stringify(updatedCharacters));
     
     if (selectedCharacter === characterId) {
-      setSelectedCharacter(null);
+      setSelectedCharacter(updatedCharacters.length > 0 ? updatedCharacters[0].id : null);
     }
   };
 
@@ -98,16 +127,8 @@ const CharacterSelection = ({ onCharacterSelect, onBack }: CharacterSelectionPro
     onCharacterSelect(character);
   };
 
-  const formatLastPlayed = (dateString: string) => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diff = now.getTime() - date.getTime();
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    
-    if (days === 0) return 'Hôm nay';
-    if (days === 1) return 'Hôm qua';
-    return `${days} ngày trước`;
-  };
+  const currentCharacter = characters.find(c => c.id === selectedCharacter);
+  const classInfo = currentCharacter ? getClassInfo(currentCharacter.class) : null;
 
   return (
     <div 
@@ -116,9 +137,9 @@ const CharacterSelection = ({ onCharacterSelect, onBack }: CharacterSelectionPro
         backgroundImage: `url('https://images.unsplash.com/photo-1470813740244-df37b8c1edcb?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80')`
       }}
     >
-      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
+      <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" />
       
-      {/* Floating magical particles - reduced for mobile */}
+      {/* Floating magical particles */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {[...Array(isMobile ? 15 : 30)].map((_, i) => (
           <div
@@ -134,212 +155,198 @@ const CharacterSelection = ({ onCharacterSelect, onBack }: CharacterSelectionPro
         ))}
       </div>
       
-      <div className="relative z-10 flex flex-col items-center justify-center min-h-screen p-2 sm:p-4">
-        {/* Header - mobile optimized */}
-        <div className="text-center mb-4 sm:mb-6">
-          <h1 className="text-2xl sm:text-4xl font-bold mb-1 sm:mb-2">
-            <span className="bg-gradient-to-r from-amber-400 via-yellow-500 to-orange-500 bg-clip-text text-transparent drop-shadow-2xl">
-              Chọn Nhân Vật
-            </span>
+      <div className="relative z-10 flex flex-col h-screen">
+        {/* Header */}
+        <div className="flex justify-between items-center p-4">
+          <Button 
+            variant="outline" 
+            onClick={onBack} 
+            size={isMobile ? "sm" : "default"}
+            className="border-amber-500/30 text-amber-400 hover:bg-amber-400/10"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Quay lại
+          </Button>
+          
+          <h1 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-amber-400 via-yellow-500 to-orange-500 bg-clip-text text-transparent">
+            Chọn Nhân Vật
           </h1>
-          <p className="text-sm sm:text-lg text-amber-200/80">
-            Chọn nhân vật để bắt đầu hành trình tu tiên
-          </p>
+          
+          <div className="w-20"></div>
         </div>
 
-        {characters.length === 0 ? (
-          // No characters - mobile optimized
-          <Card className="w-full max-w-xs sm:max-w-md bg-gradient-to-b from-black/80 to-black/90 backdrop-blur-sm border border-amber-500/30 p-4 sm:p-8 rounded-2xl shadow-2xl text-center space-y-4 sm:space-y-6">
-            <div className="w-16 h-16 sm:w-24 sm:h-24 bg-gradient-to-r from-amber-500 to-orange-500 rounded-full flex items-center justify-center mx-auto shadow-2xl">
-              <User className="w-8 h-8 sm:w-12 sm:h-12 text-white" />
-            </div>
-            
-            <div>
-              <h3 className="text-lg sm:text-2xl font-bold text-amber-400 mb-1 sm:mb-2">
-                Chưa có nhân vật
-              </h3>
-              <p className="text-xs sm:text-base text-amber-200/70">
-                Tạo nhân vật đầu tiên để bắt đầu hành trình tu tiên
-              </p>
-            </div>
-
-            <Dialog open={showCreateCharacter} onOpenChange={setShowCreateCharacter}>
-              <DialogTrigger asChild>
-                <Button size={isMobile ? "default" : "lg"} className="bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 shadow-2xl text-sm sm:text-base">
-                  <Plus className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-                  Tạo Nhân Vật
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="max-w-4xl sm:max-w-6xl max-h-[90vh] overflow-y-auto bg-black/95 border-amber-500/30">
-                <CharacterCreation onComplete={handleCreateCharacter} />
-              </DialogContent>
-            </Dialog>
-          </Card>
-        ) : (
-          // Character selection - mobile optimized
-          <div className="w-full max-w-3xl sm:max-w-5xl space-y-4 sm:space-y-6">
-            {/* Character Circle Display - smaller for mobile */}
-            <div className="relative">
-              {/* Center mystical platform - responsive */}
-              <div className={`relative mx-auto ${isMobile ? 'w-60 h-60' : 'w-80 h-80'}`}>
-                {/* Mystical background circle */}
-                <div className="absolute inset-0 rounded-full bg-gradient-to-r from-amber-500/20 via-orange-500/30 to-red-500/20 animate-pulse" />
-                <div className="absolute inset-2 rounded-full bg-gradient-to-r from-blue-500/10 via-purple-500/20 to-cyan-500/10 animate-pulse" style={{ animationDelay: '1s' }} />
-                
-                {/* Selected character display */}
-                {selectedCharacter && (
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="text-center space-y-1 sm:space-y-2">
-                      {(() => {
-                        const character = characters.find(c => c.id === selectedCharacter);
-                        if (!character) return null;
-                        const classInfo = getClassInfo(character.class);
-                        const ClassIcon = classInfo.icon;
-                        return (
-                          <>
-                            <div className={`mx-auto rounded-full bg-gradient-to-r from-amber-500 to-orange-500 flex items-center justify-center shadow-2xl ${isMobile ? 'w-16 h-16' : 'w-20 h-20'}`}>
-                              <ClassIcon className={`text-white ${isMobile ? 'w-8 h-8' : 'w-10 h-10'}`} />
-                            </div>
-                            <h3 className={`font-bold text-amber-400 ${isMobile ? 'text-lg' : 'text-xl'}`}>{character.name}</h3>
-                            <p className={`${classInfo.color} ${isMobile ? 'text-xs' : 'text-sm'}`}>{classInfo.name}</p>
-                            <div className={`space-y-1 ${isMobile ? 'text-xs' : 'text-xs'}`}>
-                              <div className="text-amber-300">Cấp độ: {character.level}</div>
-                              <div className="text-blue-300">Cảnh giới: {character.realm}</div>
-                              <div className="text-orange-300">Sức mạnh: {character.combatPower.toLocaleString()}</div>
-                            </div>
-                          </>
-                        );
-                      })()}
-                    </div>
-                  </div>
-                )}
-                
-                {!selectedCharacter && (
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="text-center">
-                      <div className={`mx-auto rounded-full border-2 border-dashed border-amber-400/50 flex items-center justify-center mb-2 sm:mb-3 ${isMobile ? 'w-12 h-12' : 'w-16 h-16'}`}>
-                        <User className={`text-amber-400/50 ${isMobile ? 'w-6 h-6' : 'w-8 h-8'}`} />
-                      </div>
-                      <p className={`text-amber-400/60 ${isMobile ? 'text-xs' : 'text-sm'}`}>Chọn nhân vật</p>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Character slots around the circle - responsive positioning */}
-              <div className="absolute inset-0">
-                {characters.map((character, index) => {
-                  const angle = (index * 360) / Math.max(characters.length, 5);
-                  const radius = isMobile ? 150 : 200;
-                  const x = Math.cos((angle * Math.PI) / 180) * radius;
-                  const y = Math.sin((angle * Math.PI) / 180) * radius;
-                  
-                  const classInfo = getClassInfo(character.class);
-                  const ClassIcon = classInfo.icon;
-                  const isSelected = selectedCharacter === character.id;
-                  
-                  return (
-                    <div
-                      key={character.id}
-                      className={`absolute transform -translate-x-1/2 -translate-y-1/2 cursor-pointer ${isMobile ? 'w-14 h-14' : 'w-20 h-20'}`}
-                      style={{
-                        left: `calc(50% + ${x}px)`,
-                        top: `calc(50% + ${y}px)`,
-                      }}
-                      onClick={() => setSelectedCharacter(character.id)}
-                    >
-                      <div className={`relative w-full h-full rounded-full transition-all duration-300 ${
-                        isSelected 
-                          ? 'scale-110 shadow-2xl shadow-amber-400/50' 
-                          : 'hover:scale-105'
-                      }`}>
-                        {/* Character avatar */}
-                        <div className={`w-full h-full rounded-full bg-gradient-to-r ${
-                          isSelected 
-                            ? 'from-amber-500 to-orange-500' 
-                            : 'from-gray-600 to-gray-700 hover:from-amber-400 hover:to-orange-400'
-                        } flex items-center justify-center shadow-lg transition-all duration-300`}>
-                          <ClassIcon className={`text-white ${isMobile ? 'w-6 h-6' : 'w-8 h-8'}`} />
-                        </div>
-                        
-                        {/* Character name */}
-                        <div className={`absolute left-1/2 transform -translate-x-1/2 text-center ${isMobile ? '-bottom-6' : '-bottom-8'}`}>
-                          <p className={`font-medium ${isSelected ? 'text-amber-400' : 'text-gray-400'} ${isMobile ? 'text-xs' : 'text-xs'}`}>
-                            {character.name}
-                          </p>
-                        </div>
-                        
-                        {/* Delete button */}
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDeleteCharacter(character.id);
-                          }}
-                          className={`absolute p-0 text-red-400 hover:text-red-300 hover:bg-red-400/10 rounded-full ${isMobile ? '-top-1 -right-1 w-5 h-5' : '-top-2 -right-2 w-6 h-6'}`}
-                        >
-                          <Trash2 className={isMobile ? 'w-2.5 h-2.5' : 'w-3 h-3'} />
-                        </Button>
-                      </div>
-                    </div>
-                  );
-                })}
-                
-                {/* Add new character slot */}
-                {characters.length < 5 && (
-                  <div
-                    className={`absolute transform -translate-x-1/2 -translate-y-1/2 cursor-pointer ${isMobile ? 'w-14 h-14' : 'w-20 h-20'}`}
-                    style={{
-                      left: `calc(50% + ${Math.cos((characters.length * 360 / 5 * Math.PI) / 180) * (isMobile ? 150 : 200)}px)`,
-                      top: `calc(50% + ${Math.sin((characters.length * 360 / 5 * Math.PI) / 180) * (isMobile ? 150 : 200)}px)`,
-                    }}
-                  >
-                    <Dialog open={showCreateCharacter} onOpenChange={setShowCreateCharacter}>
-                      <DialogTrigger asChild>
-                        <div className="w-full h-full rounded-full border-2 border-dashed border-amber-500/50 hover:border-amber-400 transition-colors flex items-center justify-center bg-black/40 hover:bg-amber-400/10">
-                          <Plus className={`text-amber-400 ${isMobile ? 'w-6 h-6' : 'w-8 h-8'}`} />
-                        </div>
-                      </DialogTrigger>
-                      <DialogContent className="max-w-4xl sm:max-w-6xl max-h-[90vh] overflow-y-auto bg-black/95 border-amber-500/30">
-                        <CharacterCreation onComplete={handleCreateCharacter} />
-                      </DialogContent>
-                    </Dialog>
-                    <div className={`absolute left-1/2 transform -translate-x-1/2 text-center ${isMobile ? '-bottom-6' : '-bottom-8'}`}>
-                      <p className={`text-gray-500 ${isMobile ? 'text-xs' : 'text-xs'}`}>Tạo mới</p>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Action Buttons - mobile optimized */}
-            <div className="flex justify-center space-x-3 sm:space-x-4 pt-4 sm:pt-8">
-              <Button 
-                variant="outline" 
-                onClick={onBack} 
-                size={isMobile ? "sm" : "default"}
-                className="border-amber-500/30 text-amber-400 hover:bg-amber-400/10 text-sm sm:text-base"
-              >
-                <ArrowLeft className="w-4 h-4 mr-1 sm:mr-2" />
-                Quay lại
-              </Button>
+        {/* Main Content */}
+        <div className="flex-1 flex">
+          {/* Left Side - Character List */}
+          <div className="w-1/4 p-4 space-y-3">
+            {characters.map((character) => {
+              const charClassInfo = getClassInfo(character.class);
+              const CharacterIcon = charClassInfo.icon;
+              const isSelected = selectedCharacter === character.id;
               
-              <Button
-                size={isMobile ? "default" : "lg"}
-                disabled={!selectedCharacter}
-                onClick={() => {
-                  const character = characters.find(c => c.id === selectedCharacter);
-                  if (character) handleSelectCharacter(character);
-                }}
-                className="bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 shadow-2xl px-4 sm:px-8 text-sm sm:text-base"
-              >
-                <Play className="w-4 h-4 sm:w-5 sm:h-5 mr-1 sm:mr-2" />
-                Vào Game
-              </Button>
-            </div>
+              return (
+                <Card
+                  key={character.id}
+                  className={`p-3 cursor-pointer transition-all duration-300 ${
+                    isSelected 
+                      ? 'bg-gradient-to-r from-amber-500/20 to-orange-500/20 border-amber-500/50' 
+                      : 'bg-black/40 border-gray-600/30 hover:bg-gray-800/50'
+                  }`}
+                  onClick={() => setSelectedCharacter(character.id)}
+                >
+                  <div className="flex items-center space-x-3">
+                    <div className={`w-10 h-10 rounded-full bg-gradient-to-r ${
+                      isSelected ? 'from-amber-500 to-orange-500' : 'from-gray-600 to-gray-700'
+                    } flex items-center justify-center`}>
+                      <CharacterIcon className="w-5 h-5 text-white" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className={`font-medium truncate ${isSelected ? 'text-amber-400' : 'text-gray-300'}`}>
+                        {character.name}
+                      </p>
+                      <p className={`text-xs ${isSelected ? 'text-amber-300' : 'text-gray-500'}`}>
+                        Lv.{character.level} {charClassInfo.name}
+                      </p>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeleteCharacter(character.id);
+                      }}
+                      className="text-red-400 hover:text-red-300 hover:bg-red-400/10 w-6 h-6 p-0"
+                    >
+                      <Trash2 className="w-3 h-3" />
+                    </Button>
+                  </div>
+                </Card>
+              );
+            })}
+            
+            {/* Add Character Button */}
+            {characters.length < 5 && (
+              <Dialog open={showCreateCharacter} onOpenChange={setShowCreateCharacter}>
+                <DialogTrigger asChild>
+                  <Card className="p-3 cursor-pointer border-2 border-dashed border-amber-500/50 hover:border-amber-400 bg-black/20 hover:bg-amber-400/5 transition-colors">
+                    <div className="flex items-center justify-center space-x-2 text-amber-400">
+                      <Plus className="w-5 h-5" />
+                      <span className="text-sm">Tạo nhân vật</span>
+                    </div>
+                  </Card>
+                </DialogTrigger>
+                <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-black/95 border-amber-500/30">
+                  <CharacterCreation onComplete={handleCreateCharacter} />
+                </DialogContent>
+              </Dialog>
+            )}
           </div>
-        )}
+
+          {/* Center - Character Display */}
+          <div className="flex-1 flex items-center justify-center">
+            {currentCharacter ? (
+              <div className="relative">
+                {/* Character Platform */}
+                <div className={`w-80 h-80 rounded-full bg-gradient-to-r ${classInfo?.platform} opacity-30 absolute bottom-0 left-1/2 transform -translate-x-1/2 animate-pulse`} />
+                
+                {/* Wings Effect */}
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className={`w-96 h-96 bg-gradient-to-r ${classInfo?.wings} opacity-20 rounded-full animate-pulse`} style={{ clipPath: 'polygon(20% 0%, 80% 0%, 100% 50%, 80% 100%, 20% 100%, 0% 50%)' }} />
+                </div>
+                
+                {/* Character Avatar */}
+                <div className="relative z-10 w-64 h-80 flex flex-col items-center justify-center">
+                  <div className="w-32 h-32 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 flex items-center justify-center mb-4 shadow-2xl golden-glow">
+                    {classInfo && <classInfo.icon className="w-16 h-16 text-white" />}
+                  </div>
+                  
+                  {/* Character Info */}
+                  <div className="text-center space-y-2 bg-black/60 backdrop-blur-sm rounded-lg p-4">
+                    <h2 className="text-2xl font-bold text-amber-400">{currentCharacter.name}</h2>
+                    <p className={`${classInfo?.color} text-lg`}>{classInfo?.name}</p>
+                    <div className="space-y-1 text-sm">
+                      <div className="flex justify-between">
+                        <span className="text-gray-400">Cấp độ:</span>
+                        <span className="text-amber-300">{currentCharacter.level}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-400">Cảnh giới:</span>
+                        <span className="text-blue-300">{currentCharacter.realm}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-400">Sức mạnh:</span>
+                        <span className="text-orange-300">{currentCharacter.combatPower.toLocaleString()}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Floating combat power badges */}
+                <div className="absolute top-4 right-4 space-y-2">
+                  <Badge className="bg-red-500/80 text-white">戰</Badge>
+                  <Badge className="bg-purple-500/80 text-white">法</Badge>
+                  <Badge className="bg-green-500/80 text-white">道</Badge>
+                </div>
+              </div>
+            ) : (
+              <div className="text-center text-gray-400">
+                <User className="w-32 h-32 mx-auto mb-4 opacity-50" />
+                <p className="text-xl">Chưa có nhân vật</p>
+                <p className="text-sm">Tạo nhân vật đầu tiên để bắt đầu</p>
+              </div>
+            )}
+          </div>
+
+          {/* Right Side - Server Info */}
+          <div className="w-1/4 p-4 space-y-4">
+            <Card className="bg-black/60 border-amber-500/30 p-4">
+              <h3 className="text-amber-400 font-medium mb-3 flex items-center">
+                <Server className="w-4 h-4 mr-2" />
+                Chọn Server
+              </h3>
+              <div className="space-y-2">
+                {servers.map((server) => (
+                  <div
+                    key={server}
+                    onClick={() => setSelectedServer(server)}
+                    className={`p-2 rounded cursor-pointer transition-colors ${
+                      selectedServer === server
+                        ? 'bg-amber-500/20 border border-amber-500/50 text-amber-400'
+                        : 'bg-gray-800/50 hover:bg-gray-700/50 text-gray-300'
+                    }`}
+                  >
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm">{server}</span>
+                      <div className="flex items-center space-x-1">
+                        <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                        <span className="text-xs">流畅</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </Card>
+          </div>
+        </div>
+
+        {/* Bottom Action Button */}
+        <div className="p-6 flex justify-center">
+          <Button
+            size="lg"
+            disabled={!currentCharacter}
+            onClick={() => currentCharacter && handleSelectCharacter(currentCharacter)}
+            className="bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 shadow-2xl px-12 py-3 text-lg font-bold"
+            style={{
+              background: 'linear-gradient(45deg, #B8860B, #DAA520, #FFD700)',
+              border: '2px solid #FFD700',
+              borderRadius: '10px',
+              textShadow: '2px 2px 4px rgba(0,0,0,0.5)'
+            }}
+          >
+            <Play className="w-5 h-5 mr-2" />
+            进入游戏
+          </Button>
+        </div>
       </div>
     </div>
   );
