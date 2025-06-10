@@ -53,7 +53,7 @@ const IntegratedGameInterface = () => {
     setGameState('sect-selection');
   };
 
-  const handleSectSelected = () => {
+  const handleSectSelect = (sectId: string) => {
     setGameState('game');
   };
 
@@ -106,7 +106,7 @@ const IntegratedGameInterface = () => {
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
         <div className="container mx-auto p-4">
           <SectSelection 
-            onSectSelected={handleSectSelected}
+            onSectSelect={handleSectSelect}
             onBack={() => setGameState('story')}
           />
         </div>
