@@ -22,7 +22,11 @@ import {
   Users,
   Calendar,
   Gift,
-  Plus
+  Plus,
+  Settings,
+  BookOpen,
+  Trophy,
+  Sparkles
 } from 'lucide-react';
 
 const CharacterLayout = () => {
@@ -35,92 +39,66 @@ const CharacterLayout = () => {
     return num.toString();
   };
 
-  const getPlayerInfo = () => {
-    const savedCharacter = localStorage.getItem('playerCharacter');
-    if (savedCharacter) {
-      const player = JSON.parse(savedCharacter);
-      return {
-        gender: player.gender || 'male',
-        class: player.class || 'sword'
-      };
-    }
-    return { gender: 'male', class: 'sword' };
-  };
-
-  const playerInfo = getPlayerInfo();
-
-  // Equipment slots configuration
-  const equipmentSlots = {
-    left: [
-      { id: 'weapon', icon: Sword, name: 'Vũ Khí', position: 'top-4 left-4' },
-      { id: 'armor', icon: Shield, name: 'Giáp Áo', position: 'top-20 left-4' },
-      { id: 'boots', icon: Footprints, name: 'Giày', position: 'top-36 left-4' },
-      { id: 'accessory1', icon: Gem, name: 'Phụ Kiện', position: 'top-52 left-4' }
-    ],
-    right: [
-      { id: 'helmet', icon: Crown, name: 'Mũ Giáp', position: 'top-4 right-4' },
-      { id: 'necklace', icon: Star, name: 'Dây Chuyền', position: 'top-20 right-4' },
-      { id: 'ring', icon: Hand, name: 'Nhẫn', position: 'top-36 right-4' },
-      { id: 'accessory2', icon: Zap, name: 'Bảo Bối', position: 'top-52 right-4' }
-    ]
-  };
-
-  const playerStats = [
-    { label: 'Lực Chiến', value: formatNumber(gameState?.player?.combatPower || 18267), icon: Sword, color: 'text-red-400' },
-    { label: 'HP', value: formatNumber(4468), icon: Heart, color: 'text-green-400' },
-    { label: 'S.Thương', value: formatNumber(1996), icon: Target, color: 'text-orange-400' },
-    { label: 'Công', value: formatNumber(1587), icon: Sword, color: 'text-red-400' },
-    { label: 'N.Nhẫn', value: formatNumber(1161), icon: Shield, color: 'text-blue-400' }
+  // Equipment slots around character - matching the reference layout
+  const leftEquipmentSlots = [
+    { id: 'weapon', icon: Sword, name: 'Vũ Khí', position: 'top-16' },
+    { id: 'armor', icon: Shield, name: 'Giáp', position: 'top-32' },
+    { id: 'boots', icon: Footprints, name: 'Giày', position: 'top-48' },
+    { id: 'accessory1', icon: Gem, name: 'Phụ Kiện', position: 'top-64' }
   ];
 
-  const additionalStats = [
-    { label: 'T.Luc', value: formatNumber(278), color: 'text-purple-400' },
-    { label: 'Giáp', value: formatNumber(909), color: 'text-gray-400' },
-    { label: 'Thủ', value: formatNumber(1541), color: 'text-blue-400' },
-    { label: 'May', value: formatNumber(2033), color: 'text-yellow-400' }
+  const rightEquipmentSlots = [
+    { id: 'helmet', icon: Crown, name: 'Mũ', position: 'top-16' },
+    { id: 'necklace', icon: Star, name: 'Dây Chuyền', position: 'top-32' },
+    { id: 'ring', icon: Hand, name: 'Nhẫn', position: 'top-48' },
+    { id: 'wings', icon: Zap, name: 'Cánh', position: 'top-64' }
   ];
 
-  const guildInfo = {
-    name: "Guild Name",
-    level: 25,
-    position: "Thành Viên"
-  };
+  const bottomEquipmentSlots = [
+    { id: 'gem1', icon: Gem, name: 'Ngọc 1' },
+    { id: 'gem2', icon: Gem, name: 'Ngọc 2' },
+    { id: 'gem3', icon: Gem, name: 'Ngọc 3' },
+    { id: 'gem4', icon: Gem, name: 'Ngọc 4' },
+    { id: 'gem5', icon: Gem, name: 'Ngọc 5' }
+  ];
+
+  const characterTabs = [
+    { id: 'attributes', name: 'Thuộc Tính', active: true },
+    { id: 'skills', name: 'Kỹ Năng', active: false },
+    { id: 'pets', name: 'Thú Cưng', active: false },
+    { id: 'mounts', name: 'Ngựa Thần', active: false }
+  ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-900/30 via-orange-800/20 to-amber-900/30 p-4">
-      {/* Main character panel */}
-      <div className="max-w-6xl mx-auto">
-        <Card className="bg-gradient-to-br from-amber-800/40 to-orange-900/40 border-2 border-amber-600/50 backdrop-blur-sm">
+    <div className="min-h-screen bg-gradient-to-br from-amber-900/30 via-orange-800/20 to-amber-900/30 p-2 sm:p-4">
+      <div className="max-w-7xl mx-auto">
+        <Card className="bg-gradient-to-br from-amber-800/40 to-orange-900/40 border-2 border-amber-600/50 backdrop-blur-sm overflow-hidden">
           {/* Header */}
-          <div className="bg-gradient-to-r from-amber-700/60 to-orange-700/60 px-6 py-3 border-b border-amber-600/30">
+          <div className="bg-gradient-to-r from-amber-700/60 to-orange-700/60 px-4 py-2 border-b border-amber-600/30">
             <div className="flex items-center justify-between">
-              <h2 className="text-xl font-bold text-amber-100 flex items-center gap-2">
-                <User className="w-6 h-6" />
-                Cá Nhân
+              <h2 className="text-lg sm:text-xl font-bold text-amber-100 flex items-center gap-2">
+                <User className="w-5 h-5 sm:w-6 sm:h-6" />
+                Thông Tin Nhân Vật
               </h2>
-              <div className="flex gap-2">
-                <Button size="sm" variant="outline" className="bg-amber-600/20 border-amber-500/50 text-amber-100 hover:bg-amber-600/30">
-                  <Gift className="w-4 h-4 mr-1" />
-                  Kết Hôn
-                </Button>
-                <Button size="sm" variant="outline" className="bg-green-600/20 border-green-500/50 text-green-100 hover:bg-green-600/30">
-                  <Calendar className="w-4 h-4 mr-1" />
-                  Pet
-                </Button>
+              <div className="text-amber-100 text-sm">
+                Lực Chiến: <span className="text-mystical-purple font-bold">{formatNumber(gameState?.player?.combatPower || 346408)}</span>
               </div>
             </div>
           </div>
 
-          <div className="p-6">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {/* Left side - Equipment slots */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-amber-100 mb-4">Trang Bị Trái</h3>
-                <div className="grid grid-cols-2 gap-3">
-                  {equipmentSlots.left.map((slot) => (
+          <div className="p-4">
+            {/* Main character display area */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 mb-6">
+              {/* Left equipment slots */}
+              <div className="lg:col-span-2">
+                <div className="space-y-3">
+                  {leftEquipmentSlots.map((slot) => (
                     <div key={slot.id} className="group">
-                      <div className="w-16 h-16 bg-gradient-to-br from-amber-700/30 to-amber-800/30 border-2 border-amber-600/50 rounded-lg flex items-center justify-center hover:border-amber-500 transition-colors cursor-pointer">
-                        <slot.icon className="w-8 h-8 text-amber-300 group-hover:text-amber-200" />
+                      <div className="w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-br from-amber-700/30 to-amber-800/30 border-2 border-amber-600/50 rounded-lg flex items-center justify-center hover:border-amber-500 transition-colors cursor-pointer relative">
+                        <slot.icon className="w-6 h-6 sm:w-8 sm:h-8 text-amber-300 group-hover:text-amber-200" />
+                        <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full text-xs flex items-center justify-center text-white font-bold">
+                          +
+                        </div>
                       </div>
                       <p className="text-xs text-amber-200 text-center mt-1">{slot.name}</p>
                     </div>
@@ -128,76 +106,60 @@ const CharacterLayout = () => {
                 </div>
               </div>
 
-              {/* Center - Character avatar and basic info */}
-              <div className="flex flex-col items-center space-y-4">
-                {/* Character Avatar */}
-                <div className="relative">
-                  <div className="w-32 h-32 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 border-4 border-amber-300 flex items-center justify-center relative overflow-hidden">
-                    {/* Character representation */}
-                    <div className="w-24 h-24 rounded-full bg-gradient-to-br from-green-500 to-green-700 flex items-center justify-center">
-                      <User className="w-16 h-16 text-white" />
+              {/* Center character display */}
+              <div className="lg:col-span-8 flex flex-col items-center">
+                {/* Character model area */}
+                <div className="relative bg-gradient-to-br from-white/10 to-white/5 rounded-xl p-6 mb-4 border border-white/20 backdrop-blur-sm">
+                  {/* Character avatar - large display */}
+                  <div className="relative">
+                    <div className="w-48 h-48 sm:w-64 sm:h-64 rounded-lg bg-gradient-to-br from-mystical-purple/20 to-divine-blue/20 border-2 border-cultivator-gold/50 flex items-center justify-center relative overflow-hidden">
+                      {/* Character representation with wings */}
+                      <div className="w-32 h-32 sm:w-40 sm:h-40 rounded-full bg-gradient-to-br from-cultivator-gold to-spirit-jade flex items-center justify-center relative">
+                        <User className="w-20 h-20 sm:w-24 sm:h-24 text-white" />
+                        {/* Wings effect */}
+                        <div className="absolute -left-8 top-1/2 transform -translate-y-1/2 w-16 h-20 bg-gradient-to-r from-mystical-purple/30 to-divine-blue/30 rounded-full blur-sm"></div>
+                        <div className="absolute -right-8 top-1/2 transform -translate-y-1/2 w-16 h-20 bg-gradient-to-l from-mystical-purple/30 to-divine-blue/30 rounded-full blur-sm"></div>
+                      </div>
                     </div>
-                    {/* Level indicator */}
-                    <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 bg-amber-600 rounded-full px-3 py-1 border-2 border-amber-300">
-                      <span className="text-sm font-bold text-white">Lv.{gameState?.player?.level || 1}</span>
+                    {/* Character name and level */}
+                    <div className="text-center mt-4">
+                      <h3 className="text-xl sm:text-2xl font-bold text-cultivator-gold">{gameState?.player?.name || 'Tu Tiên Giả'}</h3>
+                      <div className="flex items-center justify-center gap-2 mt-2">
+                        <Badge className="bg-mystical-purple/20 border-mystical-purple/50 text-mystical-purple">
+                          Lv.{gameState?.player?.level || 1}
+                        </Badge>
+                        <Badge className="bg-divine-blue/20 border-divine-blue/50 text-divine-blue">
+                          <Crown className="w-3 h-3 mr-1" />
+                          VIP {gameState?.player?.vipLevel || 0}
+                        </Badge>
+                      </div>
                     </div>
                   </div>
                 </div>
 
-                {/* Player Name and Title */}
-                <div className="text-center">
-                  <h3 className="text-xl font-bold text-amber-100">{gameState?.player?.name || 'Tu Tiên Giả'}</h3>
-                  <Badge className="bg-mystical-purple/20 border-mystical-purple/50 text-mystical-purple mt-2">
-                    <Crown className="w-3 h-3 mr-1" />
-                    VIP {gameState?.player?.vipLevel || 0}
-                  </Badge>
-                </div>
-
-                {/* Experience Bar */}
-                <div className="w-full max-w-xs">
-                  <div className="flex justify-between text-sm mb-2">
-                    <span className="text-amber-200">EXP</span>
-                    <span className="text-amber-200">
-                      {gameState?.player?.exp || 33962}/{gameState?.player?.maxExp || 75174} (45%)
-                    </span>
-                  </div>
-                  <Progress 
-                    value={gameState?.player ? (gameState.player.exp / gameState.player.maxExp) * 100 : 45} 
-                    className="h-3 bg-amber-900/50"
-                  />
-                </div>
-
-                {/* Guild Info */}
-                <div className="bg-gradient-to-r from-blue-800/30 to-blue-900/30 border border-blue-600/50 rounded-lg p-3 w-full max-w-xs">
-                  <div className="flex items-center justify-between text-sm">
-                    <div className="flex items-center gap-2">
-                      <Users className="w-4 h-4 text-blue-300" />
-                      <span className="text-blue-200">Guild</span>
+                {/* Bottom equipment slots (gems) */}
+                <div className="flex gap-2 justify-center">
+                  {bottomEquipmentSlots.map((slot) => (
+                    <div key={slot.id} className="group">
+                      <div className="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-amber-700/30 to-amber-800/30 border-2 border-amber-600/50 rounded-lg flex items-center justify-center hover:border-amber-500 transition-colors cursor-pointer">
+                        <slot.icon className="w-5 h-5 sm:w-6 sm:h-6 text-amber-300 group-hover:text-amber-200" />
+                      </div>
+                      <p className="text-xs text-amber-200 text-center mt-1">{slot.name}</p>
                     </div>
-                    <Badge className="bg-blue-600/20 text-blue-200 text-xs">
-                      {guildInfo.level}
-                    </Badge>
-                  </div>
-                  <p className="text-blue-100 font-medium mt-1">{guildInfo.name}</p>
-                  <p className="text-blue-300 text-xs">{guildInfo.position}</p>
-                  <div className="mt-2">
-                    <div className="flex justify-between text-xs mb-1">
-                      <span className="text-blue-300">Hoạt Động</span>
-                      <span className="text-green-400">68%</span>
-                    </div>
-                    <Progress value={68} className="h-2 bg-blue-900/50" />
-                  </div>
+                  ))}
                 </div>
               </div>
 
-              {/* Right side - Equipment slots */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-amber-100 mb-4">Trang Bị Phải</h3>
-                <div className="grid grid-cols-2 gap-3">
-                  {equipmentSlots.right.map((slot) => (
+              {/* Right equipment slots */}
+              <div className="lg:col-span-2">
+                <div className="space-y-3">
+                  {rightEquipmentSlots.map((slot) => (
                     <div key={slot.id} className="group">
-                      <div className="w-16 h-16 bg-gradient-to-br from-amber-700/30 to-amber-800/30 border-2 border-amber-600/50 rounded-lg flex items-center justify-center hover:border-amber-500 transition-colors cursor-pointer">
-                        <slot.icon className="w-8 h-8 text-amber-300 group-hover:text-amber-200" />
+                      <div className="w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-br from-amber-700/30 to-amber-800/30 border-2 border-amber-600/50 rounded-lg flex items-center justify-center hover:border-amber-500 transition-colors cursor-pointer relative">
+                        <slot.icon className="w-6 h-6 sm:w-8 sm:h-8 text-amber-300 group-hover:text-amber-200" />
+                        <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full text-xs flex items-center justify-center text-white font-bold">
+                          +
+                        </div>
                       </div>
                       <p className="text-xs text-amber-200 text-center mt-1">{slot.name}</p>
                     </div>
@@ -206,41 +168,123 @@ const CharacterLayout = () => {
               </div>
             </div>
 
-            {/* Stats section */}
-            <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Main Stats */}
-              <div className="bg-gradient-to-br from-gray-800/30 to-gray-900/30 border border-gray-600/50 rounded-lg p-4">
-                <h4 className="text-lg font-semibold text-gray-100 mb-4 flex items-center gap-2">
-                  <Star className="w-5 h-5 text-yellow-400" />
-                  Chỉ Số Chính
-                </h4>
-                <div className="space-y-3">
-                  {playerStats.map((stat) => (
-                    <div key={stat.label} className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <stat.icon className={`w-4 h-4 ${stat.color}`} />
-                        <span className="text-gray-200">{stat.label}</span>
-                      </div>
-                      <span className={`font-bold ${stat.color}`}>{stat.value}</span>
-                    </div>
+            {/* Bottom tabs and content */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Left side - Character tabs and attributes */}
+              <div>
+                {/* Tab navigation */}
+                <div className="flex gap-1 mb-4 bg-black/20 p-1 rounded-lg">
+                  {characterTabs.map((tab) => (
+                    <Button
+                      key={tab.id}
+                      variant={tab.active ? "default" : "ghost"}
+                      size="sm"
+                      className={`flex-1 text-xs ${tab.active ? 'bg-amber-600 text-white' : 'text-amber-200 hover:bg-amber-600/20'}`}
+                    >
+                      {tab.name}
+                    </Button>
                   ))}
                 </div>
+
+                {/* Attributes content */}
+                <Card className="bg-gradient-to-br from-gray-800/30 to-gray-900/30 border border-gray-600/50 p-4">
+                  <h4 className="text-lg font-semibold text-gray-100 mb-4 flex items-center gap-2">
+                    <Star className="w-5 h-5 text-yellow-400" />
+                    Thuộc Tính Cơ Bản
+                  </h4>
+                  <div className="grid grid-cols-2 gap-3 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-gray-300">Công Kích:</span>
+                      <span className="text-red-400 font-bold">1,587</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-300">Phòng Thủ:</span>
+                      <span className="text-blue-400 font-bold">1,541</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-300">HP:</span>
+                      <span className="text-green-400 font-bold">4,468</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-300">May Mắn:</span>
+                      <span className="text-yellow-400 font-bold">2,033</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-300">Thể Lực:</span>
+                      <span className="text-purple-400 font-bold">278</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-300">Nội Lực:</span>
+                      <span className="text-orange-400 font-bold">1,161</span>
+                    </div>
+                  </div>
+                </Card>
               </div>
 
-              {/* Additional Stats */}
-              <div className="bg-gradient-to-br from-gray-800/30 to-gray-900/30 border border-gray-600/50 rounded-lg p-4">
-                <h4 className="text-lg font-semibold text-gray-100 mb-4 flex items-center gap-2">
-                  <Zap className="w-5 h-5 text-blue-400" />
-                  Chỉ Số Phụ
-                </h4>
-                <div className="space-y-3">
-                  {additionalStats.map((stat) => (
-                    <div key={stat.label} className="flex items-center justify-between">
-                      <span className="text-gray-200">{stat.label}</span>
-                      <span className={`font-bold ${stat.color}`}>{stat.value}</span>
+              {/* Right side - Additional information */}
+              <div className="space-y-4">
+                {/* Experience */}
+                <Card className="bg-gradient-to-br from-blue-800/30 to-blue-900/30 border border-blue-600/50 p-4">
+                  <h4 className="text-lg font-semibold text-blue-100 mb-3 flex items-center gap-2">
+                    <BookOpen className="w-5 h-5 text-blue-400" />
+                    Tu Luyện
+                  </h4>
+                  <div className="space-y-3">
+                    <div>
+                      <div className="flex justify-between text-sm mb-1">
+                        <span className="text-blue-200">Kinh Nghiệm</span>
+                        <span className="text-blue-200">
+                          {gameState?.player?.exp || 33962}/{gameState?.player?.maxExp || 75174}
+                        </span>
+                      </div>
+                      <Progress 
+                        value={gameState?.player ? (gameState.player.exp / gameState.player.maxExp) * 100 : 45} 
+                        className="h-2 bg-blue-900/50"
+                      />
                     </div>
-                  ))}
-                </div>
+                    <div className="grid grid-cols-2 gap-3 text-sm">
+                      <div className="flex justify-between">
+                        <span className="text-blue-300">Cấp Độ:</span>
+                        <span className="text-blue-100 font-bold">{gameState?.player?.level || 1}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-blue-300">Tu Vi:</span>
+                        <span className="text-blue-100 font-bold">Luyện Khí</span>
+                      </div>
+                    </div>
+                  </div>
+                </Card>
+
+                {/* Resources */}
+                <Card className="bg-gradient-to-br from-green-800/30 to-green-900/30 border border-green-600/50 p-4">
+                  <h4 className="text-lg font-semibold text-green-100 mb-3 flex items-center gap-2">
+                    <Coins className="w-5 h-5 text-yellow-400" />
+                    Tài Nguyên
+                  </h4>
+                  <div className="grid grid-cols-1 gap-2 text-sm">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Coins className="w-4 h-4 text-yellow-500" />
+                        <span className="text-green-200">Bạc:</span>
+                      </div>
+                      <span className="text-yellow-400 font-bold">{formatNumber(gameState?.player?.silver)}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Gem className="w-4 h-4 text-blue-500" />
+                        <span className="text-green-200">Kim Nguyên:</span>
+                      </div>
+                      <span className="text-blue-400 font-bold">{formatNumber(gameState?.player?.goldIngots)}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Sparkles className="w-4 h-4 text-purple-500" />
+                        <span className="text-green-200">Linh Thạch:</span>
+                      </div>
+                      <span className="text-purple-400 font-bold">{formatNumber(gameState?.player?.rechargeSpiritStones)}</span>
+                    </div>
+                  </div>
+                </Card>
               </div>
             </div>
 
@@ -257,6 +301,10 @@ const CharacterLayout = () => {
               <Button variant="outline" className="border-blue-600/50 text-blue-200 hover:bg-blue-600/20">
                 <Star className="w-4 h-4 mr-2" />
                 Tẩy Điểm
+              </Button>
+              <Button variant="outline" className="border-green-600/50 text-green-200 hover:bg-green-600/20">
+                <Trophy className="w-4 h-4 mr-2" />
+                Thành Tựu
               </Button>
             </div>
           </div>
