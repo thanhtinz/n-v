@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -14,8 +13,7 @@ import {
   Zap,
   Crown,
   Star,
-  ArrowLeft,
-  Server
+  ArrowLeft
 } from 'lucide-react';
 import CharacterCreation from './CharacterCreation';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -46,10 +44,7 @@ const CharacterSelection = ({ onCharacterSelect, onBack }: CharacterSelectionPro
     characters.length > 0 ? characters[0].id : null
   );
   const [showCreateCharacter, setShowCreateCharacter] = useState(false);
-  const [selectedServer, setSelectedServer] = useState('Server 1');
   const isMobile = useIsMobile();
-
-  const servers = ['Server 1', 'Server 2', 'Server 3', 'Server 4'];
 
   const getClassInfo = (classType: 'sword' | 'magic' | 'defense') => {
     switch (classType) {
@@ -177,61 +172,15 @@ const CharacterSelection = ({ onCharacterSelect, onBack }: CharacterSelectionPro
 
         {/* Main Content */}
         <div className="flex-1 flex">
-          {/* Left Side - Character List */}
+          {/* Left Side - Character List or Create Button */}
           <div className="w-1/4 p-4 space-y-3">
-            {characters.map((character) => {
-              const charClassInfo = getClassInfo(character.class);
-              const CharacterIcon = charClassInfo.icon;
-              const isSelected = selectedCharacter === character.id;
-              
-              return (
-                <Card
-                  key={character.id}
-                  className={`p-3 cursor-pointer transition-all duration-300 ${
-                    isSelected 
-                      ? 'bg-gradient-to-r from-amber-500/20 to-orange-500/20 border-amber-500/50' 
-                      : 'bg-black/40 border-gray-600/30 hover:bg-gray-800/50'
-                  }`}
-                  onClick={() => setSelectedCharacter(character.id)}
-                >
-                  <div className="flex items-center space-x-3">
-                    <div className={`w-10 h-10 rounded-full bg-gradient-to-r ${
-                      isSelected ? 'from-amber-500 to-orange-500' : 'from-gray-600 to-gray-700'
-                    } flex items-center justify-center`}>
-                      <CharacterIcon className="w-5 h-5 text-white" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className={`font-medium truncate ${isSelected ? 'text-amber-400' : 'text-gray-300'}`}>
-                        {character.name}
-                      </p>
-                      <p className={`text-xs ${isSelected ? 'text-amber-300' : 'text-gray-500'}`}>
-                        Lv.{character.level} {charClassInfo.name}
-                      </p>
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDeleteCharacter(character.id);
-                      }}
-                      className="text-red-400 hover:text-red-300 hover:bg-red-400/10 w-6 h-6 p-0"
-                    >
-                      <Trash2 className="w-3 h-3" />
-                    </Button>
-                  </div>
-                </Card>
-              );
-            })}
-            
-            {/* Add Character Button */}
-            {characters.length < 5 && (
+            {characters.length === 0 ? (
               <Dialog open={showCreateCharacter} onOpenChange={setShowCreateCharacter}>
                 <DialogTrigger asChild>
-                  <Card className="p-3 cursor-pointer border-2 border-dashed border-amber-500/50 hover:border-amber-400 bg-black/20 hover:bg-amber-400/5 transition-colors">
-                    <div className="flex items-center justify-center space-x-2 text-amber-400">
-                      <Plus className="w-5 h-5" />
-                      <span className="text-sm">Tạo nhân vật</span>
+                  <Card className="p-6 cursor-pointer border-2 border-dashed border-amber-500/50 hover:border-amber-400 bg-black/20 hover:bg-amber-400/5 transition-colors">
+                    <div className="flex flex-col items-center justify-center space-y-3 text-amber-400">
+                      <Plus className="w-8 h-8" />
+                      <span className="text-base font-medium">Tạo nhân vật</span>
                     </div>
                   </Card>
                 </DialogTrigger>
@@ -239,6 +188,70 @@ const CharacterSelection = ({ onCharacterSelect, onBack }: CharacterSelectionPro
                   <CharacterCreation onComplete={handleCreateCharacter} />
                 </DialogContent>
               </Dialog>
+            ) : (
+              <>
+                {characters.map((character) => {
+                  const charClassInfo = getClassInfo(character.class);
+                  const CharacterIcon = charClassInfo.icon;
+                  const isSelected = selectedCharacter === character.id;
+                  
+                  return (
+                    <Card
+                      key={character.id}
+                      className={`p-3 cursor-pointer transition-all duration-300 ${
+                        isSelected 
+                          ? 'bg-gradient-to-r from-amber-500/20 to-orange-500/20 border-amber-500/50' 
+                          : 'bg-black/40 border-gray-600/30 hover:bg-gray-800/50'
+                      }`}
+                      onClick={() => setSelectedCharacter(character.id)}
+                    >
+                      <div className="flex items-center space-x-3">
+                        <div className={`w-10 h-10 rounded-full bg-gradient-to-r ${
+                          isSelected ? 'from-amber-500 to-orange-500' : 'from-gray-600 to-gray-700'
+                        } flex items-center justify-center`}>
+                          <CharacterIcon className="w-5 h-5 text-white" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className={`font-medium truncate ${isSelected ? 'text-amber-400' : 'text-gray-300'}`}>
+                            {character.name}
+                          </p>
+                          <p className={`text-xs ${isSelected ? 'text-amber-300' : 'text-gray-500'}`}>
+                            Lv.{character.level} {charClassInfo.name}
+                          </p>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteCharacter(character.id);
+                          }}
+                          className="text-red-400 hover:text-red-300 hover:bg-red-400/10 w-6 h-6 p-0"
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </Button>
+                      </div>
+                    </Card>
+                  );
+                })}
+                
+                {/* Add Character Button */}
+                {characters.length < 5 && (
+                  <Dialog open={showCreateCharacter} onOpenChange={setShowCreateCharacter}>
+                    <DialogTrigger asChild>
+                      <Card className="p-3 cursor-pointer border-2 border-dashed border-amber-500/50 hover:border-amber-400 bg-black/20 hover:bg-amber-400/5 transition-colors">
+                        <div className="flex items-center justify-center space-x-2 text-amber-400">
+                          <Plus className="w-5 h-5" />
+                          <span className="text-sm">Tạo nhân vật</span>
+                        </div>
+                      </Card>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-black/95 border-amber-500/30">
+                      <CharacterCreation onComplete={handleCreateCharacter} />
+                    </DialogContent>
+                  </Dialog>
+                )}
+              </>
             )}
           </div>
 
@@ -295,37 +308,6 @@ const CharacterSelection = ({ onCharacterSelect, onBack }: CharacterSelectionPro
                 <p className="text-sm">Tạo nhân vật đầu tiên để bắt đầu</p>
               </div>
             )}
-          </div>
-
-          {/* Right Side - Server Info */}
-          <div className="w-1/4 p-4 space-y-4">
-            <Card className="bg-black/60 border-amber-500/30 p-4">
-              <h3 className="text-amber-400 font-medium mb-3 flex items-center">
-                <Server className="w-4 h-4 mr-2" />
-                Chọn Server
-              </h3>
-              <div className="space-y-2">
-                {servers.map((server) => (
-                  <div
-                    key={server}
-                    onClick={() => setSelectedServer(server)}
-                    className={`p-2 rounded cursor-pointer transition-colors ${
-                      selectedServer === server
-                        ? 'bg-amber-500/20 border border-amber-500/50 text-amber-400'
-                        : 'bg-gray-800/50 hover:bg-gray-700/50 text-gray-300'
-                    }`}
-                  >
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm">{server}</span>
-                      <div className="flex items-center space-x-1">
-                        <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                        <span className="text-xs">流畅</span>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </Card>
           </div>
         </div>
 
