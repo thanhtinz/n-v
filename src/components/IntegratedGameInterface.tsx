@@ -74,7 +74,7 @@ import MarketSystem from './MarketSystem';
 import GameLandingPage from './GameLandingPage';
 import CharacterSelection from './CharacterSelection';
 
-type GameState = 'landing' | 'auth' | 'character-selection' | 'game';
+type GameState = 'landing' | 'character-selection' | 'game';
 
 const IntegratedGameInterface = () => {
   const [gameState, setGameState] = useState<GameState>('landing');
@@ -88,8 +88,6 @@ const IntegratedGameInterface = () => {
 
   // Check if user is logged in on component mount
   useEffect(() => {
-    // This would normally check with your auth system
-    // For now, we'll check localStorage for demo purposes
     const authToken = localStorage.getItem('authToken');
     if (authToken) {
       setIsLoggedIn(true);
@@ -135,14 +133,7 @@ const IntegratedGameInterface = () => {
   };
 
   const handleLogin = () => {
-    setGameState('auth');
-  };
-
-  const handleAuthSuccess = () => {
     setIsLoggedIn(true);
-    localStorage.setItem('authToken', 'demo-token'); // Demo token
-    // Quay về landing page với trạng thái đã đăng nhập
-    setGameState('landing');
   };
 
   const handleStartGame = () => {
@@ -220,21 +211,6 @@ const IntegratedGameInterface = () => {
         onLogin={handleLogin}
         onStartGame={handleStartGame}
       />
-    );
-  }
-
-  if (gameState === 'auth') {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted flex items-center justify-center p-4">
-        <div className="w-full max-w-md">
-          <AuthSystem onAuthSuccess={handleAuthSuccess} />
-          <div className="mt-4 text-center">
-            <Button variant="outline" onClick={() => setGameState('landing')}>
-              Quay Lại
-            </Button>
-          </div>
-        </div>
-      </div>
     );
   }
 
