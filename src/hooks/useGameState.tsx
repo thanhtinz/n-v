@@ -14,6 +14,8 @@ interface GameState {
     goldIngots: number; // Kim Nguyên Bảo
     rechargeSpiritStones: number; // Linh thạch nạp
     combatPower: number;
+    sect?: string; // Tông môn đã chọn
+    hasCompletedTutorial: boolean;
   };
   dailyActivities: {
     loginDays: number;
@@ -44,7 +46,8 @@ const initialGameState: GameState = {
     silver: 50000, // Bạc
     goldIngots: 1200, // Kim Nguyên Bảo
     rechargeSpiritStones: 50, // Linh thạch nạp
-    combatPower: 180
+    combatPower: 180,
+    hasCompletedTutorial: false
   },
   dailyActivities: {
     loginDays: 3,
@@ -70,6 +73,7 @@ const GameStateContext = createContext<{
   claimReward: (type: string, amount: number, items?: string[]) => void;
   completeQuest: (questId: number, rewards: string[]) => void;
   addNotification: (message: string, type: 'success' | 'info' | 'warning') => void;
+  setSect: (sectId: string) => void;
 } | null>(null);
 
 export const useGameState = () => {
@@ -92,6 +96,19 @@ export const GameStateProvider = ({ children }: { children: React.ReactNode }) =
 
   const updateGameState = (updates: Partial<GameState>) => {
     setGameState(prev => ({ ...prev, ...updates }));
+  };
+
+  const setSect = (sectId: string) => {
+    setGameState(prev => ({
+      ...prev,
+      player: {
+        ...prev.player,
+        sect: sectId,
+        hasCompletedTutorial: true
+      }
+    }));
+    
+    addNotification(`Đã gia nhập tông môn thành công!`, 'success');
   };
 
   const claimReward = (type: string, amount: number, items?: string[]) => {
@@ -160,7 +177,8 @@ export const GameStateProvider = ({ children }: { children: React.ReactNode }) =
         updateGameState,
         claimReward,
         completeQuest,
-        addNotification
+        addNotification,
+        setSect
       }
     },
     children

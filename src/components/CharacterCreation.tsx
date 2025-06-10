@@ -9,20 +9,17 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { Sword, Shield, Zap, User, Flame } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 const formSchema = z.object({
   name: z.string().min(2, 'Tên phải có ít nhất 2 ký tự').max(20, 'Tên không được quá 20 ký tự'),
-  gender: z.enum(['male', 'female']),
-  class: z.enum(['thien_kiem', 'anh_vu', 'thien_am', 'loi_tong', 'huyet_ma', 'van_mong', 'huyen_vu', 'xich_diem'])
+  gender: z.enum(['male', 'female'])
 });
 
 interface CharacterCreationProps {
   onComplete: (character: {
     name: string;
     gender: 'male' | 'female';
-    class: 'thien_kiem' | 'anh_vu' | 'thien_am' | 'loi_tong' | 'huyet_ma' | 'van_mong' | 'huyen_vu' | 'xich_diem';
   }) => void;
 }
 
@@ -32,17 +29,15 @@ const CharacterCreation = ({ onComplete }: CharacterCreationProps) => {
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: '',
-      gender: 'male',
-      class: 'thien_kiem'
+      gender: 'male'
     }
   });
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
-    if (values.name && values.gender && values.class) {
+    if (values.name && values.gender) {
       onComplete({
         name: values.name,
-        gender: values.gender,
-        class: values.class
+        gender: values.gender
       });
     }
   };
@@ -61,7 +56,7 @@ const CharacterCreation = ({ onComplete }: CharacterCreationProps) => {
       <div className="relative z-10 flex flex-col items-center justify-center min-h-screen p-4">
         {/* Title */}
         <h1 className="text-3xl md:text-4xl font-bold text-amber-300 mb-8 text-center">
-          Chọn Nhân Vật
+          Tạo Nhân Vật
         </h1>
 
         {/* Character Selection Area */}
@@ -76,7 +71,7 @@ const CharacterCreation = ({ onComplete }: CharacterCreationProps) => {
             {/* Character Display */}
             <div className="flex justify-center items-end gap-12 mb-8">
               {/* Male Character */}
-              <div className="flex flex-col items-center">
+              <div className={`flex flex-col items-center transition-all duration-300 ${watchedGender === 'male' ? 'scale-110' : 'scale-95 opacity-60'}`}>
                 <div className="relative">
                   {/* Magic Circle Background */}
                   <div className="absolute inset-0 w-32 h-32 rounded-full bg-gradient-to-r from-red-500/30 to-orange-500/30 animate-pulse">
@@ -102,7 +97,7 @@ const CharacterCreation = ({ onComplete }: CharacterCreationProps) => {
               </div>
 
               {/* Female Character */}
-              <div className="flex flex-col items-center">
+              <div className={`flex flex-col items-center transition-all duration-300 ${watchedGender === 'female' ? 'scale-110' : 'scale-95 opacity-60'}`}>
                 <div className="relative">
                   {/* Magic Circle Background */}
                   <div className="absolute inset-0 w-32 h-32 rounded-full bg-gradient-to-r from-purple-500/30 to-blue-500/30 animate-pulse">
@@ -195,12 +190,9 @@ const CharacterCreation = ({ onComplete }: CharacterCreationProps) => {
                   )}
                 />
 
-                {/* Hidden class field - default to thien_kiem */}
-                <input type="hidden" {...form.register('class')} value="thien_kiem" />
-
-                {/* Warning Text */}
+                {/* Info Text */}
                 <div className="text-center text-sm text-amber-200 bg-black/30 p-3 rounded-lg">
-                  Sau khi vào chơi không thể thay đổi giới tính nhân vật (ảnh hưởng nhiều đến kết hôn và trang bị khi mặc).
+                  Sau khi tạo nhân vật, bạn sẽ trải qua hành trình tu luyện và được chọn tông môn phù hợp.
                 </div>
 
                 {/* Create Button */}
@@ -209,7 +201,7 @@ const CharacterCreation = ({ onComplete }: CharacterCreationProps) => {
                     type="submit" 
                     className="w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-bold py-4 text-xl shadow-2xl border-2 border-green-500 rounded-xl"
                   >
-                    Vào Chơi
+                    Bắt Đầu Hành Trình
                   </Button>
                 </div>
               </form>

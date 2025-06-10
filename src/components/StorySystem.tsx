@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -18,7 +17,8 @@ import {
   Flame,
   RotateCcw,
   MessageCircle,
-  Gift
+  Gift,
+  Swords
 } from 'lucide-react';
 import { useGameState } from '@/hooks/useGameState';
 
@@ -29,6 +29,7 @@ interface StoryChoice {
   reward?: string;
   consequence?: string;
   relationshipChange?: { character: string; change: number };
+  triggerSectSelection?: boolean;
 }
 
 interface StoryChapter {
@@ -53,7 +54,11 @@ interface Character {
   avatar: string;
 }
 
-const StorySystem = () => {
+interface StorySystemProps {
+  onSectSelectionTrigger?: () => void;
+}
+
+const StorySystem = ({ onSectSelectionTrigger }: StorySystemProps) => {
   const { gameState, claimReward, addNotification } = useGameState();
   const [currentChapter, setCurrentChapter] = useState<StoryChapter | null>(null);
   const [currentPage, setCurrentPage] = useState(0);
@@ -162,6 +167,37 @@ const StorySystem = () => {
       type: 'main'
     },
     {
+      id: 'ch3',
+      title: 'Chương 3: Thử Thách Tông Môn',
+      content: [
+        'Sau nhiều thử thách, ngươi đã chứng minh được bản thân.',
+        'Các tông môn bắt đầu chú ý đến tài năng của ngươi.',
+        'Một sứ giả từ nhiều tông môn khác nhau xuất hiện...',
+        '"Hãy chọn con đường tu luyện phù hợp với ngươi!"'
+      ],
+      character: 'Sứ Giả Tông Môn',
+      characterImage: '🏛️',
+      background: '🏔️',
+      choices: [
+        {
+          id: 'choose_sect',
+          text: 'Đồng ý: "Ta sẵn sàng chọn tông môn để tu luyện"',
+          morality: 'neutral',
+          reward: 'Mở khóa hệ thống tông môn',
+          triggerSectSelection: true
+        },
+        {
+          id: 'delay',
+          text: 'Xin thêm thời gian: "Cho ta suy nghĩ thêm"',
+          morality: 'neutral',
+          reward: '+50 EXP'
+        }
+      ],
+      completed: false,
+      unlocked: false,
+      type: 'main'
+    },
+    {
       id: 'side1',
       title: 'Phụ Tuyến: Bí Mật Hang Động',
       content: [
@@ -237,6 +273,11 @@ const StorySystem = () => {
       addNotification(`Lựa chọn: "${choice.text.substring(0, 30)}..." - ${choice.reward}`, 'success');
     }
 
+    // Check if this choice triggers sect selection
+    if (choice.triggerSectSelection && onSectSelectionTrigger) {
+      onSectSelectionTrigger();
+    }
+
     // Close chapter
     setCurrentChapter(null);
     setCurrentPage(0);
@@ -278,7 +319,7 @@ const StorySystem = () => {
           <h3 className="font-semibold text-mystical-purple">Truyện Chính & Phụ Tuyến</h3>
         </div>
         <p className="text-sm text-muted-foreground">
-          Khám phá câu chuyện tu tiên với các lựa chọn ảnh hưởng đến số phận.
+          Khám phá câu chuyện tu tiên với các lựa chọn ảnh hưởng đến số phận. Hoàn thành câu chuyện chính để mở khóa việc chọn tông môn.
         </p>
       </Card>
 
@@ -353,6 +394,7 @@ const StorySystem = () => {
                             {choice.morality === 'good' && <Heart className="w-3 h-3 text-green-500" />}
                             {choice.morality === 'evil' && <Flame className="w-3 h-3 text-red-500" />}
                             {choice.morality === 'neutral' && <Shield className="w-3 h-3 text-gray-500" />}
+                            {choice.triggerSectSelection && <Swords className="w-3 h-3 text-cultivator-gold" />}
                           </div>
                         </div>
                         {choice.reward && (
