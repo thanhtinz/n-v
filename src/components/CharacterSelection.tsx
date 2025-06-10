@@ -13,7 +13,8 @@ import {
   Zap,
   Crown,
   Star,
-  ArrowLeft
+  ArrowLeft,
+  Flame
 } from 'lucide-react';
 import CharacterCreation from './CharacterCreation';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -22,7 +23,7 @@ interface Character {
   id: string;
   name: string;
   gender: 'male' | 'female';
-  class: 'sword' | 'magic' | 'defense';
+  class: 'thien_kiem' | 'anh_vu' | 'thien_am' | 'loi_tong' | 'huyet_ma' | 'van_mong' | 'huyen_vu' | 'xich_diem';
   level: number;
   realm: string;
   combatPower: number;
@@ -46,34 +47,79 @@ const CharacterSelection = ({ onCharacterSelect, onBack }: CharacterSelectionPro
   const [showCreateCharacter, setShowCreateCharacter] = useState(false);
   const isMobile = useIsMobile();
 
-  const getClassInfo = (classType: 'sword' | 'magic' | 'defense') => {
+  const getClassInfo = (classType: 'thien_kiem' | 'anh_vu' | 'thien_am' | 'loi_tong' | 'huyet_ma' | 'van_mong' | 'huyen_vu' | 'xich_diem') => {
     switch (classType) {
-      case 'sword':
+      case 'thien_kiem':
         return { 
-          name: 'Kiếm Khách', 
+          name: 'Thiên Kiếm', 
           icon: Sword, 
           color: 'text-red-400', 
           bgGradient: 'from-red-500/20 to-orange-500/20',
           wings: 'from-red-500 to-orange-500',
           platform: 'from-orange-500/40 to-red-500/40'
         };
-      case 'magic':
+      case 'anh_vu':
         return { 
-          name: 'Pháp Sư', 
-          icon: Zap, 
+          name: 'Ảnh Vũ', 
+          icon: Sword, 
           color: 'text-purple-400', 
           bgGradient: 'from-purple-500/20 to-blue-500/20',
-          wings: 'from-blue-500 to-cyan-500',
-          platform: 'from-cyan-500/40 to-blue-500/40'
+          wings: 'from-purple-500 to-blue-500',
+          platform: 'from-blue-500/40 to-purple-500/40'
         };
-      case 'defense':
+      case 'thien_am':
         return { 
-          name: 'Hộ Vệ', 
+          name: 'Thiên Âm', 
           icon: Shield, 
           color: 'text-blue-400', 
           bgGradient: 'from-blue-500/20 to-cyan-500/20',
-          wings: 'from-green-500 to-blue-500',
-          platform: 'from-blue-500/40 to-cyan-500/40'
+          wings: 'from-blue-500 to-cyan-500',
+          platform: 'from-cyan-500/40 to-blue-500/40'
+        };
+      case 'loi_tong':
+        return { 
+          name: 'Lôi Tông', 
+          icon: Zap, 
+          color: 'text-yellow-400', 
+          bgGradient: 'from-yellow-500/20 to-orange-500/20',
+          wings: 'from-yellow-500 to-orange-500',
+          platform: 'from-orange-500/40 to-yellow-500/40'
+        };
+      case 'huyet_ma':
+        return { 
+          name: 'Huyết Ma', 
+          icon: Sword, 
+          color: 'text-red-600', 
+          bgGradient: 'from-red-900/20 to-black/20',
+          wings: 'from-red-900 to-black',
+          platform: 'from-black/40 to-red-900/40'
+        };
+      case 'van_mong':
+        return { 
+          name: 'Vân Mộng', 
+          icon: Shield, 
+          color: 'text-green-400', 
+          bgGradient: 'from-green-500/20 to-emerald-500/20',
+          wings: 'from-green-500 to-emerald-500',
+          platform: 'from-emerald-500/40 to-green-500/40'
+        };
+      case 'huyen_vu':
+        return { 
+          name: 'Huyền Vũ', 
+          icon: Shield, 
+          color: 'text-gray-400', 
+          bgGradient: 'from-gray-500/20 to-slate-500/20',
+          wings: 'from-gray-500 to-slate-500',
+          platform: 'from-slate-500/40 to-gray-500/40'
+        };
+      case 'xich_diem':
+        return { 
+          name: 'Xích Diệm', 
+          icon: Flame, 
+          color: 'text-orange-400', 
+          bgGradient: 'from-orange-500/20 to-red-500/20',
+          wings: 'from-orange-500 to-red-500',
+          platform: 'from-red-500/40 to-orange-500/40'
         };
     }
   };
@@ -81,7 +127,7 @@ const CharacterSelection = ({ onCharacterSelect, onBack }: CharacterSelectionPro
   const handleCreateCharacter = (newCharacter: {
     name: string;
     gender: 'male' | 'female';
-    class: 'sword' | 'magic' | 'defense';
+    class: 'thien_kiem' | 'anh_vu' | 'thien_am' | 'loi_tong' | 'huyet_ma' | 'van_mong' | 'huyen_vu' | 'xich_diem';
   }) => {
     const character: Character = {
       id: Date.now().toString(),
