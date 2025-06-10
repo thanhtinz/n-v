@@ -1,7 +1,7 @@
+
 import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
@@ -47,189 +47,165 @@ const CharacterCreation = ({ onComplete }: CharacterCreationProps) => {
     }
   };
 
-  const classes = [
-    {
-      id: 'sword',
-      name: 'Kiếm Khách',
-      description: 'Chuyên về võ thuật kiếm, tấn công nhanh và linh hoạt',
-      icon: Sword,
-      color: 'text-red-400 border-red-400',
-      weapons: ['Kiếm', 'Đao']
-    },
-    {
-      id: 'magic',
-      name: 'Pháp Sư', 
-      description: 'Sử dụng phép thuật và pháp bảo mạnh mẽ',
-      icon: Zap,
-      color: 'text-purple-400 border-purple-400',
-      weapons: ['Trượng Pháp', 'Pháp Bảo']
-    },
-    {
-      id: 'defense',
-      name: 'Hộ Vệ',
-      description: 'Chuyên về phòng thủ và bảo vệ đồng đội',
-      icon: Shield,
-      color: 'text-blue-400 border-blue-400',
-      weapons: ['Khiên', 'Giáp']
-    }
-  ];
-
-  const genders = [
-    {
-      id: 'male',
-      name: 'Nam',
-      icon: User,
-      description: 'Trang phục nam tính, mạnh mẽ'
-    },
-    {
-      id: 'female', 
-      name: 'Nữ',
-      icon: Users,
-      description: 'Trang phục nữ tính, thanh lịch'
-    }
-  ];
-
   return (
-    <div className="w-full bg-gradient-to-b from-black/90 to-black/95 text-white p-3 sm:p-6">
-      <div className="text-center mb-4 sm:mb-6">
-        <h1 className={`font-bold bg-gradient-to-r from-amber-400 via-yellow-500 to-orange-500 bg-clip-text text-transparent mb-1 sm:mb-2 ${isMobile ? 'text-2xl' : 'text-3xl'}`}>
-          Tạo Nhân Vật Tu Tiên
-        </h1>
-        <p className={`text-amber-200/80 ${isMobile ? 'text-sm' : 'text-base'}`}>
-          Chọn tên, giới tính và class để bắt đầu hành trình tu tiên
-        </p>
+    <div 
+      className="min-h-screen bg-cover bg-center bg-no-repeat relative overflow-hidden"
+      style={{
+        backgroundImage: `url('https://images.unsplash.com/photo-1470813740244-df37b8c1edcb?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80')`
+      }}
+    >
+      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
+      
+      {/* Floating magical particles */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {[...Array(isMobile ? 15 : 30)].map((_, i) => (
+          <div
+            key={i}
+            className="absolute w-1 h-1 bg-amber-400 rounded-full opacity-60 animate-pulse"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+              animationDelay: `${Math.random() * 3}s`,
+              animationDuration: `${2 + Math.random() * 3}s`
+            }}
+          />
+        ))}
       </div>
 
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 sm:space-y-6">
-          {/* Character Name - mobile optimized */}
-          <div>
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className={`font-semibold text-amber-400 ${isMobile ? 'text-base' : 'text-lg'}`}>Tên Đạo Hiệu</FormLabel>
-                  <FormControl>
-                    <Input 
-                      placeholder="Nhập tên nhân vật của bạn..." 
-                      {...field}
-                      className={`text-center bg-black/40 border-amber-500/30 text-white placeholder:text-gray-400 ${isMobile ? 'text-base h-10' : 'text-lg h-12'}`}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+      {/* Character avatars in background - left side */}
+      <div className="absolute left-4 top-1/2 transform -translate-y-1/2 opacity-30">
+        <div className="w-32 h-32 rounded-full bg-gradient-to-r from-blue-500/40 to-cyan-500/40 flex items-center justify-center mb-8">
+          <User className="w-16 h-16 text-blue-300" />
+        </div>
+        <div className="w-24 h-24 rounded-full bg-gradient-to-r from-purple-500/30 to-pink-500/30 flex items-center justify-center">
+          <Zap className="w-12 h-12 text-purple-300" />
+        </div>
+      </div>
+
+      {/* Character avatars in background - right side */}
+      <div className="absolute right-4 top-1/2 transform -translate-y-1/2 opacity-30">
+        <div className="w-28 h-28 rounded-full bg-gradient-to-r from-red-500/40 to-orange-500/40 flex items-center justify-center mb-6">
+          <Sword className="w-14 h-14 text-red-300" />
+        </div>
+        <div className="w-32 h-32 rounded-full bg-gradient-to-r from-green-500/30 to-blue-500/30 flex items-center justify-center">
+          <Shield className="w-16 h-16 text-green-300" />
+        </div>
+      </div>
+      
+      <div className="relative z-10 flex flex-col items-center justify-center min-h-screen p-4">
+        {/* Compact creation form */}
+        <Card className="w-full max-w-md bg-gradient-to-b from-black/90 to-black/95 backdrop-blur-sm border border-amber-500/30 p-6 rounded-2xl shadow-2xl">
+          <div className="text-center mb-6">
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-amber-400 via-yellow-500 to-orange-500 bg-clip-text text-transparent mb-2">
+              Tạo Nhân Vật
+            </h1>
+            <p className="text-sm text-amber-200/80">
+              Nhập thông tin để bắt đầu
+            </p>
           </div>
 
-          {/* Gender Selection - mobile optimized */}
-          <div>
-            <FormField
-              control={form.control}
-              name="gender"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className={`font-semibold text-amber-400 ${isMobile ? 'text-base' : 'text-lg'}`}>Giới Tính</FormLabel>
-                  <FormControl>
-                    <RadioGroup
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                      className="grid grid-cols-2 gap-2 sm:gap-4"
-                    >
-                      {genders.map((gender) => {
-                        const Icon = gender.icon;
-                        return (
-                          <div key={gender.id}>
-                            <RadioGroupItem
-                              value={gender.id}
-                              id={gender.id}
-                              className="peer sr-only"
-                            />
-                            <Label
-                              htmlFor={gender.id}
-                              className={`flex flex-col items-center justify-between rounded-lg border-2 border-amber-500/20 bg-black/40 hover:bg-amber-500/10 hover:border-amber-400/50 peer-data-[state=checked]:border-amber-400 peer-data-[state=checked]:bg-amber-400/20 cursor-pointer transition-all ${isMobile ? 'p-3 min-h-[100px]' : 'p-4 min-h-[120px]'}`}
-                            >
-                              <Icon className={`mb-2 sm:mb-3 text-amber-400 ${isMobile ? 'w-6 h-6' : 'w-8 h-8'}`} />
-                              <div className="text-center">
-                                <div className={`font-semibold text-white ${isMobile ? 'text-sm' : 'text-base'}`}>{gender.name}</div>
-                                <div className={`text-gray-400 mt-1 ${isMobile ? 'text-xs' : 'text-sm'}`}>
-                                  {gender.description}
-                                </div>
-                              </div>
-                            </Label>
-                          </div>
-                        );
-                      })}
-                    </RadioGroup>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              {/* Character Name */}
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-amber-400 font-medium">Tên nhân vật:</FormLabel>
+                    <FormControl>
+                      <Input 
+                        placeholder="Nhập tên..." 
+                        {...field}
+                        className="bg-black/40 border-amber-500/30 text-white placeholder:text-gray-400 h-10"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-          {/* Class Selection - mobile optimized */}
-          <div>
-            <FormField
-              control={form.control}
-              name="class"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className={`font-semibold text-amber-400 ${isMobile ? 'text-base' : 'text-lg'}`}>Lựa Chọn Class</FormLabel>
-                  <FormControl>
-                    <RadioGroup
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                      className="grid grid-cols-1 gap-2 sm:gap-4"
-                    >
-                      {classes.map((classOption) => {
-                        const Icon = classOption.icon;
-                        return (
-                          <div key={classOption.id}>
-                            <RadioGroupItem
-                              value={classOption.id}
-                              id={classOption.id}
-                              className="peer sr-only"
-                            />
-                            <Label
-                              htmlFor={classOption.id}
-                              className={`flex items-center justify-start rounded-lg border-2 border-amber-500/20 bg-black/40 hover:bg-amber-500/10 hover:border-amber-400/50 peer-data-[state=checked]:border-amber-400 peer-data-[state=checked]:bg-amber-400/20 cursor-pointer transition-all ${isMobile ? 'p-3' : 'p-4'}`}
-                            >
-                              <Icon className={`mr-3 sm:mr-4 flex-shrink-0 text-amber-400 ${isMobile ? 'w-8 h-8' : 'w-12 h-12'}`} />
-                              <div className="flex-1 text-left">
-                                <div className={`font-semibold text-white ${isMobile ? 'text-base' : 'text-lg'}`}>{classOption.name}</div>
-                                <div className={`text-gray-400 mt-1 sm:mt-2 mb-2 sm:mb-3 ${isMobile ? 'text-xs' : 'text-sm'}`}>
-                                  {classOption.description}
-                                </div>
-                                <Badge variant="outline" className={`border-amber-400/50 text-amber-300 ${isMobile ? 'text-xs' : 'text-xs'}`}>
-                                  Vũ khí: {classOption.weapons.join(', ')}
-                                </Badge>
-                              </div>
-                            </Label>
-                          </div>
-                        );
-                      })}
-                    </RadioGroup>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
+              {/* Gender Selection */}
+              <FormField
+                control={form.control}
+                name="gender"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-amber-400 font-medium">Giới tính</FormLabel>
+                    <FormControl>
+                      <RadioGroup
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                        className="flex space-x-4"
+                      >
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="male" id="male" />
+                          <Label htmlFor="male" className="text-white cursor-pointer">♂ Nam</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="female" id="female" />
+                          <Label htmlFor="female" className="text-white cursor-pointer">♀ Nữ</Label>
+                        </div>
+                      </RadioGroup>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-          <div className="flex justify-center pt-4 sm:pt-6">
-            <Button 
-              type="submit" 
-              size={isMobile ? "default" : "lg"}
-              className={`bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 shadow-2xl ${isMobile ? 'px-8 py-2 text-base' : 'px-12 py-3 text-lg'}`}
-            >
-              Bắt Đầu Hành Trình Tu Tiên
-              <Sword className={`ml-2 ${isMobile ? 'w-4 h-4' : 'w-5 h-5'}`} />
-            </Button>
-          </div>
-        </form>
-      </Form>
+              {/* Class Selection - Simple dropdown style */}
+              <FormField
+                control={form.control}
+                name="class"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-amber-400 font-medium">Lớp nhân vật:</FormLabel>
+                    <FormControl>
+                      <RadioGroup
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                        className="space-y-2"
+                      >
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="sword" id="sword" />
+                          <Label htmlFor="sword" className="text-white cursor-pointer flex items-center">
+                            <Sword className="w-4 h-4 mr-2 text-red-400" />
+                            Kiếm Khách
+                          </Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="magic" id="magic" />
+                          <Label htmlFor="magic" className="text-white cursor-pointer flex items-center">
+                            <Zap className="w-4 h-4 mr-2 text-purple-400" />
+                            Pháp Sư
+                          </Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="defense" id="defense" />
+                          <Label htmlFor="defense" className="text-white cursor-pointer flex items-center">
+                            <Shield className="w-4 h-4 mr-2 text-blue-400" />
+                            Hộ Vệ
+                          </Label>
+                        </div>
+                      </RadioGroup>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <div className="pt-4">
+                <Button 
+                  type="submit" 
+                  className="w-full bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 shadow-lg"
+                >
+                  Tạo Nhân Vật
+                </Button>
+              </div>
+            </form>
+          </Form>
+        </Card>
+      </div>
     </div>
   );
 };
