@@ -9,20 +9,20 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { Sword, Shield, Zap, User, Users } from 'lucide-react';
+import { Sword, Shield, Zap, User, Flame } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 const formSchema = z.object({
   name: z.string().min(2, 'Tên phải có ít nhất 2 ký tự').max(20, 'Tên không được quá 20 ký tự'),
   gender: z.enum(['male', 'female']),
-  class: z.enum(['sword', 'magic', 'defense'])
+  class: z.enum(['thien_kiem', 'anh_vu', 'thien_am', 'loi_tong', 'huyet_ma', 'van_mong', 'huyen_vu', 'xich_diem'])
 });
 
 interface CharacterCreationProps {
   onComplete: (character: {
     name: string;
     gender: 'male' | 'female';
-    class: 'sword' | 'magic' | 'defense';
+    class: 'thien_kiem' | 'anh_vu' | 'thien_am' | 'loi_tong' | 'huyet_ma' | 'van_mong' | 'huyen_vu' | 'xich_diem';
   }) => void;
 }
 
@@ -33,7 +33,7 @@ const CharacterCreation = ({ onComplete }: CharacterCreationProps) => {
     defaultValues: {
       name: '',
       gender: 'male',
-      class: 'sword'
+      class: 'thien_kiem'
     }
   });
 
@@ -48,6 +48,129 @@ const CharacterCreation = ({ onComplete }: CharacterCreationProps) => {
   };
 
   const watchedGender = form.watch('gender');
+
+  const characterClasses = [
+    {
+      id: 'thien_kiem',
+      name: 'Thiên Kiếm',
+      subtitle: 'Kiếm Tông',
+      icon: '🔥',
+      lucideIcon: Sword,
+      weapon: 'Kiếm',
+      role: 'Công kích cận chiến hoặc tầm xa, sát thương cao, tốc độ nhanh',
+      style: 'Chính đạo, tu kiếm đạo',
+      personality: 'Lạnh lùng, cô độc, trọng nghĩa khí',
+      skills: 'Kiếm khí, kiếm trận, phi kiếm truy sát',
+      color: 'text-red-400',
+      bgColor: 'bg-red-500/20',
+      borderColor: 'border-red-400'
+    },
+    {
+      id: 'anh_vu',
+      name: 'Ảnh Vũ',
+      subtitle: 'Ảnh Tông / Sát Ảnh',
+      icon: '🌪️',
+      lucideIcon: Sword,
+      weapon: 'Song đao, móng vuốt, phi tiêu',
+      role: 'Sát thủ, ám sát, né tránh cao',
+      style: 'Tà đạo / trung lập',
+      personality: 'Trầm mặc, nhanh nhẹn, lén lút',
+      skills: 'Ẩn thân, bạo kích, độc tố',
+      color: 'text-purple-400',
+      bgColor: 'bg-purple-500/20',
+      borderColor: 'border-purple-400'
+    },
+    {
+      id: 'thien_am',
+      name: 'Thiên Âm',
+      subtitle: 'Linh Tông / Y Tông',
+      icon: '💎',
+      lucideIcon: Shield,
+      weapon: 'Cầm, sáo, quạt, ngọc',
+      role: 'Hỗ trợ, buff, hồi máu, debuff kẻ thù',
+      style: 'Chính đạo',
+      personality: 'Hiền lành, uyển chuyển, từ bi',
+      skills: 'Trị thương, tăng chỉ số, mê hoặc, ngủ',
+      color: 'text-blue-400',
+      bgColor: 'bg-blue-500/20',
+      borderColor: 'border-blue-400'
+    },
+    {
+      id: 'loi_tong',
+      name: 'Lôi Tông',
+      subtitle: 'Lôi Điện Các',
+      icon: '⚡',
+      lucideIcon: Zap,
+      weapon: 'Trượng, pháp bảo lôi',
+      role: 'Pháp sư sát thương phép mạnh, diện rộng',
+      style: 'Trung lập',
+      personality: 'Nóng nảy, hiếu chiến',
+      skills: 'Lôi đình, tốc biến, bạo nộ',
+      color: 'text-yellow-400',
+      bgColor: 'bg-yellow-500/20',
+      borderColor: 'border-yellow-400'
+    },
+    {
+      id: 'huyet_ma',
+      name: 'Huyết Ma',
+      subtitle: 'Tà Tông / Âm Linh',
+      icon: '🌙',
+      lucideIcon: Sword,
+      weapon: 'Trảo, pháp trượng, huyết kiếm',
+      role: 'Tà pháp, hút máu, khống chế tâm trí',
+      style: 'Tà đạo',
+      personality: 'Tàn độc, bí ẩn',
+      skills: 'Tự hồi máu, triệu hồi ma vật, khống chế',
+      color: 'text-red-600',
+      bgColor: 'bg-red-900/20',
+      borderColor: 'border-red-600'
+    },
+    {
+      id: 'van_mong',
+      name: 'Vân Mộng',
+      subtitle: 'Hoa Tông / Thảo Mộc',
+      icon: '🌿',
+      lucideIcon: Shield,
+      weapon: 'Quạt, phiến, pháp trượng',
+      role: 'Hỗ trợ, khống chế, độc dược',
+      style: 'Trung lập',
+      personality: 'Thanh tao, thông minh',
+      skills: 'Hạ độc, gây ảo giác, hóa giải hiệu ứng',
+      color: 'text-green-400',
+      bgColor: 'bg-green-500/20',
+      borderColor: 'border-green-400'
+    },
+    {
+      id: 'huyen_vu',
+      name: 'Huyền Vũ',
+      subtitle: 'Kim Cang / Thiết Phái',
+      icon: '🛡️',
+      lucideIcon: Shield,
+      weapon: 'Đại chùy, khiên, búa',
+      role: 'Tanker, phòng thủ cao, khống chế cứng',
+      style: 'Chính đạo',
+      personality: 'Cương trực, trung thành',
+      skills: 'Khiêu khích, hộ thuẫn, phản đòn',
+      color: 'text-gray-400',
+      bgColor: 'bg-gray-500/20',
+      borderColor: 'border-gray-400'
+    },
+    {
+      id: 'xich_diem',
+      name: 'Xích Diệm',
+      subtitle: 'Hỏa Tông / Diễm Phái',
+      icon: '🔥',
+      lucideIcon: Flame,
+      weapon: 'Pháp khí lửa, hỏa đao',
+      role: 'Sát thương phép mạnh, DPS dồn nhanh',
+      style: 'Chính – Tà đều có',
+      personality: 'Cuồng nhiệt, mạnh mẽ',
+      skills: 'Thiêu đốt, bùng nổ, hiệu ứng cháy lan',
+      color: 'text-orange-400',
+      bgColor: 'bg-orange-500/20',
+      borderColor: 'border-orange-400'
+    }
+  ];
 
   return (
     <div 
@@ -96,7 +219,7 @@ const CharacterCreation = ({ onComplete }: CharacterCreationProps) => {
         </div>
 
         {/* Creation Form */}
-        <Card className="w-full max-w-md bg-gradient-to-b from-black/80 to-black/90 backdrop-blur-sm border border-amber-500/30 p-6 rounded-2xl">
+        <Card className="w-full max-w-2xl bg-gradient-to-b from-black/80 to-black/90 backdrop-blur-sm border border-amber-500/30 p-6 rounded-2xl">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               {/* Character Name */}
@@ -105,10 +228,10 @@ const CharacterCreation = ({ onComplete }: CharacterCreationProps) => {
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-amber-400 font-medium">角色名称</FormLabel>
+                    <FormLabel className="text-amber-400 font-medium">Tên nhân vật</FormLabel>
                     <FormControl>
                       <Input 
-                        placeholder="请输入角色名称..." 
+                        placeholder="Nhập tên nhân vật..." 
                         {...field}
                         className="bg-black/40 border-amber-500/30 text-white placeholder:text-gray-400"
                       />
@@ -124,7 +247,7 @@ const CharacterCreation = ({ onComplete }: CharacterCreationProps) => {
                 name="gender"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-amber-400 font-medium">选择性别</FormLabel>
+                    <FormLabel className="text-amber-400 font-medium">Chọn giới tính</FormLabel>
                     <FormControl>
                       <div className="flex justify-center space-x-8">
                         <div 
@@ -164,34 +287,50 @@ const CharacterCreation = ({ onComplete }: CharacterCreationProps) => {
                 name="class"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-amber-400 font-medium">职业选择</FormLabel>
+                    <FormLabel className="text-amber-400 font-medium">Chọn môn phái</FormLabel>
                     <FormControl>
                       <RadioGroup
                         onValueChange={field.onChange}
                         defaultValue={field.value}
-                        className="space-y-3"
+                        className="grid grid-cols-2 gap-4 mt-4"
                       >
-                        <div className="flex items-center space-x-3">
-                          <RadioGroupItem value="sword" id="sword" />
-                          <Label htmlFor="sword" className="text-white cursor-pointer flex items-center">
-                            <Sword className="w-5 h-5 mr-2 text-red-400" />
-                            剑客 - 近战物理攻击
-                          </Label>
-                        </div>
-                        <div className="flex items-center space-x-3">
-                          <RadioGroupItem value="magic" id="magic" />
-                          <Label htmlFor="magic" className="text-white cursor-pointer flex items-center">
-                            <Zap className="w-5 h-5 mr-2 text-purple-400" />
-                            法师 - 远程魔法攻击
-                          </Label>
-                        </div>
-                        <div className="flex items-center space-x-3">
-                          <RadioGroupItem value="defense" id="defense" />
-                          <Label htmlFor="defense" className="text-white cursor-pointer flex items-center">
-                            <Shield className="w-5 h-5 mr-2 text-blue-400" />
-                            护卫 - 防御与支援
-                          </Label>
-                        </div>
+                        {characterClasses.map((charClass) => {
+                          const IconComponent = charClass.lucideIcon;
+                          return (
+                            <div key={charClass.id} className="relative">
+                              <RadioGroupItem value={charClass.id} id={charClass.id} className="sr-only" />
+                              <Label 
+                                htmlFor={charClass.id} 
+                                className={`cursor-pointer block p-4 rounded-lg border-2 transition-all ${
+                                  field.value === charClass.id 
+                                    ? `${charClass.bgColor} ${charClass.borderColor}` 
+                                    : 'bg-black/20 border-gray-600/30 hover:bg-gray-800/30'
+                                }`}
+                              >
+                                <div className="flex items-start space-x-3">
+                                  <div className="flex flex-col items-center">
+                                    <span className="text-2xl mb-1">{charClass.icon}</span>
+                                    <IconComponent className={`w-6 h-6 ${charClass.color}`} />
+                                  </div>
+                                  <div className="flex-1 min-w-0">
+                                    <div className="flex flex-col">
+                                      <span className={`font-bold text-sm ${charClass.color}`}>
+                                        {charClass.name}
+                                      </span>
+                                      <span className="text-xs text-gray-400 mb-2">
+                                        {charClass.subtitle}
+                                      </span>
+                                      <div className="text-xs text-gray-300 space-y-1">
+                                        <div><span className="text-amber-400">Vũ khí:</span> {charClass.weapon}</div>
+                                        <div><span className="text-amber-400">Vai trò:</span> {charClass.role}</div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </Label>
+                            </div>
+                          );
+                        })}
                       </RadioGroup>
                     </FormControl>
                     <FormMessage />
@@ -210,7 +349,7 @@ const CharacterCreation = ({ onComplete }: CharacterCreationProps) => {
                     textShadow: '1px 1px 2px rgba(0,0,0,0.5)'
                   }}
                 >
-                  创建角色
+                  Tạo nhân vật
                 </Button>
               </div>
             </form>
