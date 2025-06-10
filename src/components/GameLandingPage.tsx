@@ -124,14 +124,14 @@ const GameLandingPage = ({ isLoggedIn, onLogin, onStartGame }: GameLandingPagePr
       }}
     >
       {/* Dark overlay */}
-      <div className="absolute inset-0 bg-black/40" />
+      <div className="absolute inset-0 bg-black/60" />
       
       {/* Floating particles effect */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {[...Array(15)].map((_, i) => (
+        {[...Array(20)].map((_, i) => (
           <div
             key={i}
-            className="absolute w-1 h-1 bg-white rounded-full opacity-40 animate-pulse"
+            className="absolute w-1 h-1 bg-yellow-400 rounded-full opacity-60 animate-pulse"
             style={{
               left: `${Math.random() * 100}%`,
               top: `${Math.random() * 100}%`,
@@ -170,33 +170,23 @@ const GameLandingPage = ({ isLoggedIn, onLogin, onStartGame }: GameLandingPagePr
         </div>
 
         {/* Main Content Area */}
-        <div className="w-full max-w-sm space-y-4">
+        <div className="w-full max-w-xs space-y-3">
           {!isLoggedIn ? (
-            // Not logged in - show auth form
-            <Card className="bg-gradient-to-b from-amber-100/90 to-amber-200/90 backdrop-blur-sm border-2 border-amber-300/50 p-6 rounded-2xl shadow-2xl">
-              <div className="text-center mb-6">
-                <div className="w-16 h-16 bg-gradient-to-r from-cultivator-gold to-spirit-jade rounded-full flex items-center justify-center mx-auto mb-4">
-                  <User className="w-8 h-8 text-white" />
-                </div>
-                <h3 className="text-xl font-bold text-amber-800 mb-2">
-                  {isLogin ? 'Đăng Nhập' : 'Đăng Ký'}
-                </h3>
-              </div>
-
+            // Compact login form
+            <Card className="bg-gradient-to-b from-black/60 to-black/80 backdrop-blur-sm border border-amber-500/30 p-4 rounded-xl shadow-2xl">
               <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
                   <FormField
                     control={form.control}
                     name="email"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-amber-800">Email</FormLabel>
                         <FormControl>
                           <div className="relative">
-                            <Mail className="absolute left-3 top-3 h-4 w-4 text-amber-600" />
+                            <Mail className="absolute left-3 top-2.5 h-4 w-4 text-amber-400" />
                             <Input 
-                              placeholder="Nhập email" 
-                              className="pl-10 bg-white/80 border-amber-300 text-amber-900"
+                              placeholder="Email" 
+                              className="pl-10 bg-black/40 border-amber-500/30 text-white placeholder:text-gray-400 h-9"
                               {...field}
                             />
                           </div>
@@ -211,14 +201,13 @@ const GameLandingPage = ({ isLoggedIn, onLogin, onStartGame }: GameLandingPagePr
                     name="password"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-amber-800">Mật khẩu</FormLabel>
                         <FormControl>
                           <div className="relative">
-                            <Lock className="absolute left-3 top-3 h-4 w-4 text-amber-600" />
+                            <Lock className="absolute left-3 top-2.5 h-4 w-4 text-amber-400" />
                             <Input 
                               type="password"
-                              placeholder="Nhập mật khẩu"
-                              className="pl-10 bg-white/80 border-amber-300 text-amber-900"
+                              placeholder="Mật khẩu"
+                              className="pl-10 bg-black/40 border-amber-500/30 text-white placeholder:text-gray-400 h-9"
                               {...field}
                             />
                           </div>
@@ -230,7 +219,7 @@ const GameLandingPage = ({ isLoggedIn, onLogin, onStartGame }: GameLandingPagePr
 
                   <Button 
                     type="submit" 
-                    className="w-full bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white font-bold py-3 rounded-lg shadow-lg"
+                    className="w-full bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white font-bold py-2 rounded-lg shadow-lg h-9"
                     disabled={isLoading}
                   >
                     {isLoading ? 'Đang xử lý...' : (isLogin ? 'Đăng Nhập' : 'Đăng Ký')}
@@ -238,30 +227,30 @@ const GameLandingPage = ({ isLoggedIn, onLogin, onStartGame }: GameLandingPagePr
                 </form>
               </Form>
 
-              <div className="mt-4 text-center">
+              <div className="mt-3 text-center">
                 <Button
                   variant="link"
                   onClick={() => setIsLogin(!isLogin)}
-                  className="text-amber-700 hover:text-amber-800 text-sm"
+                  className="text-amber-400 hover:text-amber-300 text-xs p-0 h-auto"
                 >
-                  {isLogin ? 'Chưa có tài khoản? Đăng ký ngay' : 'Đã có tài khoản? Đăng nhập'}
+                  {isLogin ? 'Chưa có tài khoản?' : 'Đã có tài khoản?'}
                 </Button>
               </div>
             </Card>
           ) : (
-            // Logged in - show server selection and enter game
-            <div className="space-y-4">
+            // Logged in state
+            <div className="space-y-3">
               {/* Server Selection Card */}
-              <Card className="bg-gradient-to-b from-amber-100/90 to-amber-200/90 backdrop-blur-sm border-2 border-amber-300/50 p-4 rounded-2xl shadow-2xl">
-                <div className="space-y-3">
+              <Card className="bg-gradient-to-b from-black/60 to-black/80 backdrop-blur-sm border border-amber-500/30 p-3 rounded-xl shadow-2xl">
+                <div className="space-y-2">
                   <div className="flex justify-between items-center">
-                    <h3 className="text-amber-800 font-bold text-base">
+                    <h3 className="text-amber-400 font-bold text-sm">
                       {servers.find(s => s.id === selectedServer)?.name || 'S1. Long Lâm'}
                     </h3>
                     <Button 
                       variant="outline"
                       size="sm"
-                      className="border-amber-600 text-amber-700 hover:bg-amber-100 font-bold rounded-lg"
+                      className="border-amber-600 text-amber-400 hover:bg-amber-100/10 font-bold rounded text-xs h-7"
                       onClick={() => setShowServerDialog(true)}
                     >
                       Đổi server
@@ -269,13 +258,13 @@ const GameLandingPage = ({ isLoggedIn, onLogin, onStartGame }: GameLandingPagePr
                   </div>
                   
                   {/* Server Status */}
-                  <div className="flex justify-between text-sm">
-                    <span className="text-amber-700">
+                  <div className="flex justify-between text-xs">
+                    <span className="text-gray-300">
                       Trạng thái: <span className={getStatusColor(servers.find(s => s.id === selectedServer)?.status || 'online')}>
                         {servers.find(s => s.id === selectedServer)?.status === 'online' ? 'Hoạt động' : 'Bảo trì'}
                       </span>
                     </span>
-                    <span className="text-amber-700">
+                    <span className="text-gray-300">
                       Đông: <span className={getPopulationColor(servers.find(s => s.id === selectedServer)?.population || 'Vừa')}>
                         {servers.find(s => s.id === selectedServer)?.population}
                       </span>
@@ -287,10 +276,10 @@ const GameLandingPage = ({ isLoggedIn, onLogin, onStartGame }: GameLandingPagePr
               {/* Enter Game Button */}
               <Button 
                 onClick={onStartGame}
-                className="w-full bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white font-bold py-3 rounded-2xl shadow-2xl text-lg"
+                className="w-full bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white font-bold py-2 rounded-xl shadow-2xl text-base h-10"
                 disabled={servers.find(s => s.id === selectedServer)?.status === 'maintenance'}
               >
-                <Play className="w-5 h-5 mr-2" />
+                <Play className="w-4 h-4 mr-2" />
                 Vào game
               </Button>
             </div>
@@ -298,7 +287,7 @@ const GameLandingPage = ({ isLoggedIn, onLogin, onStartGame }: GameLandingPagePr
         </div>
 
         {/* Footer */}
-        <div className="mt-8 text-center text-sm text-white/60">
+        <div className="mt-8 text-center text-xs text-white/60">
           <p>© 2024 Tu Tiên Mộng Uý. Tất cả quyền được bảo lưu.</p>
         </div>
       </div>
