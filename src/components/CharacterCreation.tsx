@@ -47,77 +47,70 @@ const CharacterCreation = ({ onComplete }: CharacterCreationProps) => {
     }
   };
 
+  const watchedGender = form.watch('gender');
+
   return (
     <div 
       className="min-h-screen bg-cover bg-center bg-no-repeat relative overflow-hidden"
       style={{
-        backgroundImage: `url('https://images.unsplash.com/photo-1470813740244-df37b8c1edcb?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80')`
+        backgroundImage: `url('/lovable-uploads/3c625da2-63cb-4adf-8e0e-4e0a4a745db4.png')`
       }}
     >
-      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
-      
-      {/* Floating magical particles */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {[...Array(isMobile ? 15 : 30)].map((_, i) => (
-          <div
-            key={i}
-            className="absolute w-1 h-1 bg-amber-400 rounded-full opacity-60 animate-pulse"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              animationDelay: `${Math.random() * 3}s`,
-              animationDuration: `${2 + Math.random() * 3}s`
-            }}
-          />
-        ))}
-      </div>
-
-      {/* Character avatars in background - left side */}
-      <div className="absolute left-4 top-1/2 transform -translate-y-1/2 opacity-30">
-        <div className="w-32 h-32 rounded-full bg-gradient-to-r from-blue-500/40 to-cyan-500/40 flex items-center justify-center mb-8">
-          <User className="w-16 h-16 text-blue-300" />
-        </div>
-        <div className="w-24 h-24 rounded-full bg-gradient-to-r from-purple-500/30 to-pink-500/30 flex items-center justify-center">
-          <Zap className="w-12 h-12 text-purple-300" />
-        </div>
-      </div>
-
-      {/* Character avatars in background - right side */}
-      <div className="absolute right-4 top-1/2 transform -translate-y-1/2 opacity-30">
-        <div className="w-28 h-28 rounded-full bg-gradient-to-r from-red-500/40 to-orange-500/40 flex items-center justify-center mb-6">
-          <Sword className="w-14 h-14 text-red-300" />
-        </div>
-        <div className="w-32 h-32 rounded-full bg-gradient-to-r from-green-500/30 to-blue-500/30 flex items-center justify-center">
-          <Shield className="w-16 h-16 text-green-300" />
-        </div>
-      </div>
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
       
       <div className="relative z-10 flex flex-col items-center justify-center min-h-screen p-4">
-        {/* Compact creation form */}
-        <Card className="w-full max-w-md bg-gradient-to-b from-black/90 to-black/95 backdrop-blur-sm border border-amber-500/30 p-6 rounded-2xl shadow-2xl">
-          <div className="text-center mb-6">
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-amber-400 via-yellow-500 to-orange-500 bg-clip-text text-transparent mb-2">
-              Tạo Nhân Vật
-            </h1>
-            <p className="text-sm text-amber-200/80">
-              Nhập thông tin để bắt đầu
-            </p>
+        {/* Character Display Area */}
+        <div className="flex flex-col items-center mb-8">
+          {/* Character Avatar Display */}
+          <div className="relative w-80 h-80 mb-6">
+            {/* Character illustration based on gender */}
+            <div className="w-full h-full flex items-center justify-center">
+              <div className="relative">
+                {/* Character base */}
+                <div className="w-48 h-48 rounded-full bg-gradient-to-b from-amber-100/20 to-amber-200/20 backdrop-blur-sm border-2 border-amber-400/30 flex items-center justify-center">
+                  <div className="w-32 h-32 rounded-full bg-gradient-to-b from-amber-400/40 to-orange-500/40 flex items-center justify-center">
+                    <User className="w-16 h-16 text-white" />
+                  </div>
+                </div>
+                
+                {/* Gender indicator */}
+                <div className="absolute -bottom-4 left-1/2 transform -translate-x-1/2">
+                  <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
+                    watchedGender === 'male' 
+                      ? 'bg-blue-500 border-2 border-blue-300' 
+                      : 'bg-pink-500 border-2 border-pink-300'
+                  }`}>
+                    <span className="text-white font-bold text-lg">
+                      {watchedGender === 'male' ? '♂' : '♀'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
 
+          {/* Server name display */}
+          <div className="bg-black/60 backdrop-blur-sm rounded-full px-6 py-2 mb-4">
+            <span className="text-amber-400 font-medium">源码屋</span>
+          </div>
+        </div>
+
+        {/* Creation Form */}
+        <Card className="w-full max-w-md bg-gradient-to-b from-black/80 to-black/90 backdrop-blur-sm border border-amber-500/30 p-6 rounded-2xl">
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               {/* Character Name */}
               <FormField
                 control={form.control}
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-amber-400 font-medium">Tên nhân vật:</FormLabel>
+                    <FormLabel className="text-amber-400 font-medium">角色名称</FormLabel>
                     <FormControl>
                       <Input 
-                        placeholder="Nhập tên..." 
+                        placeholder="请输入角色名称..." 
                         {...field}
-                        className="bg-black/40 border-amber-500/30 text-white placeholder:text-gray-400 h-10"
+                        className="bg-black/40 border-amber-500/30 text-white placeholder:text-gray-400"
                       />
                     </FormControl>
                     <FormMessage />
@@ -131,60 +124,72 @@ const CharacterCreation = ({ onComplete }: CharacterCreationProps) => {
                 name="gender"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-amber-400 font-medium">Giới tính</FormLabel>
+                    <FormLabel className="text-amber-400 font-medium">选择性别</FormLabel>
                     <FormControl>
-                      <RadioGroup
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                        className="flex space-x-4"
-                      >
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="male" id="male" />
-                          <Label htmlFor="male" className="text-white cursor-pointer">♂ Nam</Label>
+                      <div className="flex justify-center space-x-8">
+                        <div 
+                          className={`cursor-pointer p-4 rounded-full transition-all ${
+                            field.value === 'male' 
+                              ? 'bg-blue-500/20 border-2 border-blue-400' 
+                              : 'bg-gray-600/20 border-2 border-gray-500/30 hover:bg-blue-500/10'
+                          }`}
+                          onClick={() => field.onChange('male')}
+                        >
+                          <div className="w-12 h-12 rounded-full bg-blue-500 flex items-center justify-center">
+                            <span className="text-white font-bold text-xl">♂</span>
+                          </div>
                         </div>
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="female" id="female" />
-                          <Label htmlFor="female" className="text-white cursor-pointer">♀ Nữ</Label>
+                        <div 
+                          className={`cursor-pointer p-4 rounded-full transition-all ${
+                            field.value === 'female' 
+                              ? 'bg-pink-500/20 border-2 border-pink-400' 
+                              : 'bg-gray-600/20 border-2 border-gray-500/30 hover:bg-pink-500/10'
+                          }`}
+                          onClick={() => field.onChange('female')}
+                        >
+                          <div className="w-12 h-12 rounded-full bg-pink-500 flex items-center justify-center">
+                            <span className="text-white font-bold text-xl">♀</span>
+                          </div>
                         </div>
-                      </RadioGroup>
+                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
 
-              {/* Class Selection - Simple dropdown style */}
+              {/* Class Selection */}
               <FormField
                 control={form.control}
                 name="class"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-amber-400 font-medium">Lớp nhân vật:</FormLabel>
+                    <FormLabel className="text-amber-400 font-medium">职业选择</FormLabel>
                     <FormControl>
                       <RadioGroup
                         onValueChange={field.onChange}
                         defaultValue={field.value}
-                        className="space-y-2"
+                        className="space-y-3"
                       >
-                        <div className="flex items-center space-x-2">
+                        <div className="flex items-center space-x-3">
                           <RadioGroupItem value="sword" id="sword" />
                           <Label htmlFor="sword" className="text-white cursor-pointer flex items-center">
-                            <Sword className="w-4 h-4 mr-2 text-red-400" />
-                            Kiếm Khách
+                            <Sword className="w-5 h-5 mr-2 text-red-400" />
+                            剑客 - 近战物理攻击
                           </Label>
                         </div>
-                        <div className="flex items-center space-x-2">
+                        <div className="flex items-center space-x-3">
                           <RadioGroupItem value="magic" id="magic" />
                           <Label htmlFor="magic" className="text-white cursor-pointer flex items-center">
-                            <Zap className="w-4 h-4 mr-2 text-purple-400" />
-                            Pháp Sư
+                            <Zap className="w-5 h-5 mr-2 text-purple-400" />
+                            法师 - 远程魔法攻击
                           </Label>
                         </div>
-                        <div className="flex items-center space-x-2">
+                        <div className="flex items-center space-x-3">
                           <RadioGroupItem value="defense" id="defense" />
                           <Label htmlFor="defense" className="text-white cursor-pointer flex items-center">
-                            <Shield className="w-4 h-4 mr-2 text-blue-400" />
-                            Hộ Vệ
+                            <Shield className="w-5 h-5 mr-2 text-blue-400" />
+                            护卫 - 防御与支援
                           </Label>
                         </div>
                       </RadioGroup>
@@ -194,12 +199,18 @@ const CharacterCreation = ({ onComplete }: CharacterCreationProps) => {
                 )}
               />
 
+              {/* Create Button */}
               <div className="pt-4">
                 <Button 
                   type="submit" 
-                  className="w-full bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 shadow-lg"
+                  className="w-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-bold py-3 text-lg shadow-lg border-2 border-orange-400"
+                  style={{
+                    background: 'linear-gradient(45deg, #f97316, #f59e0b)',
+                    borderRadius: '8px',
+                    textShadow: '1px 1px 2px rgba(0,0,0,0.5)'
+                  }}
                 >
-                  Tạo Nhân Vật
+                  创建角色
                 </Button>
               </div>
             </form>
