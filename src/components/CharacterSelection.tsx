@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -14,7 +15,8 @@ import {
   Crown,
   Star,
   ArrowLeft,
-  Flame
+  Flame,
+  HelpCircle
 } from 'lucide-react';
 import CharacterCreation from './CharacterCreation';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -23,7 +25,7 @@ interface Character {
   id: string;
   name: string;
   gender: 'male' | 'female';
-  class: 'thien_kiem' | 'anh_vu' | 'thien_am' | 'loi_tong' | 'huyet_ma' | 'van_mong' | 'huyen_vu' | 'xich_diem';
+  class?: 'thien_kiem' | 'anh_vu' | 'thien_am' | 'loi_tong' | 'huyet_ma' | 'van_mong' | 'huyen_vu' | 'xich_diem';
   level: number;
   realm: string;
   combatPower: number;
@@ -47,7 +49,18 @@ const CharacterSelection = ({ onCharacterSelect, onBack }: CharacterSelectionPro
   const [showCreateCharacter, setShowCreateCharacter] = useState(false);
   const isMobile = useIsMobile();
 
-  const getClassInfo = (classType: 'thien_kiem' | 'anh_vu' | 'thien_am' | 'loi_tong' | 'huyet_ma' | 'van_mong' | 'huyen_vu' | 'xich_diem') => {
+  const getClassInfo = (classType?: 'thien_kiem' | 'anh_vu' | 'thien_am' | 'loi_tong' | 'huyet_ma' | 'van_mong' | 'huyen_vu' | 'xich_diem') => {
+    if (!classType) {
+      return {
+        name: 'Chưa chọn tông môn',
+        icon: HelpCircle,
+        color: 'text-gray-400',
+        bgGradient: 'from-gray-500/20 to-gray-600/20',
+        wings: 'from-gray-500 to-gray-600',
+        platform: 'from-gray-500/40 to-gray-600/40'
+      };
+    }
+
     switch (classType) {
       case 'thien_kiem':
         return { 
@@ -121,19 +134,27 @@ const CharacterSelection = ({ onCharacterSelect, onBack }: CharacterSelectionPro
           wings: 'from-orange-500 to-red-500',
           platform: 'from-red-500/40 to-orange-500/40'
         };
+      default:
+        return {
+          name: 'Chưa chọn tông môn',
+          icon: HelpCircle,
+          color: 'text-gray-400',
+          bgGradient: 'from-gray-500/20 to-gray-600/20',
+          wings: 'from-gray-500 to-gray-600',
+          platform: 'from-gray-500/40 to-gray-600/40'
+        };
     }
   };
 
   const handleCreateCharacter = (newCharacter: {
     name: string;
     gender: 'male' | 'female';
-    class: 'thien_kiem' | 'anh_vu' | 'thien_am' | 'loi_tong' | 'huyet_ma' | 'van_mong' | 'huyen_vu' | 'xich_diem';
   }) => {
     const character: Character = {
       id: Date.now().toString(),
       name: newCharacter.name,
       gender: newCharacter.gender,
-      class: newCharacter.class,
+      // class will be assigned later after story completion
       level: 1,
       realm: 'Phàm Nhân',
       combatPower: 100,
@@ -169,7 +190,7 @@ const CharacterSelection = ({ onCharacterSelect, onBack }: CharacterSelectionPro
   };
 
   const currentCharacter = characters.find(c => c.id === selectedCharacter);
-  const classInfo = currentCharacter ? getClassInfo(currentCharacter.class) : null;
+  const classInfo = getClassInfo(currentCharacter?.class);
 
   return (
     <div 
@@ -231,6 +252,9 @@ const CharacterSelection = ({ onCharacterSelect, onBack }: CharacterSelectionPro
                   </Card>
                 </DialogTrigger>
                 <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-black/95 border-amber-500/30">
+                  <DialogHeader>
+                    <DialogTitle>Tạo Nhân Vật Mới</DialogTitle>
+                  </DialogHeader>
                   <CharacterCreation onComplete={handleCreateCharacter} />
                 </DialogContent>
               </Dialog>
@@ -293,6 +317,9 @@ const CharacterSelection = ({ onCharacterSelect, onBack }: CharacterSelectionPro
                       </Card>
                     </DialogTrigger>
                     <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-black/95 border-amber-500/30">
+                      <DialogHeader>
+                        <DialogTitle>Tạo Nhân Vật Mới</DialogTitle>
+                      </DialogHeader>
                       <CharacterCreation onComplete={handleCreateCharacter} />
                     </DialogContent>
                   </Dialog>
@@ -306,23 +333,23 @@ const CharacterSelection = ({ onCharacterSelect, onBack }: CharacterSelectionPro
             {currentCharacter ? (
               <div className="relative">
                 {/* Character Platform */}
-                <div className={`w-80 h-80 rounded-full bg-gradient-to-r ${classInfo?.platform} opacity-30 absolute bottom-0 left-1/2 transform -translate-x-1/2 animate-pulse`} />
+                <div className={`w-80 h-80 rounded-full bg-gradient-to-r ${classInfo.platform} opacity-30 absolute bottom-0 left-1/2 transform -translate-x-1/2 animate-pulse`} />
                 
                 {/* Wings Effect */}
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <div className={`w-96 h-96 bg-gradient-to-r ${classInfo?.wings} opacity-20 rounded-full animate-pulse`} style={{ clipPath: 'polygon(20% 0%, 80% 0%, 100% 50%, 80% 100%, 20% 100%, 0% 50%)' }} />
+                  <div className={`w-96 h-96 bg-gradient-to-r ${classInfo.wings} opacity-20 rounded-full animate-pulse`} style={{ clipPath: 'polygon(20% 0%, 80% 0%, 100% 50%, 80% 100%, 20% 100%, 0% 50%)' }} />
                 </div>
                 
                 {/* Character Avatar */}
                 <div className="relative z-10 w-64 h-80 flex flex-col items-center justify-center">
                   <div className="w-32 h-32 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 flex items-center justify-center mb-4 shadow-2xl golden-glow">
-                    {classInfo && <classInfo.icon className="w-16 h-16 text-white" />}
+                    <classInfo.icon className="w-16 h-16 text-white" />
                   </div>
                   
                   {/* Character Info */}
                   <div className="text-center space-y-2 bg-black/60 backdrop-blur-sm rounded-lg p-4">
                     <h2 className="text-2xl font-bold text-amber-400">{currentCharacter.name}</h2>
-                    <p className={`${classInfo?.color} text-lg`}>{classInfo?.name}</p>
+                    <p className={`${classInfo.color} text-lg`}>{classInfo.name}</p>
                     <div className="space-y-1 text-sm">
                       <div className="flex justify-between">
                         <span className="text-gray-400">Cấp độ:</span>
@@ -378,6 +405,25 @@ const CharacterSelection = ({ onCharacterSelect, onBack }: CharacterSelectionPro
       </div>
     </div>
   );
+
+  function handleDeleteCharacter(characterId: string) {
+    const updatedCharacters = characters.filter(char => char.id !== characterId);
+    setCharacters(updatedCharacters);
+    localStorage.setItem('gameCharacters', JSON.stringify(updatedCharacters));
+    
+    if (selectedCharacter === characterId) {
+      setSelectedCharacter(updatedCharacters.length > 0 ? updatedCharacters[0].id : null);
+    }
+  }
+
+  function handleSelectCharacter(character: Character) {
+    localStorage.setItem('playerCharacter', JSON.stringify({
+      name: character.name,
+      gender: character.gender,
+      class: character.class
+    }));
+    onCharacterSelect(character);
+  }
 };
 
 export default CharacterSelection;
