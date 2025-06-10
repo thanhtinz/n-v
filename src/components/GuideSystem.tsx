@@ -36,6 +36,19 @@ import {
   Check
 } from 'lucide-react';
 
+interface GuideContentItem {
+  type: string;
+  content: string | string[] | any;
+}
+
+interface Guide {
+  id: string;
+  title: string;
+  difficulty: string;
+  duration: string;
+  content: GuideContentItem[];
+}
+
 const GuideSystem = () => {
   const [activeCategory, setActiveCategory] = useState('basics');
   const [searchTerm, setSearchTerm] = useState('');
@@ -106,7 +119,7 @@ const GuideSystem = () => {
     }
   ];
 
-  const guides = {
+  const guides: Record<string, Guide[]> = {
     basics: [
       {
         id: 'getting-started',
@@ -548,15 +561,15 @@ const GuideSystem = () => {
       acc[category] = filtered;
     }
     return acc;
-  }, {} as any);
+  }, {} as Record<string, Guide[]>);
 
-  const renderGuideContent = (content: any[]) => {
+  const renderGuideContent = (content: GuideContentItem[]) => {
     return content.map((item, index) => {
       switch (item.type) {
         case 'text':
           return (
             <p key={index} className="text-sm text-muted-foreground mb-4 leading-relaxed">
-              {item.content}
+              {typeof item.content === 'string' ? item.content : ''}
             </p>
           );
         
@@ -568,7 +581,7 @@ const GuideSystem = () => {
                 Các Bước Thực Hiện:
               </h4>
               <ol className="space-y-2">
-                {item.content.map((step: string, stepIndex: number) => (
+                {Array.isArray(item.content) && item.content.map((step: string, stepIndex: number) => (
                   <li key={stepIndex} className="flex items-start gap-2 text-sm">
                     <Badge variant="outline" className="min-w-6 h-6 rounded-full p-0 flex items-center justify-center text-xs">
                       {stepIndex + 1}
@@ -585,7 +598,7 @@ const GuideSystem = () => {
             <div key={index} className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
               <div className="flex items-start gap-2">
                 <Lightbulb className="w-4 h-4 text-blue-500 mt-0.5" />
-                <p className="text-sm text-blue-700">{item.content}</p>
+                <p className="text-sm text-blue-700">{typeof item.content === 'string' ? item.content : ''}</p>
               </div>
             </div>
           );
@@ -593,7 +606,7 @@ const GuideSystem = () => {
         case 'feature-list':
           return (
             <div key={index} className="space-y-3 mb-4">
-              {item.content.map((feature: any, featureIndex: number) => (
+              {Array.isArray(item.content) && item.content.map((feature: any, featureIndex: number) => (
                 <div key={featureIndex} className="flex items-start gap-3 p-3 bg-muted/30 rounded-lg">
                   <ChevronRight className="w-4 h-4 text-primary mt-0.5" />
                   <div>
@@ -685,7 +698,7 @@ const GuideSystem = () => {
                 Kết quả tìm kiếm trong {guideCategories.find(c => c.id === category)?.name}
               </h3>
               <div className="space-y-3">
-                {categoryGuides.map((guide: any) => (
+                {categoryGuides.map((guide: Guide) => (
                   <Card key={guide.id} className="p-4">
                     <div className="flex items-start justify-between mb-3">
                       <div>
@@ -730,7 +743,7 @@ const GuideSystem = () => {
         ) : (
           // Category Guides
           <div className="space-y-3">
-            {guides[activeCategory as keyof typeof guides]?.map((guide: any) => (
+            {guides[activeCategory]?.map((guide: Guide) => (
               <Card key={guide.id} className="p-4">
                 <div className="flex items-start justify-between mb-3">
                   <div>
