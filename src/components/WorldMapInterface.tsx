@@ -47,6 +47,7 @@ import SocialSystem from './SocialSystem';
 import PetSystem from './PetSystem';
 import ChatSystem from './ChatSystem';
 import SettingsSystem from './SettingsSystem';
+import CharacterLayout from './CharacterLayout';
 
 const WorldMapInterface = () => {
   const [activeSystem, setActiveSystem] = useState<string | null>(null);
@@ -147,6 +148,8 @@ const WorldMapInterface = () => {
     switch (activeSystem) {
       case 'overview':
         return <PlayerOverview />;
+      case 'character':
+        return <CharacterLayout />;
       case 'home':
         return <HomeSystem />;
       case 'combat':
@@ -315,10 +318,10 @@ const WorldMapInterface = () => {
             <Button
               variant="ghost"
               className="flex flex-col items-center gap-0.5 sm:gap-1 h-auto py-1.5 sm:py-2 text-white hover:text-cultivator-gold"
-              onClick={() => handleAreaClick('overview')}
+              onClick={() => handleAreaClick('character')}
             >
               <User className="w-4 h-4 sm:w-6 sm:h-6" />
-              <span className="text-xs">Thông Tin</span>
+              <span className="text-xs">Cá Nhân</span>
             </Button>
             
             <Button
