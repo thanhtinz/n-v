@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import CharacterDisplay from './CharacterDisplay';
+import CanvasCharacterDisplay from './CanvasCharacterDisplay';
 
 interface Equipment {
   clothing: string;
@@ -46,6 +47,16 @@ const CentralDisplay = ({
   const [displayMode, setDisplayMode] = useState<'character' | 'combat' | 'tribulation' | 'sect' | 'cultivation' | 'home'>('character');
   const [combatEffects, setCombatEffects] = useState<Array<{ id: number; type: string; x: number; y: number }>>([]);
   const [tribulationClouds, setTribulationClouds] = useState<Array<{ id: number; x: number; y: number; opacity: number }>>([]);
+
+  // Map player class to character class
+  const getCharacterClass = (playerClass: 'sword' | 'magic' | 'defense') => {
+    switch (playerClass) {
+      case 'sword': return 'thien_kiem';
+      case 'magic': return 'thien_am';
+      case 'defense': return 'huyen_vu';
+      default: return 'thien_kiem';
+    }
+  };
 
   useEffect(() => {
     // Determine display mode based on active tab and states
@@ -394,11 +405,14 @@ const CentralDisplay = ({
       {displayMode === 'cultivation' && renderCultivationDisplay()}
       {displayMode === 'home' && renderHomeDisplay()}
       {displayMode === 'character' && (
-        <CharacterDisplay
+        <CanvasCharacterDisplay
           realm={player.realm}
           equipment={player.equipment}
           name={player.name}
+          class={getCharacterClass(player.class)}
           isActive={activeTab === 'cultivation'}
+          width={320}
+          height={400}
         />
       )}
     </div>
