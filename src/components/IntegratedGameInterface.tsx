@@ -420,7 +420,108 @@ const IntegratedGameInterface = () => {
             <GuideSystem />
           </TabsContent>
 
-          {/* ... keep all existing TabsContent exactly the same ... */}
+          <TabsContent value="admin" className="mt-0">
+            <AdminSystem />
+          </TabsContent>
+
+          <TabsContent value="home" className="mt-0">
+            <HomeSystem />
+          </TabsContent>
+
+          <TabsContent value="pet" className="mt-0">
+            <PetSystem />
+          </TabsContent>
+
+          <TabsContent value="activities" className="mt-0">
+            <DailyActivitiesSystem />
+          </TabsContent>
+
+          <TabsContent value="guild" className="mt-0">
+            <GuildSystem />
+          </TabsContent>
+
+          <TabsContent value="shop" className="mt-0">
+            <ShopSystem />
+          </TabsContent>
+
+          <TabsContent value="inventory" className="mt-0">
+            <InventorySystem 
+              playerGender={playerInfo.gender as 'male' | 'female'}
+              playerClass={playerInfo.class as 'sword' | 'magic' | 'defense'}
+            />
+          </TabsContent>
+
+          <TabsContent value="combat" className="mt-0">
+            <CombatSystem />
+          </TabsContent>
+
+          <TabsContent value="cultivation" className="mt-0">
+            <CultivationSystem />
+          </TabsContent>
+
+          <TabsContent value="offline" className="mt-0">
+            <OfflineCultivationSystem />
+          </TabsContent>
+
+          <TabsContent value="story" className="mt-0">
+            <StorySystem />
+          </TabsContent>
+
+          <TabsContent value="enhancement" className="mt-0">
+            <EnhancementSystem />
+          </TabsContent>
+
+          <TabsContent value="quest" className="mt-0">
+            <QuestSystem />
+          </TabsContent>
+
+          <TabsContent value="event" className="mt-0">
+            <EventSystem />
+          </TabsContent>
+
+          <TabsContent value="sect" className="mt-0">
+            <SectSystem />
+          </TabsContent>
+
+          <TabsContent value="ranking" className="mt-0">
+            <RankingSystem />
+          </TabsContent>
+
+          <TabsContent value="welfare" className="mt-0">
+            <WelfareSystem />
+          </TabsContent>
+
+          <TabsContent value="social" className="mt-0">
+            <SocialSystem />
+          </TabsContent>
+
+          <TabsContent value="chat" className="mt-0">
+            <ChatSystem />
+          </TabsContent>
+
+          <TabsContent value="notifications" className="mt-0">
+            <NotificationSystem />
+          </TabsContent>
+
+          <TabsContent value="settings" className="mt-0">
+            <SettingsSystem />
+          </TabsContent>
+
+          <TabsContent value="music" className="mt-0">
+            <MusicSystem />
+          </TabsContent>
+
+          <TabsContent value="auth" className="mt-0">
+            <AuthSystem />
+          </TabsContent>
+
+          <TabsContent value="entertainment" className="mt-0">
+            <EntertainmentSystem />
+          </TabsContent>
+
+          <TabsContent value="market" className="mt-0">
+            <MarketSystem />
+          </TabsContent>
         </Tabs>
       </div>
     </div>
